@@ -1,0 +1,29 @@
+# IntelliJ IDEA project files
+.idea/
+*.iml
+*.iws
+out/
+*.class
+
+# Java build directories
+target/
+bin/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log
+
+# Node/Frontend (if you have a Node.js frontend)
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-error.log*
+
+# Environment files
+.env

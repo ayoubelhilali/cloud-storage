@@ -1,0 +1,4 @@
+package main.java.com.cloudstorage.model;
+
+public class ShareLink {
+}

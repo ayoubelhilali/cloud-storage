@@ -1,29 +1,38 @@
-package main.java.com.cloudstorage.fx;
+package com.cloudstorage.fx;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Create a simple layout with a label
-        StackPane root = new StackPane();
-        root.getChildren().add(new Label("Welcome to Cloud Storage!"));
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/HomePage.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
 
-        // Create a scene with the layout
-        Scene scene = new Scene(root, 400, 200); // width=400, height=200
+            stage.setTitle("One Cloud");
+            stage.setScene(scene);
 
-        // Set stage properties
-        stage.setTitle("Cloud Storage Login");
-        stage.setScene(scene);
-        stage.show();
+            // ✅ Add app logo (make sure the path is correct)
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/logo-sm.png")));
+
+            // ✅ Set default and min sizes
+            stage.setWidth(800);
+            stage.setHeight(500);
+            stage.setMinWidth(700);
+            stage.setMinHeight(400);
+
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
-        launch(args);
+        launch();
     }
 }

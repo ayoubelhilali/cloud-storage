@@ -1,0 +1,98 @@
+/* Root */
+.home-root {
+    -fx-background-color: #022e7c;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.left-container {
+    -fx-background-color: #ffffff;
+}
+
+.right-container {
+    -fx-background-color: #022E7CFF;
+}
+
+.bg-image {
+    -fx-pref-width: 300;
+    -fx-alignment: top;
+}
+
+.top-left-section {
+    -fx-background-color: #022E7CFF;
+    -fx-background-radius: 0 0 0 0;
+    -fx-alignment: center;
+}
+
+/* Top Right */
+.top-right-section {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 500 0 0 0;
+    -fx-alignment: bottom;
+    -fx-padding: 10px;
+}
+
+/* Bottom Left */
+.bottom-left-section {
+    -fx-background-color: #022E7CFF;
+    -fx-background-radius: 0 0 500 0;
+}
+
+/* Bottom Right */
+.bottom-right-section {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0 0 0 0;
+    -fx-alignment: top;
+}
+
+/* Titles */
+.left-title, .home-title {
+    -fx-font-weight: bold;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+}
+
+.subtitle {
+    -fx-text-fill: #032a70;
+    -fx-font-size: 1.5em;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+}
+
+/* Responsive text */
+
+.home-title {
+    -fx-text-fill: #3B82F6;
+    -fx-font-size: 2.7em;
+}
+
+/* Button */
+.register-button {
+    -fx-background-color: #3B82F6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 25;
+    -fx-padding: 10px 25px;
+    -fx-cursor: hand;
+    -fx-font-size: 1.1em;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+.register-button:hover {
+    -fx-background-color: #2563EB;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);
+}
+
+.login-button {
+    -fx-background-color: white;
+    -fx-text-fill: #3B82F6;
+    -fx-font-weight: bold;
+    -fx-background-radius: 25;
+    -fx-border-radius: 25;
+    -fx-border-style: solid;
+    -fx-border-color: #3B82F6;
+    -fx-border-insets: 1px;
+    -fx-padding: 10px 25px;
+    -fx-cursor: hand;
+    -fx-font-size: 1.1em;
+    -fx-pref-width: 120;
+}

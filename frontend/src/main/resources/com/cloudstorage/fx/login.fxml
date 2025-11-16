@@ -17,7 +17,8 @@
             <PasswordField fx:id="passwordField" promptText="Password"/>
 
             <Button fx:id="loginButton" text="Login"
-                    style="-fx-background-color: #0078d7; -fx-text-fill: white;"/>
+                    style="-fx-background-color: #0078d7; -fx-text-fill: white;"
+                    onAction="#handleLogin"/>
 
             <Label fx:id="statusLabel" text="" style="-fx-text-fill: #333;"/>
         </VBox>

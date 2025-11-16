@@ -1,4 +1,4 @@
-package main.java.com.cloudstorage.service;
+package com.cloudstorage.service;
 
 public class AuthService {
 }

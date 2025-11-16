@@ -1,4 +1,4 @@
-package main.java.com.cloudstorage.server;
+package com.cloudstorage.server;
 
 public class HttpServer {
 }

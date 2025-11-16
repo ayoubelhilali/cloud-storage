@@ -1,4 +1,4 @@
-package main.java.com.cloudstorage.database;
+package com.cloudstorage.database;
 
 public class UserDAO {
 

@@ -1,4 +1,4 @@
-package main.java.com.cloudstorage.controller;
+package com.cloudstorage.controller;
 
 public class FileController {
 }

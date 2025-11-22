@@ -1,0 +1,113 @@
+/* Root Configuration */
+.home-root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* --- CONTAINER COLORS & SHAPES --- */
+
+/* Left Column */
+.left-container {
+    -fx-background-color: transparent;
+}
+
+.top-left-section {
+    -fx-background-color: #ffffff;
+    -fx-alignment: center; /* Fixed alignment */
+}
+
+.bottom-left-section {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0 100 0 0;
+    -fx-alignment: center; /* Fixed alignment */
+}
+
+/* Right Column */
+.right-container {
+    -fx-background-color: transparent;
+}
+
+.top-right-section {
+    -fx-background-color: #022e7c;
+    -fx-background-radius: 100 0 0 ;
+    -fx-alignment: center; /* Fixed: 'center', not just 'top' or 'bottom' */
+}
+
+.bottom-right-section {
+    -fx-background-color: #022e7c;
+    -fx-alignment: top-center; /* Fixed: MUST be 'top-center', not 'top' */
+}
+
+#logoImage {
+    -fx-cursor: hand;
+}
+
+/* --- TYPOGRAPHY (Using em for responsive scaling) --- */
+
+.header-title {
+    -fx-text-fill: #022e7c;
+    -fx-font-size: 2.5em;
+    -fx-font-weight: bold;
+}
+
+.header-subtitle {
+    -fx-text-fill: #666666;
+    -fx-font-size: 1.1em;
+    -fx-font-weight: normal;
+    -fx-text-alignment: left;
+    -fx-wrap-text: true;
+}
+
+.input-label {
+    -fx-text-fill: #555555;
+    -fx-font-size: 1.0em;
+    -fx-font-weight: bold;
+}
+
+/* --- FORM CONTROLS --- */
+
+.text-field {
+    -fx-background-color: #f4f4f4;
+    -fx-border-color: #dedede;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 0.6em 0.8em;
+    -fx-text-fill: #333333;
+    -fx-font-size: 1em;
+}
+
+.text-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #0078d7;
+    -fx-effect: dropshadow(gaussian, rgba(0,120,215,0.3), 5, 0, 0, 0);
+}
+
+/* --- BUTTONS --- */
+
+.register-button {
+    -fx-background-color: green;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 1.2em;
+    -fx-padding: 0.7em 1.5em;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.register-button:hover {
+    -fx-background-color: #005700;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);
+}
+
+.register-button:pressed {
+    -fx-background-color: #005700;
+}
+
+.register-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: blue;
+    -fx-font-size: 1.1em;
+    -fx-font-weight: 200;
+    -fx-cursor: hand;
+}

@@ -45,6 +45,18 @@ public class HomeController {
         }
     }
     @FXML
+    private void OpenRegisterPage(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/register.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) registerButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Create account");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
     public void initialize() {
         setupSmoothHover(loginButton);
         // size dyal l'image ktbdel automatiquement mli ktbdel size dyal lwindow

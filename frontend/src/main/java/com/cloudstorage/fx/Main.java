@@ -17,14 +17,14 @@ public class Main extends Application {
             stage.setTitle("One Cloud");
             stage.setScene(scene);
 
-            // ✅ Add app logo (make sure the path is correct)
+            // Add app logo (make sure the path is correct)
             stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/logo-sm.png")));
 
-            // ✅ Set default and min sizes
-            stage.setWidth(800);
+            // Set default and min sizes
             stage.setHeight(500);
-            stage.setMinWidth(700);
-            stage.setMinHeight(400);
+            stage.setWidth(800);
+            stage.setMinWidth(850);
+            stage.setMinHeight(550);
 
             stage.show();
         } catch (Exception e) {

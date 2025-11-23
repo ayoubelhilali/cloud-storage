@@ -2,26 +2,19 @@ package com.cloudstorage.database;
 
 public class LoginUser {
 
-    public static void main(String[] args) {
+    private final UserDAO dao = new UserDAO();
 
-        // Create DAO object
-        UserDAO dao = new UserDAO();
-
-        // User credentials to test
-        String username = "babou";       // The username you registered
-        String password = "123456";      // The plain text password
-
-        // Hash the password the same way you did during registration
+    /**
+     * Attempt login with username/email and password
+     * @param usernameOrEmail email or username
+     * @param password plain text password
+     * @return true if login successful, false otherwise
+     */
+    public boolean login(String usernameOrEmail, String password) {
+        // Hash password
         String hashedPassword = PasswordUtil.hash(password);
 
-        // Attempt login
-        boolean loggedIn = dao.login(username, hashedPassword);
-
-        // Print result
-        if (loggedIn) {
-            System.out.println("Login successful!");
-        } else {
-            System.out.println("Login failed!");
-        }
+        // Call DAO
+        return dao.login(usernameOrEmail, hashedPassword);
     }
 }

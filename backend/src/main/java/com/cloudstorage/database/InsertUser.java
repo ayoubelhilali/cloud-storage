@@ -2,25 +2,53 @@ package com.cloudstorage.database;
 
 public class InsertUser {
 
-    public static void main(String[] args) {
+    private final UserDAO dao = new UserDAO();
 
-        UserDAO dao = new UserDAO();
+    // ✅ Validation
+    public String validateInputs(String email, String password) {
 
-        String username = "ayoub";
-        String email = "ayoub@mail.com";
-        String password = "1234567";
-        String first = "Ayoub";
-        String last = "Elhilali";
+        if (email == null || email.trim().isEmpty()) {
+            return "Email is required.";
+        }
 
-        // hash password
+        if (!email.contains("@") || !email.contains(".")) {
+            return "Invalid email format.";
+        }
+
+        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            return "Invalid email format.";
+        }
+
+        if (password == null || password.isEmpty()) {
+            return "Password is required.";
+        }
+
+        if (!password.matches("^(?=.*[!@#$%^&*()_+=\\-{}\\[\\]:;\"'<>,.?/]).{8,}$")) {
+            return "Password must contain at least 8 characters and one special symbol.";
+        }
+
+        return null;
+    }
+
+    // ✅ Retourne un message d’erreur OU null si succès
+    public String registerNewUser(String email, String password, String first, String last) {
+
+        String validationError = validateInputs(email, password);
+
+        if (validationError != null) {
+            return validationError;
+        }
+
         String hashedPassword = PasswordUtil.hash(password);
+
+        String username = email.substring(0, email.indexOf("@"));
 
         boolean success = dao.registerUser(username, email, hashedPassword, first, last);
 
-        if (success) {
-            System.out.println("User inserted successfully!");
-        } else {
-            System.out.println("Failed to insert user.");
+        if (!success) {
+            return "Database error: failed to insert user.";
         }
+
+        return null; // ✅ succès
     }
 }

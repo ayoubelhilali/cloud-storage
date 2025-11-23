@@ -1,27 +1,26 @@
 package com.cloudstorage.database;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-
 public class InsertUser {
+
     public static void main(String[] args) {
-        String insertSQL = "INSERT INTO users (name, email, age) VALUES (?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(insertSQL)) {
+        UserDAO dao = new UserDAO();
 
-            // Example data
-            pstmt.setString(1, "Ayoub Elhilali");
-            pstmt.setString(2, "ayoub@example.com");
-            pstmt.setInt(3, 20);
+        String username = "ayoub";
+        String email = "ayoub@mail.com";
+        String password = "1234567";
+        String first = "Ayoub";
+        String last = "Elhilali";
 
-            int rows = pstmt.executeUpdate();
-            System.out.println("✅ Inserted " + rows + " row(s).");
+        // hash password
+        String hashedPassword = PasswordUtil.hash(password);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DatabaseConnection.closeConnection();
+        boolean success = dao.registerUser(username, email, hashedPassword, first, last);
+
+        if (success) {
+            System.out.println("User inserted successfully!");
+        } else {
+            System.out.println("Failed to insert user.");
         }
     }
 }

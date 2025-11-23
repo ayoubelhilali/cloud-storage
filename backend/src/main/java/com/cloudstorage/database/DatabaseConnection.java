@@ -1,55 +1,23 @@
 package com.cloudstorage.database;
 
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class DatabaseConnection {
-    private static Connection connection = null;
 
+    private static final String URL = "jdbc:postgresql://ep-ancient-bonus-ah5am2mw-pooler.c-3.us-east-1.aws.neon.tech:5432/neondb";
+    private static final String USER = "neondb_owner";
+    private static final String PASSWORD = "npg_gNFXh36eDVMO";
+
+    // Get a new database connection
     public static Connection getConnection() {
-        if (connection == null) {
-            try {
-                Properties props = new Properties();
-
-                // ⚡ Load config.properties from resources folder (Maven-friendly)
-                try (InputStream input = DatabaseConnection.class.getResourceAsStream("/config.properties")) {
-                    if (input == null) {
-                        System.err.println("❌ config.properties not found in resources folder!");
-                        return null;
-                    }
-                    props.load(input);
-                }
-
-                String url = props.getProperty("db.url");
-                String user = props.getProperty("db.user");
-                String password = props.getProperty("db.password");
-
-                // Load PostgreSQL driver and connect
-                Class.forName("org.postgresql.Driver");
-                connection = DriverManager.getConnection(url, user, password);
-                System.out.println("✅ Database connection successful!");
-            } catch (ClassNotFoundException | SQLException e) {
-                System.err.println("❌ Connection failed: " + e.getMessage());
-                e.printStackTrace();
-            } catch (Exception e) {
-                System.err.println("❌ Error loading properties: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-        return connection;
-    }
-
-    public static void closeConnection() {
         try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-                System.out.println("🔒 Connection closed.");
-            }
+            return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (SQLException e) {
-            e.printStackTrace();
+            // Log error and return null if connection fails
+            System.err.println("Failed to connect to database: " + e.getMessage());
+            return null;
         }
     }
 }

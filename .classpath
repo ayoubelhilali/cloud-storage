@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="backend/src"/>
+	<classpathentry kind="src" path="frontend/src"/>
+	<classpathentry kind="lib" path="backend/lib/bcrypt-0.10.2.jar"/>
+	<classpathentry kind="lib" path="backend/lib/gson-2.10.1.jar"/>
+	<classpathentry kind="lib" path="backend/lib/minio-8.5.2.jar"/>
+	<classpathentry kind="lib" path="backend/lib/mysql-connector-java-8.0.33.jar"/>
+	<classpathentry kind="lib" path="frontend/lib/javafx-controls-19.jar"/>
+	<classpathentry kind="lib" path="frontend/lib/javafx-fxml-19.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

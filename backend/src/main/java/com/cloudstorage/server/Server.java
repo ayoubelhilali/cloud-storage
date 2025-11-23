@@ -2,11 +2,11 @@
 package com.cloudstorage.server;
 
 import com.sun.net.httpserver.HttpServer;
-import com.cloudstorage.controller.UserController;
-import com.cloudstorage.service.MinioService;
-import com.cloudstorage.server.ResponseBuilder;
+
 import java.net.InetSocketAddress;
 import java.io.OutputStream;
+
+import com.cloudstorage.controller.UserController;
 
 public class Server {
     public static void main(String[] args) throws Exception {

@@ -1,9 +1,10 @@
-# IntelliJ IDEA project files
+# IntelliJ IDEA and vs code project files
 .idea/
 *.iml
 *.iws
 out/
 *.class
+.vscode/
 
 # Java build directories
 target/

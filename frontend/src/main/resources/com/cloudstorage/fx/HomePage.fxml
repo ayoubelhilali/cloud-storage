@@ -84,7 +84,7 @@
                     <padding>
                         <Insets top="20"/>
                     </padding>
-                    <Button fx:id="registerButton" text="Get started" styleClass="register-button"/>
+                    <Button fx:id="registerButton" text="Get started" styleClass="register-button" onAction="#OpenRegisterPage"/>
                     <Button fx:id="loginButton"
                             text="Login"
                             onAction="#openLoginPage"

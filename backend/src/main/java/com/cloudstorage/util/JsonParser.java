@@ -1,4 +1,4 @@
-package main.java.com.cloudstorage.util;
+package com.cloudstorage.util;
 
 public class JsonParser {
 }

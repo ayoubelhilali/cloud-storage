@@ -1,4 +1,4 @@
-package main.java.com.cloudstorage.security;
+package com.cloudstorage.security;
 
 public class JwtToken {
 }

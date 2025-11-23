@@ -1,6 +1,7 @@
 // com.cloudstorage.server.Server.java
 package com.cloudstorage.server;
 
+import com.cloudstorage.service.MinioService;
 import com.sun.net.httpserver.HttpServer;
 
 import java.net.InetSocketAddress;

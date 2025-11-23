@@ -1,4 +1,4 @@
 package com.cloudstorage.database;
 
-public class DatabaseConnection {
+public class PasswordUtil {
 }

@@ -33,15 +33,17 @@ public class UserDAO {
 
 
     // ---------- LOGIN ----------
-    public boolean login(String username, String passwordHash) {
+    public boolean login(String login, String passwordHash) {
 
-        String sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
+        // Check if the login matches either username or email
+        String sql = "SELECT * FROM users WHERE (username = ? OR email = ?) AND password_hash = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, username);
-            stmt.setString(2, passwordHash);
+            stmt.setString(1, login); // could be username
+            stmt.setString(2, login); // could be email
+            stmt.setString(3, passwordHash);
 
             ResultSet rs = stmt.executeQuery();
 

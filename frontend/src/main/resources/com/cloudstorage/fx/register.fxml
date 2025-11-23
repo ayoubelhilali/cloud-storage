@@ -25,7 +25,7 @@
 
         <!-- Bottom Left: Form Area (Curved Top Right) -->
         <StackPane fx:id="bottomLeft" styleClass="bottom-left-section" VBox.vgrow="ALWAYS">
-            <VBox fx:id="formBox" spacing="15" alignment="TOP_LEFT">
+            <VBox fx:id="formBox" spacing="10" alignment="TOP_LEFT">
                 <!-- INPUTS -->
                 <VBox spacing="5" VBox.vgrow="ALWAYS">
                     <Label text="Complete name:" styleClass="input-label"/>
@@ -38,16 +38,19 @@
                 <VBox spacing="5">
                     <Label text="Email:" styleClass="input-label"/>
                     <TextField fx:id="emailField" promptText="example@email.com" styleClass="text-field"/>
+                    <Label fx:id="emailError" style="-fx-text-fill: red; -fx-font-size: 0.9em;"/>
                 </VBox>
 
                 <VBox spacing="5">
                     <Label text="Password:" styleClass="input-label"/>
                     <PasswordField fx:id="passwordField" promptText="Enter your password" styleClass="text-field"/>
+                    <Label fx:id="passwordError" style="-fx-text-fill: red; -fx-font-size: 0.9em;"/>
                 </VBox>
 
                 <VBox spacing="5">
                     <Label text="Confirm password:" styleClass="input-label"/>
                     <PasswordField fx:id="confPasswordField" promptText="Confirm your password" styleClass="text-field"/>
+                    <Label fx:id="confirmError" style="-fx-text-fill: red; -fx-font-size: 0.9em;"/>
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" maxHeight="20"/>

@@ -1,6 +1,7 @@
 // com.cloudstorage.server.Server.java
 package com.cloudstorage.server;
 
+import com.cloudstorage.service.MinioService;
 import com.sun.net.httpserver.HttpServer;
 
 import java.net.InetSocketAddress;
@@ -10,7 +11,7 @@ import com.cloudstorage.controller.UserController;
 
 public class Server {
     public static void main(String[] args) throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
         server.createContext("/api/addUser", UserController::handleInsertUser);
 
         // New endpoint for MinIO status
@@ -26,7 +27,7 @@ public class Server {
         });
 
         server.start();
-        System.out.println("🚀 Server running on http://localhost:8080");
+        System.out.println("🚀 Server running on http://localhost:8081");
         // Keep the main thread alive so the HttpServer threads keep serving requests
         try {
             new java.util.concurrent.CountDownLatch(1).await();

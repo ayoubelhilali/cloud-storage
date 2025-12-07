@@ -1,14 +1,568 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="$CONTROLLER_NAME$"
-            prefHeight="400.0" prefWidth="600.0" >
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" style="-fx-background-color: #eef5f9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.DashboardController">
 
-</AnchorPane>
+    <left>
+        <VBox prefHeight="700.0" prefWidth="240.0" spacing="15.0" style="-fx-background-color: #1a253f;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
+            </padding>
+            <children>
+                <VBox alignment="CENTER" spacing="10.0">
+                    <children>
+                        <Circle radius="35.0" stroke="WHITE" strokeWidth="2.0" style="-fx-fill: url('https://i.pravatar.cc/150?img=3');" />
+                        <Label fx:id="userLabel" text="Hello, Ayoub" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="20.0" />
+                    </VBox.margin>
+                </VBox>
+
+                <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14; -fx-cursor: hand;" text="My cloud">
+                    <graphic>
+                        <Label style="-fx-text-fill: white;" text="☁" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" layoutX="30.0" layoutY="145.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-text-fill: #a0aec0; -fx-font-size: 14; -fx-cursor: hand;" text="Shared Files">
+                    <graphic>
+                        <Label style="-fx-text-fill: #a0aec0;" text="👥" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" layoutX="30.0" layoutY="205.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-text-fill: #a0aec0; -fx-font-size: 14; -fx-cursor: hand;" text="Favorites">
+                    <graphic>
+                        <Label style="-fx-text-fill: #a0aec0;" text="⭐" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" layoutX="30.0" layoutY="265.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-text-fill: #a0aec0; -fx-font-size: 14; -fx-cursor: hand;" text="Upload Files">
+                    <graphic>
+                        <Label style="-fx-text-fill: #a0aec0;" text="⬆" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-text-fill: #a0aec0; -fx-font-size: 14; -fx-cursor: hand;" text="Settings">
+                    <graphic>
+                        <Label style="-fx-text-fill: #a0aec0;" text="⚙" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="logoutButton" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#handleLogout" prefHeight="45.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-text-fill: #a0aec0; -fx-font-size: 14; -fx-cursor: hand;" text="Log Out">
+                    <graphic>
+                        <Label style="-fx-text-fill: #a0aec0;" text="🚪" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="25.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <TextField prefHeight="45.0" prefWidth="400.0" promptText="🔍  Search" style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 0 0 0 20;">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <effect>
+                                <DropShadow color="#0000000d" offsetY="2.0" />
+                            </effect>
+                        </TextField>
+                    </children>
+                </HBox>
+
+                <HBox spacing="25.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox spacing="30.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label text="Categories" textFill="#1a253f">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox spacing="15.0">
+                                            <children>
+                                                <VBox prefHeight="120.0" prefWidth="160.0" style="-fx-background-color: #6c5ce7; -fx-background-radius: 20; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT">
+                                                            <children>
+                                                                <Label text="⭐" textFill="#ffeaa7" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label text="📷" textFill="WHITE">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Pictures" textFill="WHITE">
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="480 files" textFill="#dfe6e9" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#6c5ce74d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="10.0" layoutY="10.0" prefHeight="120.0" prefWidth="160.0" style="-fx-background-color: #00b894; -fx-background-radius: 20; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0" />
+                                                        <Label text="📄" textFill="WHITE">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Documents" textFill="WHITE">
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="190 files" textFill="#dfe6e9" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#00b8944d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="185.0" layoutY="10.0" prefHeight="120.0" prefWidth="160.0" style="-fx-background-color: #e84393; -fx-background-radius: 20; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0" />
+                                                        <Label text="🎥" textFill="WHITE">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Videos" textFill="WHITE">
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="30 files" textFill="#dfe6e9" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#e843934d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="360.0" layoutY="10.0" prefHeight="120.0" prefWidth="160.0" style="-fx-background-color: #0984e3; -fx-background-radius: 20; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0" />
+                                                        <Label text="🎤" textFill="WHITE">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Audio" textFill="WHITE">
+                                                            <font>
+                                                                <Font name="System Bold" size="16.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="80 files" textFill="#dfe6e9" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0984e34d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label text="Files" textFill="#1a253f">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox spacing="15.0">
+                                            <children>
+                                                <VBox prefHeight="100.0" prefWidth="110.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="📁" textFill="#6c5ce7">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Work">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="820 files" textFill="#a0aec0" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="10.0" layoutY="10.0" prefHeight="100.0" prefWidth="110.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="📁" textFill="#00b894">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Personal">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="115 files" textFill="#a0aec0" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="135.0" layoutY="10.0" prefHeight="100.0" prefWidth="110.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="📁" textFill="#e84393">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="School">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="65 files" textFill="#a0aec0" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="260.0" layoutY="10.0" prefHeight="100.0" prefWidth="110.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="🗑" textFill="#0984e3">
+                                                            <font>
+                                                                <Font size="24.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="Archive">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label text="31 files" textFill="#a0aec0" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="80.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-text-fill: #0984e3; -fx-font-size: 24; -fx-cursor: hand;" text="+">
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </Button>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="15.0" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Recent Files" textFill="#1a253f">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <VBox spacing="10.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="65.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label style="-fx-background-color: #6c5ce7; -fx-padding: 12; -fx-background-radius: 12;" text="📷" textFill="WHITE">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font></Label>
+                                                        <VBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label text="IMG_0001">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </VBox>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label prefWidth="60.0" text="PNG file" textFill="#a0aec0" />
+                                                        <Label prefWidth="60.0" text="5 MB" textFill="#a0aec0" />
+                                                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="🔗" textFill="#0984e3">
+                                                            <font>
+                                                                <Font size="18.0" />
+                                                            </font>
+                                                        </Button>
+                                                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="•••" textFill="#a0aec0">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </Button>
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="65.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label style="-fx-background-color: #e84393; -fx-padding: 12; -fx-background-radius: 12;" text="🎥" textFill="WHITE">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font></Label>
+                                                        <VBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label text="Startup pitch">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </VBox>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label prefWidth="60.0" text="AVI file" textFill="#a0aec0" />
+                                                        <Label prefWidth="60.0" text="105 MB" textFill="#a0aec0" />
+                                                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="🔗" textFill="#0984e3">
+                                                            <font>
+                                                                <Font size="18.0" />
+                                                            </font>
+                                                        </Button>
+                                                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="•••" textFill="#a0aec0">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </Button>
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="85.0" prefHeight="65.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label style="-fx-background-color: #0984e3; -fx-padding: 12; -fx-background-radius: 12;" text="🎤" textFill="WHITE">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font></Label>
+                                                        <VBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label text="Elon Musk Podcast">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                    </font>
+                                                                </Label>
+                                                            </children>
+                                                        </VBox>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label prefWidth="60.0" text="MP3 file" textFill="#a0aec0" />
+                                                        <Label prefWidth="60.0" text="550 MB" textFill="#a0aec0" />
+                                                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="🔗" textFill="#0984e3">
+                                                            <font>
+                                                                <Font size="18.0" />
+                                                            </font>
+                                                        </Button>
+                                                        <Button mnemonicParsing="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="•••" textFill="#a0aec0">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </Button>
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <VBox prefWidth="280.0" spacing="30.0">
+                            <children>
+                                <VBox alignment="CENTER" prefHeight="220.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 25; -fx-cursor: hand;">
+                                    <children>
+                                        <SVGPath content="M38.5,21.8h-10v-10c0-2.3-1.9-4.2-4.2-4.2s-4.2,1.9-4.2,4.2v10h-10c-2.3,0-4.2,1.9-4.2,4.2s1.9,4.2,4.2,4.2h10v10 c0,2.3,1.9,4.2,4.2,4.2s4.2-1.9,4.2-4.2v-10h10c2.3,0,4.2-1.9,4.2-4.2S40.8,21.8,38.5,21.8z" fill="#0984e3" scaleX="1.5" scaleY="1.5" />
+                                        <Label text="Add new files" textFill="#1a253f">
+                                            <font>
+                                                <Font name="System Bold" size="18.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#0000001a" offsetY="5.0" />
+                                    </effect>
+                                </VBox>
+
+                                <VBox prefHeight="150.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 25;">
+                                    <padding>
+                                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                    </padding>
+                                    <children>
+                                        <HBox>
+                                            <children>
+                                                <Label text="Your Storage" textFill="#1a253f">
+                                                    <font>
+                                                        <Font name="System Bold" size="16.0" />
+                                                    </font>
+                                                </Label>
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label text="25% left" textFill="#0984e3">
+                                                    <font>
+                                                        <Font name="System Bold" size="14.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                        <Label text="75 GB are used out of 100 GB" textFill="#a0aec0" />
+                                        <ProgressBar prefWidth="240.0" progress="0.75" style="-fx-accent: #0984e3; -fx-control-inner-background: #dfe6e9; -fx-text-box-border: transparent; -fx-pref-height: 8;">
+                                            <VBox.margin>
+                                                <Insets top="5.0" />
+                                            </VBox.margin>
+                                        </ProgressBar>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#0000001a" offsetY="5.0" />
+                                    </effect>
+                                </VBox>
+
+                                <VBox prefHeight="220.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 25;" VBox.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                    </padding>
+                                    <children>
+                                        <Label text="Your Shared Folders" textFill="#1a253f">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+                                        <VBox spacing="15.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="55.0" style="-fx-background-color: #dff9fb; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="Keynote Files" textFill="#1a253f">
+                                                            <font>
+                                                                <Font name="System Bold" size="13.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Circle radius="14.0" stroke="WHITE" strokeWidth="2.0" style="-fx-fill: url('https://i.pravatar.cc/150?img=10');" />
+                                                        <Circle layoutX="179.0" layoutY="35.0" radius="14.0" stroke="WHITE" strokeWidth="2.0" style="-fx-fill: url('https://i.pravatar.cc/150?img=12');">
+                                                            <HBox.margin>
+                                                                <Insets left="-10.0" />
+                                                            </HBox.margin>
+                                                        </Circle>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="55.0" style="-fx-background-color: #e0c3fc; -fx-background-radius: 15; -fx-cursor: hand;">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="Vacation Photos" textFill="#1a253f">
+                                                            <font>
+                                                                <Font name="System Bold" size="13.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Circle radius="14.0" stroke="WHITE" strokeWidth="2.0" style="-fx-fill: url('https://i.pravatar.cc/150?img=20');" />
+                                                        <Circle layoutX="179.0" layoutY="35.0" radius="14.0" stroke="WHITE" strokeWidth="2.0" style="-fx-fill: url('https://i.pravatar.cc/150?img=22');">
+                                                            <HBox.margin>
+                                                                <Insets left="-10.0" />
+                                                            </HBox.margin>
+                                                        </Circle>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: #f1f2f6; -fx-background-radius: 15; -fx-text-fill: #0984e3; -fx-font-weight: bold; -fx-cursor: hand;" text="+ Add More">
+                                            <padding>
+                                                <Insets bottom="12.0" top="12.0" />
+                                            </padding>
+                                        </Button>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#0000001a" offsetY="5.0" />
+                                    </effect>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

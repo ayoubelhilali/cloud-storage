@@ -6,11 +6,11 @@ public class InsertUser {
 
         UserDAO dao = new UserDAO();
 
-        String username = "ayoub";
-        String email = "ayoub@mail.com";
-        String password = "1234567";
-        String first = "Ayoub";
-        String last = "Elhilali";
+        String username = "yahya";
+        String email = "yahya@mail.com";
+        String password = "12345678";
+        String first = "Yahya";
+        String last = "Azlmat";
 
         // hash password
         String hashedPassword = PasswordUtil.hash(password);

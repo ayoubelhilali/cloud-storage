@@ -1,0 +1,82 @@
+/* Favorites.css */
+
+.root {
+    -fx-background-color: #f4f7fd;
+}
+
+.page-title {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #093170;
+}
+
+.section-title {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #093170;
+}
+
+/* --- Featured Card (Purple Gradient) --- */
+.featured-card {
+    -fx-background-color: linear-gradient(to bottom right, #6c5ce7, #a29bfe);
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(108, 92, 231, 0.4), 20, 0, 0, 8);
+}
+
+.icon-container-white {
+    -fx-background-color: white;
+    -fx-background-radius: 50%;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.featured-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.featured-subtitle {
+    -fx-text-fill: rgba(255,255,255,0.8);
+    -fx-font-size: 14px;
+}
+
+/* --- Grid Items (The Image Cards) --- */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.grid-item {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
+    -fx-cursor: hand;
+    -fx-min-width: 200px;
+    -fx-max-width: 200px;
+}
+
+.grid-item:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 15, 0, 0, 6);
+    -fx-translate-y: -2;
+}
+
+.image-placeholder {
+    -fx-background-color: #dfe6e9; /* Placeholder gray color */
+    -fx-background-radius: 15 15 0 0;
+}
+
+.file-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3436;
+}
+
+.file-date {
+    -fx-font-size: 12px;
+    -fx-text-fill: #b2bec3;
+}

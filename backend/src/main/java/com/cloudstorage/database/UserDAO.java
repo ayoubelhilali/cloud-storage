@@ -1,5 +1,7 @@
 package com.cloudstorage.database;
 
+import com.cloudstorage.model.User;
+
 import java.sql.*;
 
 public class UserDAO {
@@ -33,25 +35,34 @@ public class UserDAO {
 
 
     // ---------- LOGIN ----------
-    public boolean login(String login, String passwordHash) {
+    public User login(String login, String passwordHash) {
 
-        // Check if the login matches either username or email
         String sql = "SELECT * FROM users WHERE (username = ? OR email = ?) AND password_hash = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, login); // could be username
-            stmt.setString(2, login); // could be email
+            stmt.setString(1, login);
+            stmt.setString(2, login);
             stmt.setString(3, passwordHash);
 
             ResultSet rs = stmt.executeQuery();
 
-            return rs.next(); // true if user exists
+            if (rs.next()) {
+                User user = new User();
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                return user;
+            }
+
+            return null;
 
         } catch (SQLException e) {
             System.out.println("Login error: " + e.getMessage());
-            return false;
+            return null;
         }
     }
+
 }

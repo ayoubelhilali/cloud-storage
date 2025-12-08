@@ -4,7 +4,8 @@
 }
 
 .sidebar {
-    -fx-background-color: #1a253f;
+    /* CHANGED: From Dark Navy (#1a253f) to Bright Blue */
+    -fx-background-color: #022e7c;
 }
 
 /* User Profile */
@@ -21,7 +22,8 @@
 /* Sidebar Navigation Buttons */
 .nav-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #a0aec0;
+    /* CHANGED: From Gray (#a0aec0) to White/Light Blue for better contrast on Blue bg */
+    -fx-text-fill: #dfe6e9;
     -fx-font-size: 14;
     -fx-cursor: hand;
 }
@@ -29,14 +31,21 @@
 .nav-button-active {
     -fx-text-fill: white;
     -fx-font-weight: bold;
+    /* OPTIONAL: Add a slightly darker background to the active button to make it pop */
+    -fx-background-color: #023ca1;
 }
 
 .nav-icon {
-    -fx-text-fill: #a0aec0;
+    /* CHANGED: From Gray to Pure White for high visibility */
+    -fx-text-fill: white;
+    /* CHANGED: Added font size to make icons physically larger */
+    -fx-font-size: 22px;
 }
 
 .nav-icon-active {
     -fx-text-fill: white;
+    /* Ensure active icon is also large */
+    -fx-font-size: 22px;
 }
 
 /* Center Content */

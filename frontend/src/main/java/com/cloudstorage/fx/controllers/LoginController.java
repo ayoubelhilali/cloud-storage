@@ -93,14 +93,16 @@ public class LoginController {
             return;
         }
 
-        // Disable login button and show spinner
+        // Create LoginUser OUTSIDE the task so we can reuse it
+        LoginUser loginUser = new LoginUser();
+
+        // Disable button
         loginButton.setDisable(true);
         loginButton.setText("⏳ Logging in...");
 
         Task<Boolean> loginTask = new Task<>() {
             @Override
             protected Boolean call() {
-                LoginUser loginUser = new LoginUser();
                 return loginUser.login(email, password);
             }
         };
@@ -116,7 +118,6 @@ public class LoginController {
 
                 try {
                     // LOAD DASHBOARD
-                    // Ensure the path starts with '/' and is spelled correctly
                     var resource = getClass().getResource("/com/cloudstorage/fx/Dashboard.fxml");
 
                     if (resource == null) {
@@ -126,16 +127,24 @@ public class LoginController {
                     FXMLLoader loader = new FXMLLoader(resource);
                     Parent root = loader.load();
 
-                    // GET CURRENT STAGE (WINDOW)
-                    Stage stage = (Stage) loginButton.getScene().getWindow();
+                    // ----------------------------
+                    // 🔥 GET Dashboard Controller
+                    // ----------------------------
+                    DashboardController controller = loader.getController();
 
-                    // SWAP SCENE
+                    // ----------------------------
+                    // 🔥 PASS LOGGED USER NAME
+                    // ----------------------------
+                    String fullName = loginUser.getLoggedUser().getLastName();
+                    controller.setUsername(fullName);
+
+                    // ----------------------------
+                    // 🔥 SWITCH TO DASHBOARD VIEW
+                    // ----------------------------
+                    Stage stage = (Stage) loginButton.getScene().getWindow();
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
                     stage.setTitle("Cloud Storage - Dashboard");
-
-                    // OPTIONAL: Resize and Center
-                    // If your dashboard is bigger than the login screen, resizing happens here
                     stage.sizeToScene();
                     stage.centerOnScreen();
                     stage.show();
@@ -162,6 +171,7 @@ public class LoginController {
 
         new Thread(loginTask).start();
     }
+
 
     @FXML
     private void OpenRegisterPage(ActionEvent event) {

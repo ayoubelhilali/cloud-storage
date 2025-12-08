@@ -1,20 +1,27 @@
 package com.cloudstorage.database;
 
+import com.cloudstorage.model.User;
+
 public class LoginUser {
 
     private final UserDAO dao = new UserDAO();
+    private User loggedUser;
 
-    /**
-     * Attempt login with username/email and password
-     * @param usernameOrEmail email or username
-     * @param password plain text password
-     * @return true if login successful, false otherwise
-     */
     public boolean login(String usernameOrEmail, String password) {
-        // Hash password
+
         String hashedPassword = PasswordUtil.hash(password);
 
-        // Call DAO
-        return dao.login(usernameOrEmail, hashedPassword);
+        User user = dao.login(usernameOrEmail, hashedPassword);
+
+        if (user != null) {
+            this.loggedUser = user;
+            return true;
+        }
+
+        return false;
+    }
+
+    public User getLoggedUser() {
+        return loggedUser;
     }
 }

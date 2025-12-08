@@ -81,8 +81,6 @@ public class DashboardController {
         }
     }
 
-
-
     // --- UPDATED UPLOAD HANDLER ---
     @FXML
     private void handleUpload() {
@@ -113,6 +111,7 @@ public class DashboardController {
     @FXML
     private void handleLogout() {
         try {
+            // Swap Scenes
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/Login.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) logoutButton.getScene().getWindow();
@@ -120,8 +119,10 @@ public class DashboardController {
             stage.setTitle("Cloud Storage - Login");
             stage.centerOnScreen();
             stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("Error: Could not load Login.fxml. Check the file path.");
         }
     }
     @FXML

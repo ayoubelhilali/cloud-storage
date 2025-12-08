@@ -27,7 +27,7 @@
 }
 
 .top-right-section {
-    -fx-background-color: #022e7c; /* Blue */
+    -fx-background-color: #023ca1; /* Blue */
     /* Curve the bottom left to meet the white wave */
     -fx-background-radius: 100 0 0 0;
     -fx-alignment: center;

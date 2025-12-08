@@ -16,6 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -113,17 +114,37 @@ public class LoginController {
                 statusLabel.setText("✅ Login successful!");
                 statusLabel.setStyle("-fx-text-fill: green;");
 
-                // Open dashboard page
-//                try {
-//                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/HomePage.fxml"));
-//                    Parent root = loader.load();
-//                    Stage stage = (Stage) loginButton.getScene().getWindow();
-//                    stage.setScene(new Scene(root));
-//                    stage.setTitle("Home");
-//                    stage.show();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    // LOAD DASHBOARD
+                    // Ensure the path starts with '/' and is spelled correctly
+                    var resource = getClass().getResource("/com/cloudstorage/fx/Dashboard.fxml");
+
+                    if (resource == null) {
+                        throw new IOException("Dashboard.fxml not found at path: /com/cloudstorage/fx/Dashboard.fxml");
+                    }
+
+                    FXMLLoader loader = new FXMLLoader(resource);
+                    Parent root = loader.load();
+
+                    // GET CURRENT STAGE (WINDOW)
+                    Stage stage = (Stage) loginButton.getScene().getWindow();
+
+                    // SWAP SCENE
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.setTitle("Cloud Storage - Dashboard");
+
+                    // OPTIONAL: Resize and Center
+                    // If your dashboard is bigger than the login screen, resizing happens here
+                    stage.sizeToScene();
+                    stage.centerOnScreen();
+                    stage.show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    statusLabel.setText("❌ Error loading dashboard view");
+                    statusLabel.setStyle("-fx-text-fill: red;");
+                }
 
             } else {
                 statusLabel.setText("❌ Invalid email or password");
@@ -136,6 +157,7 @@ public class LoginController {
             loginButton.setText("LOGIN");
             statusLabel.setText("❌ Unexpected error");
             statusLabel.setStyle("-fx-text-fill: red;");
+            event.getSource().getException().printStackTrace();
         });
 
         new Thread(loginTask).start();

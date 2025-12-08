@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="30.0" styleClass="root" stylesheets="@../../../css/UploadFiles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.UploadFilesController">
+    <padding>
+        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+    </padding>
+    <children>
+        <HBox alignment="CENTER">
+            <children>
+                <Label styleClass="page-title" text="Upload files" />
+            </children>
+        </HBox>
+
+        <VBox fx:id="dropZone" alignment="CENTER" prefHeight="350.0" spacing="20.0" styleClass="upload-card">
+            <children>
+                <VBox alignment="CENTER" styleClass="icon-bg">
+                    <children>
+                        <SVGPath content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" fill="WHITE" scaleX="2.0" scaleY="2.0" styleClass="upload-icon-shape" />
+                    </children>
+                </VBox>
+
+                <Label styleClass="upload-text-header" text="Drag &amp; drop your files here" />
+
+                <Label styleClass="upload-text-sub" text="or" />
+
+                <Button fx:id="btnBrowse" mnemonicParsing="false" onAction="#handleBrowseFile" styleClass="browse-btn" text="Choose files from your computer" />
+            </children>
+        </VBox>
+
+        <VBox spacing="15.0" VBox.vgrow="ALWAYS">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label styleClass="section-title" text="Upload progress" />
+                        <Region HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="progressListContainer" spacing="10.0">
+                            <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="progress-item">
+                                <padding>
+                                    <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                                </padding>
+                                <children>
+                                    <Label styleClass="file-icon, icon-teal" text="♫" />
+                                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                        <children>
+                                            <HBox>
+                                                <children>
+                                                    <Label styleClass="filename-text" text="Summer-vibes.mp3" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <Label styleClass="percentage-text" text="69%" />
+                                                </children>
+                                            </HBox>
+                                            <ProgressBar maxWidth="1.7976931348623157E308" progress="0.69" styleClass="custom-progress-bar" />
+                                        </children>
+                                    </VBox>
+                                    <Button styleClass="cancel-btn" text="✖" />
+                                </children>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </children>
+</VBox>

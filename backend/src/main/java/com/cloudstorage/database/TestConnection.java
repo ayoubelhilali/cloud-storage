@@ -1,5 +1,7 @@
 package com.cloudstorage.database;
 
+import com.cloudstorage.model.User;
+
 public class TestConnection {
 
     public static void main(String[] args) {
@@ -11,10 +13,11 @@ public class TestConnection {
 
         String hashed = PasswordUtil.hash(password);
 
-        boolean loggedIn = dao.login(username, hashed);
+        User loggedIn = dao.login(username, hashed);
 
-        if (loggedIn) {
+        if (loggedIn != null) {
             System.out.println("Login success!");
+            System.out.println("Welcome " + loggedIn.getLastName());
         } else {
             System.out.println("Invalid username or password.");
         }

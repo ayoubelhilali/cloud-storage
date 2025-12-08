@@ -16,6 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -92,14 +93,16 @@ public class LoginController {
             return;
         }
 
-        // Disable login button and show spinner
+        // Create LoginUser OUTSIDE the task so we can reuse it
+        LoginUser loginUser = new LoginUser();
+
+        // Disable button
         loginButton.setDisable(true);
         loginButton.setText("⏳ Logging in...");
 
         Task<Boolean> loginTask = new Task<>() {
             @Override
             protected Boolean call() {
-                LoginUser loginUser = new LoginUser();
                 return loginUser.login(email, password);
             }
         };
@@ -113,17 +116,44 @@ public class LoginController {
                 statusLabel.setText("✅ Login successful!");
                 statusLabel.setStyle("-fx-text-fill: green;");
 
-                // Open dashboard page
-//                try {
-//                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/HomePage.fxml"));
-//                    Parent root = loader.load();
-//                    Stage stage = (Stage) loginButton.getScene().getWindow();
-//                    stage.setScene(new Scene(root));
-//                    stage.setTitle("Home");
-//                    stage.show();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    // LOAD DASHBOARD
+                    var resource = getClass().getResource("/com/cloudstorage/fx/Dashboard.fxml");
+
+                    if (resource == null) {
+                        throw new IOException("Dashboard.fxml not found at path: /com/cloudstorage/fx/Dashboard.fxml");
+                    }
+
+                    FXMLLoader loader = new FXMLLoader(resource);
+                    Parent root = loader.load();
+
+                    // ----------------------------
+                    // 🔥 GET Dashboard Controller
+                    // ----------------------------
+                    DashboardController controller = loader.getController();
+
+                    // ----------------------------
+                    // 🔥 PASS LOGGED USER NAME
+                    // ----------------------------
+                    String fullName = loginUser.getLoggedUser().getLastName();
+                    controller.setUsername(fullName);
+
+                    // ----------------------------
+                    // 🔥 SWITCH TO DASHBOARD VIEW
+                    // ----------------------------
+                    Stage stage = (Stage) loginButton.getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.setTitle("Cloud Storage - Dashboard");
+                    stage.sizeToScene();
+                    stage.centerOnScreen();
+                    stage.show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    statusLabel.setText("❌ Error loading dashboard view");
+                    statusLabel.setStyle("-fx-text-fill: red;");
+                }
 
             } else {
                 statusLabel.setText("❌ Invalid email or password");
@@ -136,10 +166,12 @@ public class LoginController {
             loginButton.setText("LOGIN");
             statusLabel.setText("❌ Unexpected error");
             statusLabel.setStyle("-fx-text-fill: red;");
+            event.getSource().getException().printStackTrace();
         });
 
         new Thread(loginTask).start();
     }
+
 
     @FXML
     private void OpenRegisterPage(ActionEvent event) {

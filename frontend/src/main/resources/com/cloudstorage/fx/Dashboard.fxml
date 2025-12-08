@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" styleClass="root-pane" stylesheets="@../../../css/Dashboard.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.DashboardController">
+
+    <left>
+        <VBox prefHeight="700.0" prefWidth="240.0" spacing="15.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="30.0"  top="30.0" />
+            </padding>
+            <children>
+                <VBox alignment="CENTER" spacing="10.0">
+                    <children>
+                        <Circle radius="35.0" stroke="WHITE" strokeWidth="2.0" styleClass="profile-pic-main" />
+                        <Label fx:id="userLabel" styleClass="user-label" text="Hello, Ayoub" />
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="20.0" />
+                    </VBox.margin>
+                </VBox>
+
+                <Button fx:id="btnMyCloud" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" styleClass="nav-button, nav-button-active" text="My cloud" onAction="#handleShowMyCloud">
+                    <graphic>
+                        <Label styleClass="nav-icon-active" text="☁" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="btnSharedFiles" alignment="BASELINE_LEFT" graphicTextGap="15.0" layoutX="30.0" layoutY="145.0" onAction="#handleShowSharedFiles" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" styleClass="nav-button" text="Shared Files">
+                    <graphic>
+                        <Label styleClass="nav-icon" text="👥" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="btnFavorites" alignment="BASELINE_LEFT" graphicTextGap="15.0" layoutX="30.0" layoutY="205.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" styleClass="nav-button" text="Favorites" onAction="#handleShowFavorites">
+                    <graphic>
+                        <Label styleClass="nav-icon" text="⭐" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="btnUpload" alignment="BASELINE_LEFT" graphicTextGap="15.0" layoutX="30.0" layoutY="265.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" styleClass="nav-button" text="Upload Files" onAction="#handleUpload">
+                    <graphic>
+                        <Label styleClass="nav-icon" text="⬆" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Button fx:id="btnSettings" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" styleClass="nav-button" text="Settings" onAction="#handleSettings">
+                    <graphic>
+                        <Label styleClass="nav-icon" text="⚙" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="logoutButton" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#handleLogout" prefHeight="45.0" prefWidth="200.0" styleClass="nav-button" text="Log Out">
+                    <graphic>
+                        <Label styleClass="nav-icon" text="🚪" />
+                    </graphic>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
+                </Button>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox fx:id="dashboardView" spacing="25.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <TextField prefHeight="45.0" prefWidth="400.0" promptText="🔍  Search" styleClass="search-bar">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <effect>
+                                <DropShadow color="#0000000d" offsetY="2.0" />
+                            </effect>
+                        </TextField>
+                    </children>
+                </HBox>
+
+                <HBox spacing="25.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox spacing="30.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label styleClass="section-title" text="Categories" />
+                                        <HBox spacing="15.0">
+                                            <children>
+                                                <VBox prefHeight="120.0" prefWidth="160.0" styleClass="category-card, card-purple">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT">
+                                                            <children>
+                                                                <Label text="⭐" textFill="#ffeaa7" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Label styleClass="category-icon" text="📷" />
+                                                        <Label styleClass="category-title" text="Pictures" />
+                                                        <Label styleClass="category-subtitle" text="480 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#6c5ce74d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="10.0" layoutY="10.0" prefHeight="120.0" prefWidth="160.0" styleClass="category-card, card-green">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0" />
+                                                        <Label styleClass="category-icon" text="📄" />
+                                                        <Label styleClass="category-title" text="Documents" />
+                                                        <Label styleClass="category-subtitle" text="190 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#00b8944d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="185.0" layoutY="10.0" prefHeight="120.0" prefWidth="160.0" styleClass="category-card, card-pink">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0" />
+                                                        <Label styleClass="category-icon" text="🎥" />
+                                                        <Label styleClass="category-title" text="Videos" />
+                                                        <Label styleClass="category-subtitle" text="30 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#e843934d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="360.0" layoutY="10.0" prefHeight="120.0" prefWidth="160.0" styleClass="category-card, card-blue">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0" />
+                                                        <Label styleClass="category-icon" text="🎤" />
+                                                        <Label styleClass="category-title" text="Audio" />
+                                                        <Label styleClass="category-subtitle" text="80 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0984e34d" offsetY="5.0" />
+                                                    </effect>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label styleClass="section-title" text="Files" />
+                                        <HBox spacing="15.0">
+                                            <children>
+                                                <VBox prefHeight="100.0" prefWidth="110.0" styleClass="file-folder">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="folder-icon" text="📁" textFill="#6c5ce7" />
+                                                        <Label styleClass="folder-name" text="Work" />
+                                                        <Label styleClass="folder-count" text="820 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="10.0" layoutY="10.0" prefHeight="100.0" prefWidth="110.0" styleClass="file-folder">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="folder-icon" text="📁" textFill="#00b894" />
+                                                        <Label styleClass="folder-name" text="Personal" />
+                                                        <Label styleClass="folder-count" text="115 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="135.0" layoutY="10.0" prefHeight="100.0" prefWidth="110.0" styleClass="file-folder">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="folder-icon" text="📁" textFill="#e84393" />
+                                                        <Label styleClass="folder-name" text="School" />
+                                                        <Label styleClass="folder-count" text="65 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <VBox layoutX="260.0" layoutY="10.0" prefHeight="100.0" prefWidth="110.0" styleClass="file-folder">
+                                                    <padding>
+                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="folder-icon" text="🗑" textFill="#0984e3" />
+                                                        <Label styleClass="folder-name" text="Archive" />
+                                                        <Label styleClass="folder-count" text="31 files" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </VBox>
+                                                <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="80.0" styleClass="add-folder-btn" text="+">
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </Button>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="15.0" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="section-title" text="Recent Files" />
+                                        <VBox spacing="10.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="65.0" spacing="15.0" styleClass="recent-item">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="recent-icon, icon-bg-purple" text="📷" />
+                                                        <VBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label styleClass="recent-name" text="IMG_0001" />
+                                                            </children>
+                                                        </VBox>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label prefWidth="60.0" styleClass="recent-meta" text="PNG file" />
+                                                        <Label prefWidth="60.0" styleClass="recent-meta" text="5 MB" />
+                                                        <Button mnemonicParsing="false" styleClass="icon-btn-link" text="🔗" />
+                                                        <Button mnemonicParsing="false" styleClass="icon-btn-more" text="•••" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="65.0" spacing="15.0" styleClass="recent-item">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="recent-icon, icon-bg-pink" text="🎥" />
+                                                        <VBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label styleClass="recent-name" text="Startup pitch" />
+                                                            </children>
+                                                        </VBox>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label prefWidth="60.0" styleClass="recent-meta" text="AVI file" />
+                                                        <Label prefWidth="60.0" styleClass="recent-meta" text="105 MB" />
+                                                        <Button mnemonicParsing="false" styleClass="icon-btn-link" text="🔗" />
+                                                        <Button mnemonicParsing="false" styleClass="icon-btn-more" text="•••" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="85.0" prefHeight="65.0" spacing="15.0" styleClass="recent-item">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="recent-icon, icon-bg-blue" text="🎤" />
+                                                        <VBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label styleClass="recent-name" text="Elon Musk Podcast" />
+                                                            </children>
+                                                        </VBox>
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Label prefWidth="60.0" styleClass="recent-meta" text="MP3 file" />
+                                                        <Label prefWidth="60.0" styleClass="recent-meta" text="550 MB" />
+                                                        <Button mnemonicParsing="false" styleClass="icon-btn-link" text="🔗" />
+                                                        <Button mnemonicParsing="false" styleClass="icon-btn-more" text="•••" />
+                                                    </children>
+                                                    <effect>
+                                                        <DropShadow color="#0000000d" offsetY="3.0" />
+                                                    </effect>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <VBox prefWidth="280.0" spacing="30.0">
+                            <children>
+                                <VBox alignment="CENTER" prefHeight="220.0" spacing="20.0" styleClass="right-widget">
+                                    <children>
+                                        <SVGPath content="M38.5,21.8h-10v-10c0-2.3-1.9-4.2-4.2-4.2s-4.2,1.9-4.2,4.2v10h-10c-2.3,0-4.2,1.9-4.2,4.2s1.9,4.2,4.2,4.2h10v10 c0,2.3,1.9,4.2,4.2,4.2s4.2-1.9,4.2-4.2v-10h10c2.3,0,4.2-1.9,4.2-4.2S40.8,21.8,38.5,21.8z" fill="#0984e3" scaleX="1.5" scaleY="1.5" />
+                                        <Label styleClass="widget-title" text="Add new files" />
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#0000001a" offsetY="5.0" />
+                                    </effect>
+                                </VBox>
+
+                                <VBox prefHeight="150.0" spacing="10.0" styleClass="right-widget-padded">
+                                    <padding>
+                                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                    </padding>
+                                    <children>
+                                        <HBox>
+                                            <children>
+                                                <Label styleClass="widget-header" text="Your Storage" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label styleClass="storage-text-blue" text="25% left" />
+                                            </children>
+                                        </HBox>
+                                        <Label styleClass="storage-text-gray" text="75 GB are used out of 100 GB" />
+                                        <ProgressBar prefWidth="240.0" progress="0.75" styleClass="storage-bar">
+                                            <VBox.margin>
+                                                <Insets top="5.0" />
+                                            </VBox.margin>
+                                        </ProgressBar>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#0000001a" offsetY="5.0" />
+                                    </effect>
+                                </VBox>
+
+                                <VBox prefHeight="220.0" spacing="20.0" styleClass="right-widget-padded" VBox.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                    </padding>
+                                    <children>
+                                        <Label styleClass="widget-header" text="Your Shared Folders" />
+                                        <VBox spacing="15.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="55.0" styleClass="shared-item, shared-blue">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="shared-item-text" text="Keynote Files" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Circle radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-1" />
+                                                        <Circle layoutX="179.0" layoutY="35.0" radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-2">
+                                                            <HBox.margin>
+                                                                <Insets left="-10.0" />
+                                                            </HBox.margin>
+                                                        </Circle>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="55.0" styleClass="shared-item, shared-purple">
+                                                    <padding>
+                                                        <Insets left="15.0" right="15.0" />
+                                                    </padding>
+                                                    <children>
+                                                        <Label styleClass="shared-item-text" text="Vacation Photos" />
+                                                        <Region HBox.hgrow="ALWAYS" />
+                                                        <Circle radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-3" />
+                                                        <Circle layoutX="179.0" layoutY="35.0" radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-4">
+                                                            <HBox.margin>
+                                                                <Insets left="-10.0" />
+                                                            </HBox.margin>
+                                                        </Circle>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="add-more-btn" text="+ Add More">
+                                            <padding>
+                                                <Insets bottom="12.0" top="12.0" />
+                                            </padding>
+                                        </Button>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#0000001a" offsetY="5.0" />
+                                    </effect>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

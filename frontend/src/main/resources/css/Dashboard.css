@@ -1,0 +1,228 @@
+/* General Layout */
+.root-pane {
+    -fx-background-color: #eef5f9;
+}
+
+.sidebar {
+    /* CHANGED: From Dark Navy (#1a253f) to Bright Blue */
+    -fx-background-color: #022e7c;
+}
+
+/* User Profile */
+.profile-pic-main {
+    -fx-fill: url('https://i.pravatar.cc/150?img=3');
+}
+
+.user-label {
+    -fx-text-fill: white;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 16.0;
+}
+
+/* Sidebar Navigation Buttons */
+.nav-button {
+    -fx-background-color: transparent;
+    /* CHANGED: From Gray (#a0aec0) to White/Light Blue for better contrast on Blue bg */
+    -fx-text-fill: #dfe6e9;
+    -fx-font-size: 14;
+    -fx-cursor: hand;
+}
+
+.nav-button-active {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    /* OPTIONAL: Add a slightly darker background to the active button to make it pop */
+    -fx-background-color: #023ca1;
+}
+
+.nav-icon {
+    /* CHANGED: From Gray to Pure White for high visibility */
+    -fx-text-fill: white;
+    /* CHANGED: Added font size to make icons physically larger */
+    -fx-font-size: 22px;
+}
+
+.nav-icon-active {
+    -fx-text-fill: white;
+    /* Ensure active icon is also large */
+    -fx-font-size: 22px;
+}
+
+/* Center Content */
+.search-bar {
+    -fx-background-color: white;
+    -fx-background-radius: 25;
+    -fx-padding: 0 0 0 20;
+}
+
+.section-title {
+    -fx-text-fill: #1a253f;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 20.0;
+}
+
+/* Category Cards */
+.category-card {
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.card-purple { -fx-background-color: #6c5ce7; }
+.card-green { -fx-background-color: #00b894; }
+.card-pink { -fx-background-color: #e84393; }
+.card-blue { -fx-background-color: #0984e3; }
+
+.category-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 24.0;
+}
+
+.category-title {
+    -fx-text-fill: white;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 16.0;
+}
+
+.category-subtitle {
+    -fx-text-fill: #dfe6e9;
+}
+
+/* Folder/Files Row */
+.file-folder {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+.folder-icon {
+    -fx-font-size: 24.0;
+}
+
+.folder-name {
+    -fx-font-family: "System Bold";
+    -fx-font-size: 14.0;
+}
+
+.folder-count {
+    -fx-text-fill: #a0aec0;
+}
+
+.add-folder-btn {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-text-fill: #0984e3;
+    -fx-font-size: 24;
+    -fx-cursor: hand;
+}
+
+/* Recent Files List */
+.recent-item {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+.recent-icon {
+    -fx-padding: 12;
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 14.0;
+}
+
+.icon-bg-purple { -fx-background-color: #6c5ce7; }
+.icon-bg-pink { -fx-background-color: #e84393; }
+.icon-bg-blue { -fx-background-color: #0984e3; }
+
+.recent-name {
+    -fx-font-family: "System Bold";
+    -fx-font-size: 14.0;
+}
+
+.recent-meta {
+    -fx-text-fill: #a0aec0;
+}
+
+.icon-btn-link {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-text-fill: #0984e3;
+    -fx-font-size: 18.0;
+}
+
+.icon-btn-more {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-text-fill: #a0aec0;
+    -fx-font-size: 14.0;
+}
+
+/* Right Side Widgets */
+.right-widget {
+    -fx-background-color: white;
+    -fx-background-radius: 25;
+    -fx-cursor: hand;
+}
+
+.right-widget-padded {
+    -fx-background-color: white;
+    -fx-background-radius: 25;
+}
+
+.widget-title {
+    -fx-text-fill: #1a253f;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 18.0;
+}
+
+.widget-header {
+    -fx-text-fill: #1a253f;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 16.0;
+}
+
+/* Storage Bar */
+.storage-text-blue {
+    -fx-text-fill: #0984e3;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 14.0;
+}
+
+.storage-text-gray {
+    -fx-text-fill: #a0aec0;
+}
+
+.storage-bar {
+    -fx-accent: #0984e3;
+    -fx-control-inner-background: #dfe6e9;
+    -fx-text-box-border: transparent;
+    -fx-pref-height: 8;
+}
+
+/* Shared Folders */
+.shared-item {
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+.shared-blue { -fx-background-color: #dff9fb; }
+.shared-purple { -fx-background-color: #e0c3fc; }
+
+.shared-item-text {
+    -fx-text-fill: #1a253f;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 13.0;
+}
+
+.add-more-btn {
+    -fx-background-color: #f1f2f6;
+    -fx-background-radius: 15;
+    -fx-text-fill: #0984e3;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* Avatars (Split from style to CSS as requested) */
+.avatar-1 { -fx-fill: url('https://i.pravatar.cc/150?img=10'); }
+.avatar-2 { -fx-fill: url('https://i.pravatar.cc/150?img=12'); }
+.avatar-3 { -fx-fill: url('https://i.pravatar.cc/150?img=20'); }
+.avatar-4 { -fx-fill: url('https://i.pravatar.cc/150?img=22'); }

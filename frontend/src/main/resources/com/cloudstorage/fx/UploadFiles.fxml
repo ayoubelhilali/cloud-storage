@@ -50,27 +50,7 @@
                 <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
                     <content>
                         <VBox fx:id="progressListContainer" spacing="10.0">
-                            <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="progress-item">
-                                <padding>
-                                    <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
-                                </padding>
-                                <children>
-                                    <Label styleClass="file-icon, icon-teal" text="♫" />
-                                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                        <children>
-                                            <HBox>
-                                                <children>
-                                                    <Label styleClass="filename-text" text="Summer-vibes.mp3" />
-                                                    <Region HBox.hgrow="ALWAYS" />
-                                                    <Label styleClass="percentage-text" text="69%" />
-                                                </children>
-                                            </HBox>
-                                            <ProgressBar maxWidth="1.7976931348623157E308" progress="0.69" styleClass="custom-progress-bar" />
-                                        </children>
-                                    </VBox>
-                                    <Button styleClass="cancel-btn" text="✖" />
-                                </children>
-                            </HBox>
+
                         </VBox>
                     </content>
                 </ScrollPane>

@@ -1,6 +1,7 @@
 package com.cloudstorage.fx.controllers;
 
 import com.cloudstorage.database.InsertUser;
+import com.cloudstorage.service.MinioService; // Make sure this is imported
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -53,9 +54,10 @@ public class RegisterController {
     @FXML private ImageView logoImage;
 
     private final BooleanProperty isProcessing = new SimpleBooleanProperty(false);
+
     @FXML
     private void initialize() {
-        // Layout responsive
+        // Layout responsive logic
         HBox.setHgrow(leftContainer, Priority.ALWAYS);
         HBox.setHgrow(rightContainer, Priority.ALWAYS);
 
@@ -160,7 +162,7 @@ public class RegisterController {
         }
     }
 
-    // ✅ Register with spinner
+    // ✅ Register Logic with MinIO Integration
     @FXML
     private void handleRegister() {
 
@@ -175,8 +177,29 @@ public class RegisterController {
         Task<String> task = new Task<>() {
             @Override
             protected String call() {
+                // 1. Create User in Database
                 InsertUser insertUser = new InsertUser();
-                return insertUser.registerNewUser(email, password, first, last);
+                String dbResult = insertUser.registerNewUser(email, password, first, last);
+
+                // 2. If Database success (result is null), create Cloud Bucket
+                if (dbResult == null) {
+                    try {
+                        // MinIO/S3 requires bucket names to be lowercase, nums, hyphens only
+                        String rawName = first + "-" + last;
+                        // Sanitize: Force lowercase and remove anything that isn't a letter, number, or hyphen
+                        String safeBucketName = rawName.toLowerCase().replaceAll("[^a-z0-9-]", "");
+                        // Call MinioService to create the bucket
+                        MinioService minioService = new MinioService();
+                        minioService.createBucket(safeBucketName);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // Optional: Return a specific warning if bucket creation fails
+                        // For now, we allow the user to exist even if bucket creation glitches
+                        System.err.println("Warning: User created but Bucket creation failed: " + e.getMessage());
+                    }
+                }
+                return dbResult;
             }
         };
 
@@ -196,15 +219,16 @@ public class RegisterController {
         task.setOnFailed(e -> {
             isProcessing.set(false);
             registerButton.setText("CREATE ACCOUNT");
-            showAlert(Alert.AlertType.ERROR, "Error", "Unexpected error");
+
+            // GET THE REAL ERROR
+            Throwable error = task.getException();
+            error.printStackTrace(); // Print it to console so you can copy it
+
+            // Show it in the Alert
+            showAlert(Alert.AlertType.ERROR, "Registration Failed", error.getMessage());
         });
 
         new Thread(task).start();
-    }
-
-    private void resetButtonState() {
-        registerButton.setDisable(false);
-        registerButton.setText("CREATE ACCOUNT");
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

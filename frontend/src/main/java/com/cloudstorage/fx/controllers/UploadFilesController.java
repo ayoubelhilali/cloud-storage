@@ -1,13 +1,12 @@
 package com.cloudstorage.fx.controllers;
 
+import com.cloudstorage.config.SessionManager;
+import com.cloudstorage.service.FileUploadService;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.scene.input.TransferMode;
 
@@ -16,46 +15,36 @@ import java.util.List;
 
 public class UploadFilesController {
 
-    @FXML
-    private VBox dropZone;
+    @FXML private VBox dropZone;
+    @FXML private Button btnBrowse;
+    @FXML private VBox progressListContainer;
 
-    @FXML
-    private Button btnBrowse;
+    private final FileUploadService uploadService = new FileUploadService();
 
-    @FXML
-    private VBox progressListContainer;
+    // --- 1. NEW: Define a Callback ---
+    private Runnable onUploadComplete;
+
+    // --- 2. NEW: Setter for the Callback ---
+    public void setOnUploadComplete(Runnable action) {
+        this.onUploadComplete = action;
+    }
 
     @FXML
     public void initialize() {
         setupDragAndDrop();
     }
 
+    // [setupDragAndDrop... same as before]
     private void setupDragAndDrop() {
-        // 1. Drag Over Event
         dropZone.setOnDragOver(event -> {
-            if (event.getDragboard().hasFiles()) {
-                event.acceptTransferModes(TransferMode.COPY);
-                if (!dropZone.getStyleClass().contains("upload-card-drag")) {
-                    dropZone.getStyleClass().add("upload-card-drag");
-                }
-            }
+            if (event.getDragboard().hasFiles()) event.acceptTransferModes(TransferMode.COPY);
             event.consume();
         });
-
-        // 2. Drag Exited Event
-        dropZone.setOnDragExited(event -> {
-            dropZone.getStyleClass().remove("upload-card-drag");
-            event.consume();
-        });
-
-        // 3. Drag Dropped Event
         dropZone.setOnDragDropped(event -> {
             boolean success = false;
             if (event.getDragboard().hasFiles()) {
                 List<File> files = event.getDragboard().getFiles();
-                for (File file : files) {
-                    addFileToUploadQueue(file);
-                }
+                for (File file : files) addFileToUploadQueue(file);
                 success = true;
             }
             event.setDropCompleted(success);
@@ -70,29 +59,29 @@ public class UploadFilesController {
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(btnBrowse.getScene().getWindow());
 
         if (selectedFiles != null) {
-            for (File file : selectedFiles) {
-                addFileToUploadQueue(file);
-            }
+            for (File file : selectedFiles) addFileToUploadQueue(file);
         }
     }
 
-    /**
-     * Creates a new visual row in the progress list for the file
-     * and starts the upload process.
-     */
     private void addFileToUploadQueue(File file) {
-        // 1. Create UI Elements dynamically
+        long currentUserId = SessionManager.getCurrentUser().getId();
+
+        if (currentUserId <= 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Session Error: Please logout and login again.");
+            alert.show();
+            return;
+        }
+
+        // UI Creation
         HBox itemBox = new HBox();
         itemBox.getStyleClass().add("progress-item");
         itemBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         itemBox.setSpacing(15);
         itemBox.setPadding(new javafx.geometry.Insets(10, 15, 10, 15));
 
-        // Icon
-        Label iconLabel = new Label("📄"); // Dynamic icon based on extension could go here
+        Label iconLabel = new Label("📄");
         iconLabel.getStyleClass().addAll("file-icon", "icon-teal");
 
-        // Info VBox (Name + Bar)
         VBox infoBox = new VBox(5);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
 
@@ -105,55 +94,68 @@ public class UploadFilesController {
         percentLabel.getStyleClass().add("percentage-text");
 
         detailsRow.getChildren().addAll(nameLabel, spacer, percentLabel);
-
         ProgressBar progressBar = new ProgressBar(0);
         progressBar.setMaxWidth(Double.MAX_VALUE);
         progressBar.getStyleClass().add("custom-progress-bar");
-
         infoBox.getChildren().addAll(detailsRow, progressBar);
 
-        // Cancel Button
         Button cancelBtn = new Button("✖");
         cancelBtn.getStyleClass().add("cancel-btn");
-        cancelBtn.setOnAction(e -> {
-            // Logic to cancel upload task would go here
-            progressListContainer.getChildren().remove(itemBox);
+        cancelBtn.setOnMouseClicked(event -> {
+            itemBox.getChildren().clear();
         });
 
         itemBox.getChildren().addAll(iconLabel, infoBox, cancelBtn);
+        progressListContainer.getChildren().add(0, itemBox);
 
-        // 2. Add to the View
-        progressListContainer.getChildren().add(0, itemBox); // Add to top
-
-        // 3. Start Mock Upload (Replace this with MinIO logic later)
-        simulateUpload(progressBar, percentLabel);
-    }
-
-    private void simulateUpload(ProgressBar bar, Label percentLabel) {
-        // This is a dummy thread to simulate MinIO upload progress
-        new Thread(() -> {
-            try {
-                for (int i = 0; i <= 100; i++) {
-                    double progress = i / 100.0;
-                    int finalI = i;
-
-                    // Update UI on JavaFX Thread
-                    javafx.application.Platform.runLater(() -> {
-                        bar.setProgress(progress);
-                        percentLabel.setText(finalI + "%");
-                    });
-
-                    Thread.sleep(30); // Simulate network delay
-                }
-                // Upload Complete
-                javafx.application.Platform.runLater(() -> {
-                    percentLabel.setText("Done");
-                    percentLabel.setStyle("-fx-text-fill: #00b894;"); // Green color
+        // Background Task
+        Task<Void> uploadTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                uploadService.uploadFile(file, currentUserId, (progress) -> {
+                    updateProgress(progress, 1.0);
                 });
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                return null;
             }
-        }).start();
+        };
+
+        progressBar.progressProperty().bind(uploadTask.progressProperty());
+
+        uploadTask.progressProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.doubleValue() < 0.99) {
+                int percent = (int) (newVal.doubleValue() * 100);
+                Platform.runLater(() -> percentLabel.setText(percent + "%"));
+            }
+        });
+
+        uploadTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            percentLabel.setText("Done");
+            percentLabel.setStyle("-fx-text-fill: #00b894;");
+            progressBar.getStyleClass().add("progress-bar-success");
+
+            // --- 3. NEW: Trigger the Refresh Callback ---
+            if (onUploadComplete != null) {
+                System.out.println("Triggering Dashboard Refresh...");
+                onUploadComplete.run();
+            }
+        }));
+
+        uploadTask.setOnFailed(e -> Platform.runLater(() -> {
+            Throwable error = uploadTask.getException();
+            String msg = (error != null) ? error.getMessage() : "Unknown Error";
+            percentLabel.setText("Failed");
+            percentLabel.setStyle("-fx-text-fill: #d63031;");
+            percentLabel.setTooltip(new Tooltip(msg));
+            error.printStackTrace();
+        }));
+
+        cancelBtn.setOnAction(e -> {
+            if (uploadTask.isRunning()) uploadTask.cancel();
+            progressListContainer.getChildren().remove(itemBox);
+        });
+
+        Thread thread = new Thread(uploadTask);
+        thread.setDaemon(true);
+        thread.start();
     }
 }

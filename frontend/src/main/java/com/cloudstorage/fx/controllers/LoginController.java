@@ -1,6 +1,10 @@
 package com.cloudstorage.fx.controllers;
 
+import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.database.LoginUser;
+import com.cloudstorage.model.User;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -21,9 +25,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 public class LoginController {
 
@@ -38,48 +41,47 @@ public class LoginController {
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
+    private static final String PREF_EMAIL = "user_email";
+    private static final String PREF_PASSWORD = "user_password";
+    private static final String PREF_TIME = "login_time";
+    private static final long SESSION_TIMEOUT = 3600 * 1000;
+
     @FXML
     private void initialize() {
-        // Resize images dynamically
-        mainImage.fitWidthProperty().bind(bottomRight.widthProperty().multiply(0.9));
-        mainImage.fitHeightProperty().bind(bottomRight.heightProperty().multiply(0.9));
-        logoImage.fitWidthProperty().bind(bottomRight.widthProperty().multiply(0.6));
-        logoImage.fitHeightProperty().bind(bottomRight.heightProperty().multiply(0.6));
+        if (bottomRight != null && mainImage != null) {
+            mainImage.fitWidthProperty().bind(bottomRight.widthProperty().multiply(0.9));
+            mainImage.fitHeightProperty().bind(bottomRight.heightProperty().multiply(0.9));
+            logoImage.fitWidthProperty().bind(bottomRight.widthProperty().multiply(0.6));
+            logoImage.fitHeightProperty().bind(bottomRight.heightProperty().multiply(0.6));
+        }
 
-        // Check MinIO connection (optional)
         testMinioConnection();
+        checkSavedSession();
     }
 
-    private void testMinioConnection() {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/api/minioStatus"))
-                .GET()
-                .build();
+    private void checkSavedSession() {
+        Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
+        long lastLoginTime = prefs.getLong(PREF_TIME, 0);
+        long currentTime = System.currentTimeMillis();
 
-        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenAccept(response -> Platform.runLater(() -> {
-                    if (response.statusCode() == 200) {
-                        JsonObject jsonResponse = gson.fromJson(response.body(), JsonObject.class);
-                        boolean isConnected = jsonResponse.get("minioConnected").getAsBoolean();
-                        if (isConnected) {
-                            statusLabel.setText("✅ MinIO connection successful!");
-                            statusLabel.setStyle("-fx-text-fill: green;");
-                        } else {
-                            //statusLabel.setText("❌ MinIO connection failed on backend.");
-                            statusLabel.setStyle("-fx-text-fill: red;");
-                        }
-                    } else {
-                        //statusLabel.setText("❌ Backend API error: " + response.statusCode());
-                        statusLabel.setStyle("-fx-text-fill: red;");
-                    }
-                }))
-                .exceptionally(e -> {
-                    Platform.runLater(() -> {
-                        //statusLabel.setText("❌ Could not connect to backend: " + e.getMessage());
-                        statusLabel.setStyle("-fx-text-fill: red;");
-                    });
-                    return null;
-                });
+        if ((currentTime - lastLoginTime) < SESSION_TIMEOUT) {
+            String savedEmail = prefs.get(PREF_EMAIL, "");
+            String savedPass = prefs.get(PREF_PASSWORD, "");
+
+            if (!savedEmail.isEmpty() && !savedPass.isEmpty()) {
+                System.out.println("Restoring session for: " + savedEmail);
+                emailField.setText(savedEmail);
+                passwordField.setText(savedPass);
+                performLoginLogic(savedEmail, savedPass);
+            }
+        }
+    }
+
+    private void saveSession(String email, String password) {
+        Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
+        prefs.put(PREF_EMAIL, email);
+        prefs.put(PREF_PASSWORD, password);
+        prefs.putLong(PREF_TIME, System.currentTimeMillis());
     }
 
     @FXML
@@ -92,11 +94,11 @@ public class LoginController {
             statusLabel.setStyle("-fx-text-fill: red;");
             return;
         }
+        performLoginLogic(email, password);
+    }
 
-        // Create LoginUser OUTSIDE the task so we can reuse it
+    private void performLoginLogic(String email, String password) {
         LoginUser loginUser = new LoginUser();
-
-        // Disable button
         loginButton.setDisable(true);
         loginButton.setText("⏳ Logging in...");
 
@@ -116,48 +118,26 @@ public class LoginController {
                 statusLabel.setText("✅ Login successful!");
                 statusLabel.setStyle("-fx-text-fill: green;");
 
-                try {
-                    // LOAD DASHBOARD
-                    var resource = getClass().getResource("/com/cloudstorage/fx/Dashboard.fxml");
+                saveSession(email, password);
 
-                    if (resource == null) {
-                        throw new IOException("Dashboard.fxml not found at path: /com/cloudstorage/fx/Dashboard.fxml");
-                    }
+                // --- FIX: Get the Real User Object ---
+                User authenticatedUser = loginUser.getLoggedUser();
 
-                    FXMLLoader loader = new FXMLLoader(resource);
-                    Parent root = loader.load();
+                if (authenticatedUser != null) {
+                    SessionManager.login(authenticatedUser); // Set Global Session
 
-                    // ----------------------------
-                    // 🔥 GET Dashboard Controller
-                    // ----------------------------
-                    DashboardController controller = loader.getController();
-
-                    // ----------------------------
-                    // 🔥 PASS LOGGED USER NAME
-                    // ----------------------------
-                    String fullName = loginUser.getLoggedUser().getLastName();
-                    controller.setUsername(fullName);
-
-                    // ----------------------------
-                    // 🔥 SWITCH TO DASHBOARD VIEW
-                    // ----------------------------
-                    Stage stage = (Stage) loginButton.getScene().getWindow();
-                    Scene scene = new Scene(root);
-                    stage.setScene(scene);
-                    stage.setTitle("Cloud Storage - Dashboard");
-                    stage.sizeToScene();
-                    stage.centerOnScreen();
-                    stage.show();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    statusLabel.setText("❌ Error loading dashboard view");
-                    statusLabel.setStyle("-fx-text-fill: red;");
+                    // PASS THE USER OBJECT, NOT STRINGS
+                    navigateToDashboard(authenticatedUser);
                 }
 
             } else {
                 statusLabel.setText("❌ Invalid email or password");
                 statusLabel.setStyle("-fx-text-fill: red;");
+                try {
+                    Preferences.userNodeForPackage(LoginController.class).clear();
+                } catch (BackingStoreException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -172,6 +152,43 @@ public class LoginController {
         new Thread(loginTask).start();
     }
 
+    // --- UPDATED METHOD: Accepts User object instead of Strings ---
+    private void navigateToDashboard(User user) {
+        try {
+            var resource = getClass().getResource("/com/cloudstorage/fx/Dashboard.fxml");
+            if (resource == null) throw new IOException("Dashboard.fxml not found");
+
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent root = loader.load();
+
+            DashboardController controller = loader.getController();
+
+            // --- PASS THE FULL USER OBJECT (Contains ID 5) ---
+            controller.setUserData(user);
+
+            Stage stage = (Stage) loginButton.getScene().getWindow();
+            if (stage == null && emailField.getScene() != null) {
+                stage = (Stage) emailField.getScene().getWindow();
+            }
+
+            if (stage != null) {
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                stage.setTitle("Cloud Storage - Dashboard");
+                stage.sizeToScene();
+                stage.setMinWidth(1100);
+                stage.setMinHeight(700);
+                stage.centerOnScreen();
+                stage.setResizable(true);
+                stage.show();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            statusLabel.setText("❌ Error loading dashboard");
+            statusLabel.setStyle("-fx-text-fill: red;");
+        }
+    }
 
     @FXML
     private void OpenRegisterPage(ActionEvent event) {
@@ -184,5 +201,29 @@ public class LoginController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void testMinioConnection() {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/api/minioStatus"))
+                .GET()
+                .build();
+
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenAccept(response -> Platform.runLater(() -> {
+                    if (response.statusCode() == 200) {
+                        try {
+                            JsonObject jsonResponse = gson.fromJson(response.body(), JsonObject.class);
+                            boolean isConnected = jsonResponse.get("minioConnected").getAsBoolean();
+                            if (isConnected) {
+                                statusLabel.setText("✅ MinIO connected");
+                                statusLabel.setStyle("-fx-text-fill: green;");
+                            } else {
+                                statusLabel.setStyle("-fx-text-fill: red;");
+                            }
+                        } catch (Exception e) {}
+                    }
+                }))
+                .exceptionally(e -> null);
     }
 }

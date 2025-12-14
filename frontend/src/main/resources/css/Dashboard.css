@@ -28,6 +28,11 @@
     -fx-cursor: hand;
 }
 
+.nav-button:hover {
+    -fx-background-color: #2e5cb8; /* Lighter blue than sidebar (#022e7c) */
+    -fx-text-fill: white;
+}
+
 .nav-button-active {
     -fx-text-fill: white;
     -fx-font-weight: bold;
@@ -51,8 +56,22 @@
 /* Center Content */
 .search-bar {
     -fx-background-color: white;
-    -fx-background-radius: 25;
-    -fx-padding: 0 0 0 20;
+    -fx-background-radius: 30; /* Increased radius for rounder look on taller bar */
+    -fx-prompt-text-fill: #a0aec0;
+    -fx-text-fill: #2d3436;
+
+    /* CHANGED: Add vertical padding to center text comfortably */
+    /* Top Right Bottom Left */
+    -fx-padding: 0 30 0 30;
+
+    /* Optional: Ensure font size in CSS matches FXML */
+    -fx-font-size: 16px;
+}
+
+/* Fix for the "focused" state (blue outline) */
+.search-bar:focused {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(9, 132, 227, 0.2), 10, 0, 0, 0);
 }
 
 .section-title {
@@ -71,6 +90,11 @@
 .card-green { -fx-background-color: #00b894; }
 .card-pink { -fx-background-color: #e84393; }
 .card-blue { -fx-background-color: #0984e3; }
+
+.card-purple:hover { -fx-background-color: #897cef; }
+.card-green:hover { -fx-background-color: #17c19d; }
+.card-pink:hover{ -fx-background-color: #f379b4; }
+.card-blue:hover { -fx-background-color: #37a1f3; }
 
 .category-icon {
     -fx-text-fill: white;
@@ -121,6 +145,9 @@
     -fx-background-radius: 15;
     -fx-cursor: hand;
 }
+.recent-item:hover {
+    -fx-background-color: #e1e1e1;
+}
 
 .recent-icon {
     -fx-padding: 12;
@@ -132,10 +159,12 @@
 .icon-bg-purple { -fx-background-color: #6c5ce7; }
 .icon-bg-pink { -fx-background-color: #e84393; }
 .icon-bg-blue { -fx-background-color: #0984e3; }
+.icon-bg-green { -fx-background-color: #00b894; }
 
 .recent-name {
     -fx-font-family: "System Bold";
     -fx-font-size: 14.0;
+    -fx-text-fill: black;
 }
 
 .recent-meta {
@@ -162,6 +191,10 @@
     -fx-background-radius: 25;
     -fx-cursor: hand;
 }
+.right-widget:hover {
+    -fx-background-color: #e0e0fa;
+}
+
 
 .right-widget-padded {
     -fx-background-color: white;

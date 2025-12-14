@@ -46,4 +46,12 @@ public class MinioService {
     public void deleteFile(String key) throws Exception {
         minioClient.removeObject(RemoveObjectArgs.builder().bucket(ConfigLoader.getMinioBucketName()).object(key).build());
     }
+
+    public void createBucket(String bucketName) throws Exception {
+        boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        if (!found) {
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            System.out.println("Created new bucket: " + bucketName);
+        }
+    }
 }

@@ -1,39 +1,45 @@
 package com.cloudstorage.model;
 
 public class FileMetadata {
-    private String userId;
-    private String fileName;
-    private String fileExtension;
+    private long id;
+    private long userId;
+    private Long folderId; // Use wrapper class Long to allow null
+    private String filename;
+    private String originalFilename;
     private long fileSize;
     private String mimeType;
+    private String fileExtension;
     private String storageKey;
+    private String storageBucket;
 
-    // Constructeurs, getters et setters
-    public FileMetadata() {}
-
-    public FileMetadata(String userId, String fileName, String fileExtension, long fileSize, String mimeType) {
+    public FileMetadata(long userId, String filename, String originalFilename, long fileSize,
+                        String mimeType, String fileExtension, String storageKey, String storageBucket) {
         this.userId = userId;
-        this.fileName = fileName;
-        this.fileExtension = fileExtension;
+        this.filename = filename;
+        this.originalFilename = originalFilename;
         this.fileSize = fileSize;
         this.mimeType = mimeType;
+        this.fileExtension = fileExtension;
+        this.storageKey = storageKey;
+        this.storageBucket = storageBucket;
+        this.folderId = null; // Default to root
     }
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    // Getters and Setters
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
 
-    public String getFileName() { return fileName; }
-    public void setFileName(String fileName) { this.fileName = fileName; }
+    public long getUserId() { return userId; }
+    public void setUserId(long userId) { this.userId = userId; }
 
-    public String getFileExtension() { return fileExtension; }
-    public void setFileExtension(String fileExtension) { this.fileExtension = fileExtension; }
+    public Long getFolderId() { return folderId; }
+    public void setFolderId(Long folderId) { this.folderId = folderId; }
 
+    public String getFilename() { return filename; }
+    public String getOriginalFilename() { return originalFilename; }
     public long getFileSize() { return fileSize; }
-    public void setFileSize(long fileSize) { this.fileSize = fileSize; }
-
     public String getMimeType() { return mimeType; }
-    public void setMimeType(String mimeType) { this.mimeType = mimeType; }
-
+    public String getFileExtension() { return fileExtension; }
     public String getStorageKey() { return storageKey; }
-    public void setStorageKey(String storageKey) { this.storageKey = storageKey; }
+    public String getStorageBucket() { return storageBucket; }
 }

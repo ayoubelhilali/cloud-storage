@@ -1,152 +1,228 @@
 package com.cloudstorage.fx.controllers;
 
 import com.cloudstorage.config.SessionManager;
+import com.cloudstorage.fx.utils.AlertUtils;
 import com.cloudstorage.service.FileUploadService;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
-import javafx.scene.input.TransferMode;
 
 import java.io.File;
 import java.util.List;
 
 public class UploadFilesController {
 
+    // 🔵 FXML
     @FXML private VBox dropZone;
     @FXML private Button btnBrowse;
     @FXML private VBox progressListContainer;
 
+    // 🟢 Service
     private final FileUploadService uploadService = new FileUploadService();
 
-    // --- 1. NEW: Define a Callback ---
+    // 🟣 Callback après upload
     private Runnable onUploadComplete;
-
-    // --- 2. NEW: Setter for the Callback ---
     public void setOnUploadComplete(Runnable action) {
         this.onUploadComplete = action;
     }
 
+    // 🔵 Init
     @FXML
     public void initialize() {
         setupDragAndDrop();
     }
 
-    // [setupDragAndDrop... same as before]
+    // =========================================================
+    // 🟢 FILE CHOOSER (Images + Documents seulement)
+    // =========================================================
+    @FXML
+    private void handleBrowseFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Images or Documents");
+
+        FileChooser.ExtensionFilter images =
+                new FileChooser.ExtensionFilter(
+                        "Images (*.png, *.jpg, *.jpeg, *.gif)",
+                        "*.png", "*.jpg", "*.jpeg", "*.gif"
+                );
+
+        FileChooser.ExtensionFilter documents =
+                new FileChooser.ExtensionFilter(
+                        "Documents (*.pdf, *.doc, *.docx, *.txt)",
+                        "*.pdf", "*.doc", "*.docx", "*.txt"
+                );
+
+        fileChooser.getExtensionFilters().addAll(images, documents);
+        fileChooser.setSelectedExtensionFilter(images);
+
+        List<File> selectedFiles =
+                fileChooser.showOpenMultipleDialog(btnBrowse.getScene().getWindow());
+
+        if (selectedFiles != null) {
+            for (File file : selectedFiles) {
+                addFileToUploadQueue(file);
+            }
+        }
+    }
+
+    // =========================================================
+    // 🟢 DRAG & DROP sécurisé
+    // =========================================================
     private void setupDragAndDrop() {
         dropZone.setOnDragOver(event -> {
-            if (event.getDragboard().hasFiles()) event.acceptTransferModes(TransferMode.COPY);
+            if (event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY);
+            }
             event.consume();
         });
+
         dropZone.setOnDragDropped(event -> {
             boolean success = false;
+
             if (event.getDragboard().hasFiles()) {
-                List<File> files = event.getDragboard().getFiles();
-                for (File file : files) addFileToUploadQueue(file);
+                for (File file : event.getDragboard().getFiles()) {
+                    if (isAllowedFile(file)) {
+                        addFileToUploadQueue(file);
+                    } else {
+                        AlertUtils.showError(
+                                "Invalid file",
+                                "Only images and documents are allowed."
+                        );
+                    }
+                }
                 success = true;
             }
+
             event.setDropCompleted(success);
             event.consume();
         });
     }
 
-    @FXML
-    private void handleBrowseFile() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Files to Upload");
-        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(btnBrowse.getScene().getWindow());
+    // =========================================================
+    // 🟢 Sécurité formats autorisés
+    // =========================================================
+    private boolean isAllowedFile(File file) {
+        String name = file.getName().toLowerCase();
 
-        if (selectedFiles != null) {
-            for (File file : selectedFiles) addFileToUploadQueue(file);
-        }
+        return name.endsWith(".png")
+                || name.endsWith(".jpg")
+                || name.endsWith(".jpeg")
+                || name.endsWith(".gif")
+                || name.endsWith(".pdf")
+                || name.endsWith(".doc")
+                || name.endsWith(".docx")
+                || name.endsWith(".txt")
+                || name.endsWith(".mp4")
+                || name.endsWith(".avi")
+                || name.endsWith(" .mp3")
+                || name.endsWith(".wav");
     }
 
+    // =========================================================
+    // 🟢 Ajout + Upload
+    // =========================================================
     private void addFileToUploadQueue(File file) {
-        long currentUserId = SessionManager.getCurrentUser().getId();
 
-        if (currentUserId <= 0) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Session Error: Please logout and login again.");
-            alert.show();
+        // 🔴 Sécurité
+        if (!isAllowedFile(file)) {
+            AlertUtils.showError(
+                    "Invalid file type",
+                    "Only images and documents are allowed."
+            );
             return;
         }
 
-        // UI Creation
-        HBox itemBox = new HBox();
+        // 1. Get User Data
+        var currentUser = SessionManager.getCurrentUser();
+        long currentUserId = currentUser.getId();
+
+        // --- FIX: Get Bucket Name from Session ---
+        // Ensure your User model has this, or fallback to the same generation logic used in Dashboard
+        String fName = (currentUser.getFirstName() != null) ? currentUser.getFirstName() : "user";
+        String lName = (currentUser.getLastName() != null) ? currentUser.getLastName() : "default";
+        String generatedBucket = (fName + "-" + lName).toLowerCase().replaceAll("[^a-z0-9-]", "");
+
+        String bucketName = (currentUser.getBucketName() != null && !currentUser.getBucketName().isEmpty())
+                ? currentUser.getBucketName()
+                : generatedBucket;
+
+        if (currentUserId <= 0) {
+            AlertUtils.showError("Session Error", "Please logout and login again.");
+            return;
+        }
+
+        // 🟦 UI item
+        HBox itemBox = new HBox(15);
         itemBox.getStyleClass().add("progress-item");
         itemBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        itemBox.setSpacing(15);
-        itemBox.setPadding(new javafx.geometry.Insets(10, 15, 10, 15));
+        itemBox.setPadding(new javafx.geometry.Insets(10));
 
         Label iconLabel = new Label("📄");
-        iconLabel.getStyleClass().addAll("file-icon", "icon-teal");
+        iconLabel.getStyleClass().add("file-icon");
 
         VBox infoBox = new VBox(5);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
 
-        HBox detailsRow = new HBox();
         Label nameLabel = new Label(file.getName());
-        nameLabel.getStyleClass().add("filename-text");
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
         Label percentLabel = new Label("0%");
         percentLabel.getStyleClass().add("percentage-text");
 
-        detailsRow.getChildren().addAll(nameLabel, spacer, percentLabel);
+        HBox header = new HBox(nameLabel, new Region(), percentLabel);
+        HBox.setHgrow(header.getChildren().get(1), Priority.ALWAYS);
+
         ProgressBar progressBar = new ProgressBar(0);
         progressBar.setMaxWidth(Double.MAX_VALUE);
-        progressBar.getStyleClass().add("custom-progress-bar");
-        infoBox.getChildren().addAll(detailsRow, progressBar);
+
+        infoBox.getChildren().addAll(header, progressBar);
 
         Button cancelBtn = new Button("✖");
         cancelBtn.getStyleClass().add("cancel-btn");
-        cancelBtn.setOnMouseClicked(event -> {
-            itemBox.getChildren().clear();
-        });
 
         itemBox.getChildren().addAll(iconLabel, infoBox, cancelBtn);
         progressListContainer.getChildren().add(0, itemBox);
 
-        // Background Task
+        // 🟡 Task Upload
         Task<Void> uploadTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                uploadService.uploadFile(file, currentUserId, (progress) -> {
-                    updateProgress(progress, 1.0);
-                });
+                // --- FIX: Pass bucketName to the service ---
+                uploadService.uploadFile(file, currentUserId, bucketName,
+                        progress -> updateProgress(progress, 1.0));
                 return null;
             }
         };
 
         progressBar.progressProperty().bind(uploadTask.progressProperty());
 
-        uploadTask.progressProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal.doubleValue() < 0.99) {
-                int percent = (int) (newVal.doubleValue() * 100);
-                Platform.runLater(() -> percentLabel.setText(percent + "%"));
-            }
+        uploadTask.progressProperty().addListener((obs, o, n) -> {
+            int p = (int) (n.doubleValue() * 100);
+            Platform.runLater(() -> percentLabel.setText(p + "%"));
         });
 
         uploadTask.setOnSucceeded(e -> Platform.runLater(() -> {
             percentLabel.setText("Done");
             percentLabel.setStyle("-fx-text-fill: #00b894;");
-            progressBar.getStyleClass().add("progress-bar-success");
-
-            // --- 3. NEW: Trigger the Refresh Callback ---
-            if (onUploadComplete != null) {
-                System.out.println("Triggering Dashboard Refresh...");
-                onUploadComplete.run();
-            }
+            if (onUploadComplete != null) onUploadComplete.run();
+            AlertUtils.showSuccess(
+                    "Upload success",
+                    "Your file has been uploaded successfully."
+            );
         }));
 
         uploadTask.setOnFailed(e -> Platform.runLater(() -> {
-            Throwable error = uploadTask.getException();
-            String msg = (error != null) ? error.getMessage() : "Unknown Error";
             percentLabel.setText("Failed");
             percentLabel.setStyle("-fx-text-fill: #d63031;");
-            percentLabel.setTooltip(new Tooltip(msg));
-            error.printStackTrace();
+
+            // --- ERROR DEBUGGING ---
+            Throwable err = uploadTask.getException();
+            System.err.println("UPLOAD FAILED:");
+            err.printStackTrace(); // Print full error to console
+
+            AlertUtils.showError("Upload Failed", err.getMessage());
         }));
 
         cancelBtn.setOnAction(e -> {
@@ -154,8 +230,8 @@ public class UploadFilesController {
             progressListContainer.getChildren().remove(itemBox);
         });
 
-        Thread thread = new Thread(uploadTask);
-        thread.setDaemon(true);
-        thread.start();
+        Thread t = new Thread(uploadTask);
+        t.setDaemon(true);
+        t.start();
     }
 }

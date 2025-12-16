@@ -54,4 +54,19 @@ public class User {
     }
 
     public String getUsername() { return username; }
+
+    public String getBucketName() {
+        // This ensures the logic is IDENTICAL everywhere in your app
+        String fName = (this.firstName == null) ? "" : this.firstName;
+        String lName = (this.lastName == null) ? "" : this.lastName;
+
+        // Strategy: "firstname-lastname"
+        String bucket = (fName + "-" + lName).toLowerCase().replaceAll("[^a-z0-9-]", "");
+
+        // Fallback: if name is empty, use username
+        if (bucket.isEmpty() || bucket.equals("-")) {
+            return this.username.toLowerCase().replaceAll("[^a-z0-9-]", "");
+        }
+        return bucket;
+    }
 }

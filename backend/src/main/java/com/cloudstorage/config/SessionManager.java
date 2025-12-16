@@ -17,6 +17,13 @@ public class SessionManager {
 
     private SessionManager() {}
 
+    // In SessionManager.java
+
+    private static boolean favoritesChanged = true; // Default to true so it loads the first time
+
+    public static boolean isFavoritesChanged() { return favoritesChanged; }
+    public static void setFavoritesChanged(boolean changed) { favoritesChanged = changed; }
+
     public static void login(User user) {
         if (user == null) return;
 

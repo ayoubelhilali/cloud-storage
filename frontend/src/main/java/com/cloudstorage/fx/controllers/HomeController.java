@@ -1,10 +1,10 @@
 package com.cloudstorage.fx.controllers;
 
-import com.cloudstorage.database.LoginUser; // Make sure this is imported
+import com.cloudstorage.database.LoginUser;
+import com.cloudstorage.model.User; // IMPORT YOUR USER MODEL
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,7 +31,7 @@ public class HomeController {
     @FXML private Label titleLabel, subtitleLabel;
     @FXML private VBox rightContainer;
 
-    // Preference keys (Must match LoginController)
+    // Preference keys
     private static final String PREF_EMAIL = "user_email";
     private static final String PREF_PASSWORD = "user_password";
     private static final String PREF_TIME = "login_time";
@@ -39,18 +39,13 @@ public class HomeController {
 
     @FXML
     public void initialize() {
-        // 1. Setup UI bindings
         setupUIBindings();
-
-        // 2. Setup Animations
         setupSmoothHover(loginButton);
-
-        // 3. CHECK FOR SAVED SESSION IMMEDIATELY
         checkSavedSession();
     }
 
     private void checkSavedSession() {
-        Preferences prefs = Preferences.userNodeForPackage(LoginController.class); // Use LoginController class to access same node
+        Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
         long lastLoginTime = prefs.getLong(PREF_TIME, 0);
         long currentTime = System.currentTimeMillis();
 
@@ -59,7 +54,7 @@ public class HomeController {
             String savedPass = prefs.get(PREF_PASSWORD, "");
 
             if (!savedEmail.isEmpty() && !savedPass.isEmpty()) {
-                System.out.println("Auto-login triggered from Home...");
+                System.out.println("Auto-login triggered...");
                 performAutoLogin(savedEmail, savedPass);
             }
         }
@@ -70,70 +65,77 @@ public class HomeController {
         loginButton.setDisable(true);
         registerButton.setDisable(true);
 
-        // --- FIX: Change Task type from Boolean to LoginUser ---
-        Task<LoginUser> loginTask = new Task<>() {
+        // Task returns a 'User' object, not 'LoginUser' helper
+        Task<User> loginTask = new Task<>() {
             @Override
-            protected LoginUser call() {
-                LoginUser loginUser = new LoginUser();
-                boolean isLoggedIn = loginUser.login(email, password);
-                // Return the object if login worked, otherwise null
-                return isLoggedIn ? loginUser : null;
+            protected User call() {
+                LoginUser loginHelper = new LoginUser();
+                boolean success = loginHelper.login(email, password);
+
+                if (success) {
+                    // Assuming LoginUser has a method to get the actual User model
+                    // You might need to adjust .getLoggedUser() based on your actual LoginUser class
+                    return loginHelper.getLoggedUser();
+                }
+                return null;
             }
         };
 
         loginTask.setOnSucceeded(event -> {
-            LoginUser validUser = loginTask.getValue(); // Get the result
+            User validUser = loginTask.getValue();
 
             if (validUser != null) {
-                // --- FIX: GET REAL NAMES ---
-                String fName = validUser.getLoggedUser().getFirstName();
-                String lName = validUser.getLoggedUser().getLastName();
-
-                navigateToDashboard(fName + " " + lName);
+                // SUCCESS: Pass the full User object to dashboard
+                navigateToDashboard(validUser);
             } else {
-                // Login failed (password changed?), reset UI
-                loginButton.setText("Login");
-                loginButton.setDisable(false);
-                registerButton.setDisable(false);
+                // FAIL: Reset UI
+                resetButtons();
             }
         });
 
         loginTask.setOnFailed(event -> {
-            loginButton.setText("Login");
-            loginButton.setDisable(false);
-            registerButton.setDisable(false);
+            resetButtons();
             event.getSource().getException().printStackTrace();
         });
 
         new Thread(loginTask).start();
     }
 
-    private void navigateToDashboard(String fullName) {
+    private void resetButtons() {
+        loginButton.setText("Login");
+        loginButton.setDisable(false);
+        registerButton.setDisable(false);
+    }
+
+    // --- UPDATED NAVIGATION METHOD ---
+    private void navigateToDashboard(User user) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/Dashboard.fxml"));
             Parent root = loader.load();
 
             DashboardController controller = loader.getController();
-            controller.setUsername(fullName);
+
+            // IMPORTANT: Use the new method that accepts the User object
+            controller.setUserData(user);
 
             Stage stage = (Stage) loginButton.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle("Cloud Storage - Dashboard");
 
-            // --- FIX RESPONSIVENESS ---
+            // Responsive sizing
             stage.sizeToScene();
             stage.setMinWidth(1100);
             stage.setMinHeight(700);
-
             stage.centerOnScreen();
             stage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // --- EXISTING UI METHODS (Cleaned up for readability) ---
+    // --- UI BINDINGS & ANIMATIONS ---
 
     private void setupUIBindings() {
         mainImage.fitWidthProperty().bind(bottomLeft.widthProperty().multiply(0.9));
@@ -160,25 +162,22 @@ public class HomeController {
 
     @FXML
     private void openLoginPage(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/login.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) loginButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Login");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        loadScene("/com/cloudstorage/fx/Login.fxml", "Login");
     }
 
     @FXML
     private void OpenRegisterPage(ActionEvent event) {
+        loadScene("/com/cloudstorage/fx/Register.fxml", "Create Account");
+    }
+
+    // Helper to reduce code duplication
+    private void loadScene(String fxmlPath, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/register.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-            Stage stage = (Stage) registerButton.getScene().getWindow();
+            Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Create account");
+            stage.setTitle(title);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -177,12 +177,18 @@
     -fx-text-fill: #0984e3;
     -fx-font-size: 18.0;
 }
+.icon-btn-link:hover {
+    -fx-text-fill: #175281;
+}
 
 .icon-btn-more {
     -fx-background-color: transparent;
     -fx-cursor: hand;
     -fx-text-fill: #a0aec0;
     -fx-font-size: 14.0;
+}
+.icon-btn-more:hover{
+    -fx-text-fill: #0984e3;
 }
 
 /* Right Side Widgets */
@@ -225,11 +231,23 @@
 }
 
 .storage-bar {
-    -fx-accent: #0984e3;
-    -fx-control-inner-background: #dfe6e9;
-    -fx-text-box-border: transparent;
-    -fx-pref-height: 8;
+    -fx-pref-height: 8px;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
 }
+
+.storage-bar .track {
+    -fx-background-color: #dfe6e9;
+    -fx-background-radius: 10;
+}
+
+.storage-bar .bar {
+    -fx-background-color: #022e7c;
+    -fx-background-radius: 10;
+    -fx-background-insets: 0;
+}
+
+
 
 /* Shared Folders */
 .shared-item {
@@ -246,6 +264,26 @@
     -fx-font-size: 13.0;
 }
 
+/* Normal State (Grey) */
+.file-menu-horizontal .button .ikonli-font-icon {
+    -fx-icon-color: #718096; /* Default Grey */
+}
+
+/* Hover State */
+.file-menu-horizontal .button:hover .ikonli-font-icon {
+    -fx-icon-color: #4a5568;
+}
+
+/* --- ACTIVE FAVORITE STATE --- */
+.file-menu-horizontal .button.is_favorite .ikonli-font-icon {
+    -fx-icon-color: #ecc94b; /* Gold / Yellow */
+}
+
+/* Hover on Favorite (Darker Gold) */
+.file-menu-horizontal .button.is_favorite:hover .ikonli-font-icon {
+    -fx-icon-color: #d69e2e;
+}
+
 .add-more-btn {
     -fx-background-color: #f1f2f6;
     -fx-background-radius: 15;
@@ -253,6 +291,61 @@
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }
+
+/* Context Menu */
+.file-menu-horizontal {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 30px; /* Makes it a pill shape */
+    -fx-border-radius: 30px;
+    -fx-border-color: #dfe6e9; /* Subtle border for definition */
+    -fx-border-width: 1px;
+    -fx-padding: 5px 10px 5px 10px; /* Top/Bot Right/Left */
+    /* Softer, more modern shadow */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 4);
+}
+
+/* The Buttons */
+.file-menu-horizontal .button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%; /* Circular hover effect */
+    -fx-cursor: hand;
+    -fx-padding: 8px; /* Determines size of the click area */
+    -fx-min-width: 35px; /* Ensure uniform circle size */
+    -fx-min-height: 35px;
+}
+
+/* Hover State - Circle Background */
+.file-menu-horizontal .button:hover {
+    -fx-background-color: #f1f2f6; /* Light gray hover instead of solid blue */
+}
+
+/* Pressed State */
+.file-menu-horizontal .button:pressed {
+    -fx-background-color: #dfe6e9;
+}
+
+/* The Icons - Default State */
+.file-menu-horizontal .button .font-icon {
+    -fx-icon-size: 18px; /* Use -fx-icon-size for Ikonli */
+    -fx-icon-color: #636e72; /* Grey text */
+    -fx-fill: #636e72; /* Fallback */
+}
+
+/* Icon Hover State - Turn Blue */
+.file-menu-horizontal .button:hover .font-icon {
+    -fx-icon-color: #0984e3; /* Primary Blue */
+    -fx-fill: #0984e3;
+}
+
+/* Optional: Make the tooltip look modern too */
+.modern-tooltip {
+    -fx-background-color: #2d3436;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-background-radius: 4px;
+}
+
+
 
 /* Avatars (Split from style to CSS as requested) */
 .avatar-1 { -fx-fill: url('https://i.pravatar.cc/150?img=10'); }

@@ -156,7 +156,7 @@
                                                     <children>
                                                         <Label styleClass="category-icon" text="📷"/>
                                                         <Label styleClass="category-title" text="Pictures"/>
-                                                        <Label styleClass="category-subtitle" text="480 files"/>
+                                                        <Label fx:id="lblImageCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#6c5ce74d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -170,7 +170,7 @@
                                                         <HBox alignment="TOP_RIGHT" prefHeight="17.0"/>
                                                         <Label styleClass="category-icon" text="📄"/>
                                                         <Label styleClass="category-title" text="Documents"/>
-                                                        <Label styleClass="category-subtitle" text="190 files"/>
+                                                        <Label fx:id="lblDocCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#00b8944d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -184,7 +184,7 @@
                                                         <HBox alignment="TOP_RIGHT" prefHeight="17.0"/>
                                                         <Label styleClass="category-icon" text="🎥"/>
                                                         <Label styleClass="category-title" text="Videos"/>
-                                                        <Label styleClass="category-subtitle" text="30 files"/>
+                                                        <Label fx:id="lblVideoCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#e843934d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -198,7 +198,7 @@
                                                         <HBox alignment="TOP_RIGHT" prefHeight="17.0"/>
                                                         <Label styleClass="category-icon" text="🎤"/>
                                                         <Label styleClass="category-title" text="Audio"/>
-                                                        <Label styleClass="category-subtitle" text="80 files"/>
+                                                        <Label fx:id="lblAudioCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#0984e34d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -304,17 +304,18 @@
                                 </VBox>
 
                                 <VBox prefHeight="150.0" spacing="10.0" styleClass="right-widget-padded">
-                                    <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0"/></padding>
+                                    <padding><Insets bottom="15.0" left="25.0" right="25.0" top="25.0"/></padding>
                                     <children>
                                         <HBox>
                                             <children>
                                                 <Label styleClass="widget-header" text="Your Storage"/>
                                                 <Region HBox.hgrow="ALWAYS"/>
-                                                <Label styleClass="storage-text-blue" text="25% left"/>
+                                                <Label fx:id="sizeLeftPercent" styleClass="storage-text-blue"/>
                                             </children>
                                         </HBox>
-                                        <Label styleClass="storage-text-gray" text="75 GB are used out of 100 GB"/>
-                                        <ProgressBar prefWidth="160.0" progress="0.75" styleClass="storage-bar">
+                                        <Label fx:id="usedStorageCount" styleClass="storage-text-gray"/>
+                                        <ProgressBar fx:id="sizeProgressBar" progress="0.75" styleClass="storage-bar" prefWidth="Infinity"
+                                                     maxWidth="Infinity" prefHeight="8">
                                             <VBox.margin><Insets top="5.0"/></VBox.margin>
                                         </ProgressBar>
                                     </children>

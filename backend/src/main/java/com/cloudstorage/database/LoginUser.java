@@ -27,7 +27,7 @@ public class LoginUser {
 
             stmt.setString(1, usernameOrEmail);
             stmt.setString(2, usernameOrEmail);
-            stmt.setString(3, hashedPassword); // Compare hash vs hash
+            stmt.setString(3, hashedPassword);
 
             ResultSet rs = stmt.executeQuery();
 

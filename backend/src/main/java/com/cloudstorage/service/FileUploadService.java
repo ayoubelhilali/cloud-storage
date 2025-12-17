@@ -1,10 +1,8 @@
 package com.cloudstorage.service;
 
 import com.cloudstorage.config.MinioConfig;
-import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.database.FileDAO;
 import com.cloudstorage.model.FileMetadata;
-import com.cloudstorage.model.User;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
@@ -19,48 +17,36 @@ import java.util.function.Consumer;
 
 public class FileUploadService {
 
-    private final FileDAO fileDAO = new FileDAO();
-
-    public void uploadFile(File file, long userId, Consumer<Double> progressCallback) throws Exception {
+    // Updated signature: Accept bucketName from Controller
+    public void uploadFile(File file, long userId, String bucketName, Consumer<Double> progressCallback) throws Exception {
         MinioClient minioClient = MinioConfig.getClient();
 
-        // 1. Get User & Bucket Name
-        User currentUser = SessionManager.getCurrentUser();
-        String fName = (currentUser.getFirstName() != null) ? currentUser.getFirstName() : "user";
-        String lName = (currentUser.getLastName() != null) ? currentUser.getLastName() : "default";
-
-        // Sanitize bucket name strictly (only lowercase, numbers, hyphens)
-        String bucketName = (fName + "-" + lName).toLowerCase().replaceAll("[^a-z0-9-]", "");
-
-        // 2. Ensure Bucket Exists
+        // 1. Ensure Bucket Exists
         boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         if (!found) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         }
 
-        // 3. Prepare Metadata & READABLE Filename
+        // 2. Prepare Metadata
         String originalName = file.getName();
-        String extension = getExtension(originalName);
         String mimeType = Files.probeContentType(file.toPath());
         if (mimeType == null) mimeType = "application/octet-stream";
 
-        // --- NEW NAMING LOGIC ---
-        // We replace spaces with underscores to keep MinIO happy
-        String cleanName = originalName.replaceAll("\\s+", "_");
+        // Replace spaces with underscores for storage key
+        String storageKey = originalName.replaceAll("\\s+", "_");
 
-        // We add a Timestamp prefix.
-        // Example: "170250999_my_file.pdf"
-        // This keeps the name readable but prevents overwrites.
-        String storageKey = cleanName;
+        // Create Metadata Object
+        FileMetadata metadata = new FileMetadata();
+        metadata.setUserId(userId);
+        metadata.setFolderId(null); // Root folder
+        metadata.setFilename(originalName);
+        metadata.setFileSize(file.length());
+        metadata.setMimeType(mimeType);
+        metadata.setIsFavorite(false); // Default
+        metadata.setStorageKey(storageKey);
+        metadata.setStorageBucket(bucketName); // CRITICAL: Save bucket name
 
-        System.out.println("🚀 Uploading Readable File: " + storageKey);
-
-        FileMetadata metadata = new FileMetadata(
-                userId, originalName, originalName, file.length(),
-                mimeType, extension, storageKey, bucketName
-        );
-
-        // 4. Upload to MinIO
+        // 3. Upload to MinIO (Physical File)
         try (InputStream fileStream = new FileInputStream(file);
              BufferedInputStream bufStream = new BufferedInputStream(fileStream)) {
 
@@ -69,22 +55,30 @@ public class FileUploadService {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(storageKey) // <--- Using the readable name
+                            .object(storageKey)
                             .stream(progressStream, file.length(), -1)
                             .contentType(mimeType)
                             .build()
             );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e; // Stop here if MinIO fails
         }
 
-        // 5. Save to Database
-        progressCallback.accept(0.99);
-        fileDAO.save(metadata);
-        progressCallback.accept(1.0);
-    }
+        // 4. Save to Database (Metadata)
+        try {
+            if (progressCallback != null) progressCallback.accept(0.99);
 
-    private String getExtension(String filename) {
-        int i = filename.lastIndexOf('.');
-        return (i > 0) ? filename.substring(i + 1) : "";
+            // Use the static method we created in FileDAO
+            FileDAO.saveFileRecord(metadata);
+
+            if (progressCallback != null) progressCallback.accept(1.0);
+        } catch (Exception e) {
+            // Optional: If DB fails, you might want to delete the file from MinIO to keep them in sync
+            // minioClient.removeObject(...)
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     // Helper Class for Progress
@@ -116,7 +110,7 @@ public class FileUploadService {
 
         private void updateProgress(long count) {
             bytesRead += count;
-            if (totalBytes > 0) {
+            if (totalBytes > 0 && callback != null) {
                 callback.accept((double) bytesRead / totalBytes);
             }
         }

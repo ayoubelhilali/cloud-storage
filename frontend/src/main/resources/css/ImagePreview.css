@@ -1,0 +1,159 @@
+/* --- 1. BASE LAYOUT --- */
+.root-overlay {
+    -fx-background-color: transparent;
+    -fx-padding: 30;
+}
+
+.preview-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 30, 0, 0, 15);
+}
+
+/* --- 2. HEADER (IMAGE) AREA --- */
+.preview-header {
+    -fx-background-color: #f7fafc;
+    -fx-background-radius: 16px 16px 0 0;
+}
+
+.file-placeholder {
+    -fx-background-color: #f7fafc;
+}
+
+.file-icon-large {
+    -fx-font-size: 80px;
+}
+
+.file-type-label {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 18px;
+    -fx-text-fill: #718096;
+}
+
+/* --- 3. FOOTER (TEXT) AREA --- */
+.preview-footer {
+    -fx-padding: 25px 30px;
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 16px 16px;
+}
+
+.file-name {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+
+.file-meta {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #718096;
+}
+
+/* --- 4. BUTTONS (Standard & Icons) --- */
+
+/* Floating Close Button */
+.btn-close {
+    -fx-background-color: rgba(255, 255, 255, 0.85);
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+.btn-close:hover {
+    -fx-background-color: white;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* Base Action Button Style */
+.btn-action {
+    -fx-font-family: "Segoe UI Bold";
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-content-display: LEFT; /* Icon to the left of text */
+    -fx-graphic-text-gap: 8px;
+}
+
+/* Primary Button (Download - Blue) */
+.btn-primary {
+    -fx-background-color: #3182ce;
+    -fx-text-fill: white;
+}
+.btn-primary:hover {
+    -fx-background-color: #2b6cb0;
+}
+
+/* Secondary Button (Share - Grey) */
+.btn-secondary {
+    -fx-background-color: #edf2f7;
+    -fx-text-fill: #4a5568;
+}
+.btn-secondary:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+/* Danger Button (Delete - Red Outline) */
+.btn-danger {
+    -fx-background-color: #fff5f5;
+    -fx-text-fill: #c53030;
+}
+.btn-danger:hover {
+    -fx-background-color: #fed7d7;
+}
+
+/* --- 5. ALERT STYLES (From your request) --- */
+.custom-alert {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 10);
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 20px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1px;
+}
+.custom-alert .header-panel {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 10px 0;
+}
+.custom-alert .header-panel .label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a202c;
+}
+.custom-alert .content {
+    -fx-background-color: transparent;
+    -fx-padding: 10px 0 20px 0;
+}
+.custom-alert .content .label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #4a5568;
+}
+.custom-alert .button-bar {
+    -fx-background-color: transparent;
+}
+.custom-alert .button-bar .button {
+    -fx-background-color: white;
+    -fx-text-fill: #4a5568;
+    -fx-border-color: #cbd5e0;
+    -fx-border-radius: 6px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8px 16px;
+}
+.custom-alert .button-bar .button:hover {
+    -fx-background-color: #f7fafc;
+}
+.custom-alert .button-bar .button:default {
+    -fx-background-color: #e53e3e;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+.custom-alert .button-bar .button:default:hover {
+    -fx-background-color: #c53030;
+}

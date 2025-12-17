@@ -10,6 +10,8 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.layout.StackPane?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox spacing="30.0" styleClass="root" stylesheets="@../../../css/Favorites.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.FavoritesController">
     <padding>
         <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
@@ -17,39 +19,73 @@
     <children>
         <Label styleClass="page-title" text="Favorites" />
 
-        <HBox>
+        <FlowPane hgap="20" vgap="20" prefWrapLength="1000">
             <children>
-                <VBox prefHeight="150.0" prefWidth="240.0" styleClass="featured-card">
-                    <padding>
-                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                    </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="stat-card">
                     <children>
-                        <HBox alignment="TOP_RIGHT">
+                        <StackPane styleClass="icon-circle, purple-bg">
                             <children>
-                                <Label text="★" textFill="#ffd700">
-                                    <font><Font size="20.0" /></font>
-                                </Label>
+                                <FontIcon iconLiteral="fas-camera" iconSize="20" iconColor="white"/>
                             </children>
-                        </HBox>
-                        <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="50.0" styleClass="icon-container-white">
+                        </StackPane>
+                        <VBox alignment="CENTER_LEFT">
                             <children>
-                                <Label text="📷" textFill="#6c5ce7">
-                                    <font><Font size="24.0" /></font>
-                                </Label>
+                                <Label styleClass="stat-label" text="Images" />
+                                <Label fx:id="lblFavImages" styleClass="stat-number" text="0" />
                             </children>
-                            <VBox.margin>
-                                <Insets top="-30.0" />
-                            </VBox.margin>
                         </VBox>
-
-                        <Region VBox.vgrow="ALWAYS" />
-
-                        <Label styleClass="featured-title" text="Pictures" />
-                        <Label styleClass="featured-subtitle" text="480 files" />
                     </children>
-                </VBox>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="stat-card">
+                    <children>
+                        <StackPane styleClass="icon-circle, pink-bg">
+                            <children>
+                                <FontIcon iconLiteral="fas-video" iconSize="20" iconColor="white"/>
+                            </children>
+                        </StackPane>
+                        <VBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label styleClass="stat-label" text="Videos" />
+                                <Label fx:id="lblFavVideos" styleClass="stat-number" text="0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="stat-card">
+                    <children>
+                        <StackPane styleClass="icon-circle, blue-bg">
+                            <children>
+                                <FontIcon iconLiteral="fas-microphone" iconSize="20" iconColor="white"/>
+                            </children>
+                        </StackPane>
+                        <VBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label styleClass="stat-label" text="Audio" />
+                                <Label fx:id="lblFavAudio" styleClass="stat-number" text="0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="stat-card">
+                    <children>
+                        <StackPane styleClass="icon-circle, green-bg">
+                            <children>
+                                <FontIcon iconLiteral="fas-file-alt" iconSize="20" iconColor="white"/>
+                            </children>
+                        </StackPane>
+                        <VBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label styleClass="stat-label" text="Documents" />
+                                <Label fx:id="lblFavDocs" styleClass="stat-number" text="0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
             </children>
-        </HBox>
+        </FlowPane>
 
         <VBox spacing="15.0" VBox.vgrow="ALWAYS">
             <children>

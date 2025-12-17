@@ -18,31 +18,93 @@
     -fx-text-fill: #093170;
 }
 
-/* --- Featured Card (Purple Gradient) --- */
-.featured-card {
-    -fx-background-color: linear-gradient(to bottom right, #6c5ce7, #a29bfe);
-    -fx-background-radius: 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(108, 92, 231, 0.4), 20, 0, 0, 8);
-}
+/* ========================================= */
+/* 🟢 STATS CARDS (Compact Pill Design)      */
+/* ========================================= */
 
-.icon-container-white {
+.stat-card {
+    /* Base styles */
     -fx-background-color: white;
-    -fx-background-radius: 50%;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+
+    /* Subtle Border (slightly darker than bg) */
+    -fx-border-color: rgba(0,0,0,0.05);
+    -fx-border-width: 1px;
+
+    /* Comfortable padding */
+    -fx-padding: 15px 25px;
+    -fx-min-width: 200px;
+
+    /* Soft Shadow */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 10, 0, 0, 4);
 }
 
-.featured-title {
-    -fx-text-fill: white;
-    -fx-font-size: 18px;
+.stat-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 6);
+    -fx-translate-y: -2px;
+    -fx-cursor: hand;
+}
+
+/* --- 🎨 SPECIFIC CARD BACKGROUNDS (Light Tints) --- */
+
+/* Purple Card (Matches #a29bfe) */
+.purple-card {
+    -fx-background-color: #f3f0ff; /* Very Light Purple */
+}
+
+/* Pink Card (Matches #fd79a8) */
+.pink-card {
+    -fx-background-color: #fff0f6; /* Very Light Pink */
+}
+
+/* Blue Card (Matches #74b9ff) */
+.blue-card {
+    -fx-background-color: #e6f7ff; /* Very Light Blue */
+}
+
+/* Green Card (Matches #55efc4) */
+.green-card {
+    -fx-background-color: #e6fffa; /* Very Light Green */
+}
+
+
+/* The Label (e.g., "Images") */
+.stat-label {
+    -fx-text-fill: #7f8c8d; /* Slightly darker gray for readability on colored bg */
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
 }
 
-.featured-subtitle {
-    -fx-text-fill: rgba(255,255,255,0.8);
-    -fx-font-size: 14px;
+/* The Number (e.g., "120") */
+.stat-number {
+    -fx-text-fill: #2d3436;
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+    -fx-font-family: "Segoe UI", sans-serif;
 }
 
-/* --- Grid Items (The Image Cards) --- */
+/* The Circle behind the Icon */
+.icon-circle {
+    -fx-min-width: 45px;
+    -fx-min-height: 45px;
+    -fx-max-width: 45px;
+    -fx-max-height: 45px;
+    -fx-background-radius: 50%;
+}
+
+/* Icon Background Colors (Keep these vibrant) */
+.purple-bg { -fx-background-color: #a29bfe; }
+.pink-bg   { -fx-background-color: #fd79a8; }
+.blue-bg   { -fx-background-color: #74b9ff; }
+.green-bg  { -fx-background-color: #55efc4; }
+
+
+/* ========================================= */
+/* 🔵 GRID ITEMS (File Cards)                */
+/* ========================================= */
+
 .scroll-pane {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -56,8 +118,8 @@
     -fx-background-radius: 15;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
     -fx-cursor: hand;
-    -fx-min-width: 200px;
-    -fx-max-width: 200px;
+    -fx-min-width: 180px;
+    -fx-max-width: 180px;
 }
 
 .grid-item:hover {
@@ -65,18 +127,15 @@
     -fx-translate-y: -2;
 }
 
-.image-placeholder {
-    -fx-background-color: #dfe6e9; /* Placeholder gray color */
-    -fx-background-radius: 15 15 0 0;
-}
-
 .file-name {
+    -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-fill: #2d3436;
 }
 
 .file-date {
+    -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-size: 12px;
     -fx-text-fill: #b2bec3;
 }

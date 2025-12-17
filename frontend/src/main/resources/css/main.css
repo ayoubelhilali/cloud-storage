@@ -27,7 +27,7 @@
 .top-right-section {
     -fx-background-color: #ffffff;
     -fx-background-radius: 500 0 0 0;
-    -fx-alignment: bottom;
+    -fx-alignment: bottom-center;
     -fx-padding: 10px;
 }
 
@@ -41,7 +41,7 @@
 .bottom-right-section {
     -fx-background-color: #ffffff;
     -fx-background-radius: 0 0 0 0;
-    -fx-alignment: top;
+    -fx-alignment: top-center;
 }
 
 /* Titles */

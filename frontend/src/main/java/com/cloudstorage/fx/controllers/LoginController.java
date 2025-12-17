@@ -216,7 +216,6 @@ public class LoginController {
                             JsonObject jsonResponse = gson.fromJson(response.body(), JsonObject.class);
                             boolean isConnected = jsonResponse.get("minioConnected").getAsBoolean();
                             if (isConnected) {
-                                statusLabel.setText("✅ MinIO connected");
                                 statusLabel.setStyle("-fx-text-fill: green;");
                             } else {
                                 statusLabel.setStyle("-fx-text-fill: red;");

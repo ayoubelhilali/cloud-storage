@@ -53,7 +53,7 @@ public class FileRowFactory {
         if (FileUtils.isImage(ext)) {
             System.out.println("Image file detected: " + truncatedName);
             iconType = FontAwesomeSolid.CAMERA;
-            iconColor = "#805ad5";
+            iconColor = "white";
             bgClass = "icon-bg-purple";
         } else if (ext.equals("mp3") || ext.equals("wav")) {
             iconType = FontAwesomeSolid.MICROPHONE;
@@ -61,7 +61,7 @@ public class FileRowFactory {
             bgClass = "icon-bg-blue";
         } else if (ext.equals("mp4") || ext.equals("avi") || ext.equals("mkv")) {
             iconType = FontAwesomeSolid.VIDEO;
-            iconColor = "#d53f8c";
+            iconColor = "white";
             bgClass = "icon-bg-pink";
         } else if (ext.equals("pdf")) {
             iconType = FontAwesomeSolid.FILE_PDF;
@@ -73,7 +73,7 @@ public class FileRowFactory {
             bgClass = "icon-bg-orange";
         } else if (ext.equals("doc") || ext.equals("docx")) {
             iconType = FontAwesomeSolid.FILE_WORD;
-            iconColor = "#3182ce";
+            iconColor = "blue";
             bgClass = "icon-bg-blue";
         } else if (ext.equals("xls") || ext.equals("xlsx")) {
             iconType = FontAwesomeSolid.FILE_EXCEL;
@@ -82,7 +82,7 @@ public class FileRowFactory {
         } else {
             System.out.println("Default file type with ext: : " + ext);
             iconType = FontAwesomeSolid.FILE;
-            iconColor = "#4a5568";
+            iconColor = "white";
             bgClass = "icon-bg-green";
         }
 

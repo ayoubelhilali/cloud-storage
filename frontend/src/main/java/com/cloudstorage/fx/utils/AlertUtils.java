@@ -1,16 +1,18 @@
 package com.cloudstorage.fx.utils;
 
 import com.cloudstorage.fx.controllers.CustomAlertController;
+import javafx.animation.PauseTransition; // Import for Timer
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.effect.GaussianBlur; // Import for Blur
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.Window; // Import for finding the main window
+import javafx.stage.Window;
+import javafx.util.Duration; // Import for Duration
 
 import java.io.IOException;
 import java.net.URL;
@@ -68,29 +70,26 @@ public class AlertUtils {
                 scene.getStylesheets().add(cssLocation.toExternalForm());
             }
 
-            // =======================================================
-            // 🟢 BLUR EFFECT LOGIC
-            // =======================================================
-
-            // 1. Find the Main Window (The "Owner")
-            // We look for the first active window that isn't this new alert
+            // --- BLUR EFFECT LOGIC ---
             Window owner = Stage.getWindows().stream()
                     .filter(Window::isShowing)
                     .findFirst()
                     .orElse(null);
 
             if (owner != null && owner.getScene() != null) {
-                alertStage.initOwner(owner); // Keep alert on top of main window
-
-                // 2. Apply Blur to the Main Window's Root Node
+                alertStage.initOwner(owner);
                 Parent mainRoot = owner.getScene().getRoot();
-                mainRoot.setEffect(new GaussianBlur(10)); // Radius 10 for a nice soft blur
+                mainRoot.setEffect(new GaussianBlur(10));
 
-                // 3. Remove Blur when Alert Closes
-                alertStage.setOnHidden(e -> {
-                    mainRoot.setEffect(null);
-                });
+                alertStage.setOnHidden(e -> mainRoot.setEffect(null));
             }
+
+            // =======================================================
+            // 🟢 AUTO-CLOSE LOGIC (5 Seconds)
+            // =======================================================
+            PauseTransition delay = new PauseTransition(Duration.seconds(5));
+            delay.setOnFinished(event -> alertStage.close());
+            delay.play();
             // =======================================================
 
             alertStage.centerOnScreen();

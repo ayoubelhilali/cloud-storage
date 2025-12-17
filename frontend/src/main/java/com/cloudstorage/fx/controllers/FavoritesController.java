@@ -25,24 +25,27 @@ import java.util.List;
 
 public class FavoritesController {
 
-    @FXML
-    private FlowPane filesGrid;
-
+    @FXML private FlowPane filesGrid;
     @FXML private ScrollPane scrollPane;
+
+    // --- NEW: Stats Labels ---
+    @FXML private Label lblFavImages;
+    @FXML private Label lblFavVideos;
+    @FXML private Label lblFavAudio;
+    @FXML private Label lblFavDocs;
+
     private boolean isFirstLoad = true;
 
     @FXML
     public void initialize() {
         filesGrid.setHgap(20);
         filesGrid.setVgap(20);
-        // Load data initially when the view is created
+        // Load data initially
         refresh();
     }
 
     public void refresh() {
-        // 1. OPTIMIZATION CHECK:
-        // If it's not the first load AND no favorites have changed, stop here.
-        // This makes the page load instantly when you switch back to it.
+        // 1. OPTIMIZATION CHECK
         if (!isFirstLoad && !SessionManager.isFavoritesChanged()) {
             return;
         }
@@ -51,16 +54,12 @@ public class FavoritesController {
         if (currentUser == null) return;
 
         // 2. SHOW LOADER
-        // We only clear the grid because we know we are about to fetch new data
         filesGrid.getChildren().clear();
-
         ProgressIndicator spinner = new ProgressIndicator();
         spinner.setMaxSize(40, 40);
-
         VBox loaderContainer = new VBox(10, spinner, new Label("Loading favorites..."));
         loaderContainer.setAlignment(Pos.CENTER);
         loaderContainer.setPadding(new Insets(20));
-
         filesGrid.getChildren().add(loaderContainer);
 
         // 3. Create the Task
@@ -76,21 +75,46 @@ public class FavoritesController {
             List<FileMetadata> files = task.getValue();
             filesGrid.getChildren().clear(); // Remove loader
 
+            // --- STATS COUNTERS ---
+            int imgCount = 0;
+            int vidCount = 0;
+            int audioCount = 0;
+            int docCount = 0;
+
             if (files.isEmpty()) {
                 Label emptyLabel = new Label("No favorite files yet.");
                 emptyLabel.setStyle("-fx-text-fill: #718096; -fx-font-size: 16px;");
                 filesGrid.getChildren().add(emptyLabel);
             } else {
                 for (FileMetadata file : files) {
+
+                    // A. Update Counters
+                    String ext = FileUtils.getFileExtension(file.getFilename());
+                    if (FileUtils.isImage(ext)) {
+                        imgCount++;
+                    } else if (FileUtils.isVideo(ext)) {
+                        vidCount++;
+                    } else if (FileUtils.isAudio(ext)) {
+                        audioCount++;
+                    } else {
+                        // Count everything else (docs, archives) as Documents for now
+                        docCount++;
+                    }
+
+                    // B. Create Card
                     VBox card = createCard(file);
                     filesGrid.getChildren().add(card);
                 }
             }
 
+            // Update Labels (Clean Numbers)
+            lblFavImages.setText(String.valueOf(imgCount));
+            lblFavVideos.setText(String.valueOf(vidCount));
+            lblFavAudio.setText(String.valueOf(audioCount));
+            lblFavDocs.setText(String.valueOf(docCount));
+
             // 5. UPDATE STATE FLAGS
-            // Mark that we have loaded at least once
             isFirstLoad = false;
-            // Mark that the data is now "clean" / up-to-date
             SessionManager.setFavoritesChanged(false);
         });
 
@@ -100,7 +124,7 @@ public class FavoritesController {
             Throwable error = task.getException();
             System.err.println("Error loading favorites: " + error.getMessage());
 
-            Label errorLabel = new Label("Could not load files. Please try again.");
+            Label errorLabel = new Label("Could not load files.");
             errorLabel.setStyle("-fx-text-fill: #e53e3e; -fx-font-size: 14px;");
             filesGrid.getChildren().add(errorLabel);
         });
@@ -123,48 +147,46 @@ public class FavoritesController {
         StackPane header = new StackPane();
         header.setPrefHeight(120);
 
-        // Determine background color and icon based on file type
         String backgroundColor;
         FontAwesomeSolid iconType;
         String iconColor;
 
         if (FileUtils.isImage(ext)) {
-            backgroundColor = "#d6bcfa";  // Purple for images
+            backgroundColor = "#d6bcfa";
             iconType = FontAwesomeSolid.CAMERA;
             iconColor = "#805ad5";
         } else if (ext.equals("pdf")) {
-            backgroundColor = "#fc8181";  // Red for PDF
+            backgroundColor = "#fc8181";
             iconType = FontAwesomeSolid.FILE_PDF;
             iconColor = "#e53e3e";
         } else if (ext.equals("mp3") || ext.equals("wav")) {
-            backgroundColor = "#90cdf4";  // Blue for audio
+            backgroundColor = "#90cdf4";
             iconType = FontAwesomeSolid.MICROPHONE;
             iconColor = "#3182ce";
         } else if (ext.equals("mp4") || ext.equals("avi") || ext.equals("mkv")) {
-            backgroundColor = "#fbb6ce";  // Pink for video
+            backgroundColor = "#fbb6ce";
             iconType = FontAwesomeSolid.VIDEO;
             iconColor = "#d53f8c";
         } else if (ext.equals("zip") || ext.equals("rar") || ext.equals("7z")) {
-            backgroundColor = "#fbd38d";  // Orange for archives
+            backgroundColor = "#fbd38d";
             iconType = FontAwesomeSolid.FILE_ARCHIVE;
             iconColor = "#d69e2e";
         } else if (ext.equals("doc") || ext.equals("docx")) {
-            backgroundColor = "#90cdf4";  // Blue for Word
+            backgroundColor = "#90cdf4";
             iconType = FontAwesomeSolid.FILE_WORD;
             iconColor = "#3182ce";
         } else if (ext.equals("xls") || ext.equals("xlsx")) {
-            backgroundColor = "#9ae6b4";  // Green for Excel
+            backgroundColor = "#9ae6b4";
             iconType = FontAwesomeSolid.FILE_EXCEL;
             iconColor = "#38a169";
         } else {
-            backgroundColor = "#a0aec0";  // Gray for other files
+            backgroundColor = "#a0aec0";
             iconType = FontAwesomeSolid.FILE;
             iconColor = "#4a5568";
         }
 
         header.setStyle("-fx-background-radius: 10 10 0 0; -fx-background-color: " + backgroundColor + ";");
 
-        // Create FontIcon
         FontIcon icon = new FontIcon(iconType);
         icon.setIconSize(50);
         icon.setIconColor(Color.web(iconColor));
@@ -182,8 +204,6 @@ public class FavoritesController {
         nameLabel.setWrapText(false);
         nameLabel.setMaxWidth(160);
 
-        // Assuming FileUtils.formatSize takes a String or Long. Adjusted to match your previous snippet.
-        System.out.println("DEBUG:   "+file.getFileSize());
         Label metaLabel = new Label(FileUtils.formatSize(String.valueOf(file.getFileSize())));
         metaLabel.getStyleClass().add("file-date");
         metaLabel.setStyle("-fx-text-fill: #718096; -fx-font-size: 12px;");

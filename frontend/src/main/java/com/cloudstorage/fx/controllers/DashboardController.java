@@ -258,10 +258,10 @@ public class DashboardController {
                 var controller = (com.cloudstorage.fx.controllers.ImagePreviewController) controllerObj;
 
                 String details = "Size: " + FileUtils.formatSize(size);
-                controller.setFileData(image, fileName, details);
 
                 // Pass context for Deletion
                 controller.setDeleteContext(this.minioClient, this.currentUserBucket, this::loadUserFiles);
+                controller.setFileData(image, fileName, details);
             }
 
             Stage popupStage = new Stage();

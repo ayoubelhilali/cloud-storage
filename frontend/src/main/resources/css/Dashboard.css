@@ -158,8 +158,9 @@
 
 .icon-bg-purple { -fx-background-color: #6c5ce7; }
 .icon-bg-pink { -fx-background-color: #e84393; }
-.icon-bg-blue { -fx-background-color: #0984e3; }
+.icon-bg-blue { -fx-background-color: #88c9fb; }
 .icon-bg-green { -fx-background-color: #00b894; }
+.icon-bg-red { -fx-background-color: #ffbebf; }
 
 .recent-name {
     -fx-font-family: "System Bold";

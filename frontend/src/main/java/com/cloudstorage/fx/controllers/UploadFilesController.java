@@ -42,22 +42,31 @@ public class UploadFilesController {
     @FXML
     private void handleBrowseFile() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Images or Documents");
+        fileChooser.setTitle("Select file");
+
+        FileChooser.ExtensionFilter allFiles =
+                new FileChooser.ExtensionFilter(
+                        "All Supported Files",
+                        "*.png", "*.jpg", "*.jpeg", "*.gif",
+                        "*.pdf", "*.doc", "*.docx", "*.txt",
+                        "*.mp3", "*.wav",
+                        "*.mp4", "*.avi", "*.mkv"
+                );
 
         FileChooser.ExtensionFilter images =
-                new FileChooser.ExtensionFilter(
-                        "Images (*.png, *.jpg, *.jpeg, *.gif)",
-                        "*.png", "*.jpg", "*.jpeg", "*.gif"
-                );
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif");
 
         FileChooser.ExtensionFilter documents =
-                new FileChooser.ExtensionFilter(
-                        "Documents (*.pdf, *.doc, *.docx, *.txt)",
-                        "*.pdf", "*.doc", "*.docx", "*.txt"
-                );
+                new FileChooser.ExtensionFilter("Documents", "*.pdf", "*.doc", "*.docx", "*.txt");
 
-        fileChooser.getExtensionFilters().addAll(images, documents);
-        fileChooser.setSelectedExtensionFilter(images);
+        FileChooser.ExtensionFilter audio =
+                new FileChooser.ExtensionFilter("Audio", "*.mp3", "*.wav");
+
+        FileChooser.ExtensionFilter video =
+                new FileChooser.ExtensionFilter("Video", "*.mp4", "*.avi", "*.mkv");
+
+        fileChooser.getExtensionFilters().addAll(allFiles, images, documents, audio, video);
+        fileChooser.setSelectedExtensionFilter(allFiles);
 
         List<File> selectedFiles =
                 fileChooser.showOpenMultipleDialog(btnBrowse.getScene().getWindow());
@@ -116,10 +125,11 @@ public class UploadFilesController {
                 || name.endsWith(".doc")
                 || name.endsWith(".docx")
                 || name.endsWith(".txt")
+                || name.endsWith(".mp3")
+                || name.endsWith(".wav")
                 || name.endsWith(".mp4")
                 || name.endsWith(".avi")
-                || name.endsWith(" .mp3")
-                || name.endsWith(".wav");
+                || name.endsWith(".mkv");
     }
 
     // =========================================================

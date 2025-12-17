@@ -10,7 +10,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="30.0" styleClass="root" stylesheets="@../../../css/SharedFiles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.SharedFilesController">
+<VBox spacing="30.0" styleClass="root" stylesheets="@../../../css/SharedFiles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.SharedDashboardController">
     <padding>
         <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
     </padding>
@@ -76,39 +76,7 @@
 
                 <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
                     <content>
-                        <VBox spacing="10.0">
-                            <children>
-                                <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20.0" styleClass="list-item">
-                                    <children>
-                                        <Label styleClass="icon-container, icon-blue" text="📄" />
-                                        <Label styleClass="list-item-name" text="Keynote data" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <HBox alignment="CENTER_LEFT" spacing="-10.0">
-                                            <Circle radius="15.0" styleClass="avatar, avatar-3" />
-                                            <Circle radius="15.0" styleClass="avatar, avatar-1" />
-                                        </HBox>
-                                        <Region prefWidth="50.0" />
-                                        <Label prefWidth="80.0" styleClass="list-meta" text="DOCx file" />
-                                        <Label prefWidth="70.0" styleClass="list-meta" text="500 kb" />
-                                        <Button mnemonicParsing="false" styleClass="action-btn" text="🔗" />
-                                        <Button mnemonicParsing="false" styleClass="action-btn" text="•••" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="70.0" spacing="20.0" styleClass="list-item">
-                                    <children>
-                                        <Label styleClass="icon-container, icon-pink" text="📷" />
-                                        <Label styleClass="list-item-name" text="IMG_Vacation_10" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Circle radius="15.0" styleClass="avatar, avatar-4" />
-                                        <Region prefWidth="50.0" />
-                                        <Label prefWidth="80.0" styleClass="list-meta" text="PNG file" />
-                                        <Label prefWidth="70.0" styleClass="list-meta" text="1 MB" />
-                                        <Button mnemonicParsing="false" styleClass="action-btn" text="🔗" />
-                                        <Button mnemonicParsing="false" styleClass="action-btn" text="•••" />
-                                    </children>
-                                </HBox>
-                            </children>
+                        <VBox fx:id="sharedFilesContainer" spacing="10.0">
                         </VBox>
                     </content>
                 </ScrollPane>

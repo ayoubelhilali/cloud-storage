@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<ScrollPane fitToWidth="true" styleClass="root" stylesheets="@/css/Settings.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.SettingsController">
+    <content>
+        <VBox spacing="30.0">
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+            </padding>
+            <children>
+                <Label styleClass="page-title" text="Settings" />
+
+                <VBox styleClass="card">
+                    <children>
+                        <Label styleClass="card-title" text="Profile &amp; Personal Info" />
+                        <Separator prefWidth="200.0" />
+                        <HBox alignment="CENTER_LEFT" spacing="30.0">
+                            <children>
+                                <VBox alignment="CENTER" spacing="10.0">
+                                    <children>
+                                        <Circle fx:id="avatarCircle" fill="DODGERBLUE" radius="50.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" styleClass="avatar-circle" />
+                                        <Button mnemonicParsing="false" onAction="#handleUploadAvatar" styleClass="btn-secondary" text="Change Avatar">
+                                            <graphic>
+                                                <FontIcon iconLiteral="fas-camera" />
+                                            </graphic>
+                                        </Button>
+                                    </children>
+                                </VBox>
+
+                                <GridPane hgap="20.0" vgap="15.0" HBox.hgrow="ALWAYS">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <VBox spacing="5.0">
+                                            <children>
+                                                <Label styleClass="input-label" text="First Name" />
+                                                <TextField fx:id="firstNameField" promptText="John" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <Label styleClass="input-label" text="Last Name" />
+                                                <TextField fx:id="lastNameField" promptText="Doe" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="5.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label styleClass="input-label" text="Email Address" />
+                                                <TextField fx:id="emailField" promptText="john.doe@example.com" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </GridPane>
+                            </children>
+                            <VBox.margin>
+                                <Insets top="15.0" />
+                            </VBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#handleSaveProfile" styleClass="btn-primary" text="Save Changes" />
+                            </children>
+                            <VBox.margin>
+                                <Insets top="20.0" />
+                            </VBox.margin>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="card">
+                    <children>
+                        <Label styleClass="card-title" text="Storage Usage" />
+                        <Separator prefWidth="200.0" />
+
+                        <HBox spacing="30.0">
+                            <children>
+                                <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label fx:id="usageTextLabel" styleClass="usage-text" text="5.2 GB used of 15 GB" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Label fx:id="percentageLabel" styleClass="usage-percentage" text="34%" />
+                                            </children>
+                                        </HBox>
+                                        <ProgressBar fx:id="storageProgressBar" maxWidth="1.7976931348623157E308" progress="0.34" styleClass="storage-bar" />
+                                        <Button styleClass="btn-text-only" text="Clear local cache to free up space" />
+                                    </children>
+                                    <padding>
+                                        <Insets top="20.0" />
+                                    </padding>
+                                </VBox>
+
+                                <PieChart fx:id="storagePieChart" labelsVisible="false" legendSide="RIGHT" maxHeight="200.0" maxWidth="350.0" minHeight="200.0" minWidth="300.0" title="File Breakdown" />
+                            </children>
+                            <VBox.margin>
+                                <Insets top="10.0" />
+                            </VBox.margin>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <HBox spacing="30.0">
+                    <children>
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="card-title" text="Preferences" />
+                                <Separator prefWidth="200.0" />
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <Label styleClass="input-label" text="Default Download Location" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <TextField fx:id="downloadPathField" editable="false" promptText="C:/Users/Downloads" HBox.hgrow="ALWAYS" />
+                                                <Button mnemonicParsing="false" onAction="#handleBrowseLocation" styleClass="btn-secondary">
+                                                    <graphic>
+                                                        <FontIcon iconLiteral="fas-folder-open" />
+                                                    </graphic>
+                                                </Button>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets top="15.0" />
+                                    </VBox.margin>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="card-title" text="Notifications" />
+                                <Separator prefWidth="200.0" />
+                                <VBox spacing="15.0">
+                                    <children>
+                                        <CheckBox fx:id="notifyShare" mnemonicParsing="false" selected="true" text="New share received" />
+                                        <CheckBox fx:id="notifyLogin" mnemonicParsing="false" text="New login from unknown device" />
+                                        <CheckBox fx:id="notifyStorage" mnemonicParsing="false" selected="true" text="Storage limit warning" />
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets top="15.0" />
+                                    </VBox.margin>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox styleClass="card">
+                    <children>
+                        <Label styleClass="card-title" text="Security" />
+                        <Separator prefWidth="200.0" />
+
+                        <HBox spacing="50.0">
+                            <children>
+                                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="section-subtitle" text="Change Password" />
+                                        <PasswordField fx:id="currentPasswordField" promptText="Current Password" />
+                                        <PasswordField fx:id="newPasswordField" promptText="New Password" />
+                                        <Button mnemonicParsing="false" styleClass="btn-secondary" text="Update Password" />
+                                    </children>
+                                </VBox>
+
+                                <Separator orientation="VERTICAL" />
+
+                                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="section-subtitle" text="Danger Zone" textFill="#e74c3c" />
+                                        <Label text="Once you delete your account, there is no going back. All your files will be permanently removed." wrapText="true" textFill="#7f8c8d"/>
+                                        <Button mnemonicParsing="false" onAction="#handleDeleteAccount" styleClass="btn-danger" text="DELETE ACCOUNT" />
+                                    </children>
+                                </VBox>
+                            </children>
+                            <VBox.margin>
+                                <Insets top="15.0" />
+                            </VBox.margin>
+                        </HBox>
+                    </children>
+                </VBox>
+
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

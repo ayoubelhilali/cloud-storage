@@ -1,7 +1,7 @@
 package com.cloudstorage.database;
 
 import com.cloudstorage.model.User;
-import com.cloudstorage.util.PasswordUtil; // Ensure this import exists
+import com.cloudstorage.util.PasswordUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,11 +15,8 @@ public class LoginUser {
      * Attempts to log in with either Username OR Email.
      */
     public boolean login(String usernameOrEmail, String password) {
-        // 1. Hash the password to match the DB format
-        // Ensure PasswordUtil.hash() matches how you originally saved the password
         String hashedPassword = PasswordUtil.hash(password);
 
-        // 2. Update SQL to use 'password_hash' column
         String query = "SELECT * FROM users WHERE (email = ? OR username = ?) AND password_hash = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -32,7 +29,7 @@ public class LoginUser {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // --- CRITICAL: Fetch ID and other columns ---
+                // Fetch columns
                 long id = rs.getLong("id");
                 String username = rs.getString("username");
                 String email = rs.getString("email");
@@ -40,9 +37,11 @@ public class LoginUser {
                 String lName = rs.getString("last_name");
                 String storedHash = rs.getString("password_hash");
 
-                // Create the User object
-                // Note: We typically store the HASH in the user object, not the plain password
-                this.loggedUser = new User(id, username, email, storedHash, fName, lName);
+                // --- NEW: Fetch Avatar ---
+                String avatarUrl = rs.getString("profile_picture_url");
+
+                // --- UPDATED: Use the 7-argument constructor ---
+                this.loggedUser = new User(id, username, email, storedHash, fName, lName, avatarUrl);
 
                 System.out.println("Login Successful. User ID: " + id);
                 return true;

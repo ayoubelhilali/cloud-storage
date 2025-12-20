@@ -74,12 +74,19 @@
             <children>
                 <Label styleClass="section-subtitle" text="Shared recently" />
 
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+                <ScrollPane fitToWidth="true"
+                            hbarPolicy="NEVER"
+                            vbarPolicy="AS_NEEDED"
+                            VBox.vgrow="ALWAYS">
+
                     <content>
-                        <VBox fx:id="sharedFilesContainer" spacing="10.0">
-                        </VBox>
+                        <VBox fx:id="sharedFilesContainer"
+                              spacing="10"
+                              prefWidth="1"
+                              style="-fx-padding: 10;" />
                     </content>
                 </ScrollPane>
+
             </children>
         </VBox>
     </children>

@@ -1,6 +1,9 @@
 package com.cloudstorage.fx.controllers;
 
+import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.controller.ShareController;
+import com.cloudstorage.fx.utils.AlertUtils;
+import io.minio.MinioClient;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -8,49 +11,57 @@ import javafx.stage.Stage;
 
 public class ShareDialogController {
 
+    @FXML private Label fileNameLabel;
     @FXML private TextField emailField;
-    @FXML private Label statusLabel;
 
-    private String filename;
-    private long currentUserId;
-    private Stage dialogStage;
+    private String targetFilename;
+    private final ShareController shareController;
 
-    public void setShareData(String filename, long currentUserId, Stage dialogStage) {
-        this.filename = filename;
-        this.currentUserId = currentUserId;
-        this.dialogStage = dialogStage;
+    public ShareDialogController() {
+        // Initialize backend controller
+        // Ideally, move MinioClient initialization to a global Config class to avoid recreating it everywhere
+        MinioClient minioClient = MinioClient.builder()
+                .endpoint("http://127.0.0.1:9000")
+                .credentials("YOUR_ACCESS_KEY", "YOUR_SECRET_KEY")
+                .build();
+        this.shareController = new ShareController(minioClient);
+    }
+
+    public void setTargetFile(String filename) {
+        this.targetFilename = filename;
+        this.fileNameLabel.setText(filename);
     }
 
     @FXML
     private void handleShare() {
         String email = emailField.getText();
 
-        // Visual feedback immediately
-        statusLabel.setText("Processing...");
-        statusLabel.setStyle("-fx-text-fill: black;");
+        if (email == null || email.trim().isEmpty()) {
+            AlertUtils.showError("Input Error", "Please enter an email address.");
+            return;
+        }
 
-        ShareController controller = new ShareController();
+        long senderId = SessionManager.getCurrentUser().getId();
 
-        // --- FIX: Store result as String, not boolean ---
-        String result = controller.shareFileByName(filename, currentUserId, email);
+        // Call Backend
+        // Note: Make sure 'targetFilename' matches what is in your DB (files table)
+        String result = shareController.shareFileByName(targetFilename, senderId, email);
 
         if ("SUCCESS".equals(result)) {
-            statusLabel.setText("Shared successfully!");
-            statusLabel.setStyle("-fx-text-fill: green;");
-
-            // Optional: Close the window automatically after 1 second?
-            // dialogStage.close();
+            AlertUtils.showSuccess("Shared Successfully", "File shared with " + email);
+            closeWindow();
         } else {
-            // Show the actual error message from the backend (e.g. "User created", "Self-share error")
-            statusLabel.setText(result);
-            statusLabel.setStyle("-fx-text-fill: red;");
+            AlertUtils.showError("Share Failed", result);
         }
     }
 
     @FXML
     private void handleCancel() {
-        if (dialogStage != null) {
-            dialogStage.close();
-        }
+        closeWindow();
+    }
+
+    private void closeWindow() {
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        stage.close();
     }
 }

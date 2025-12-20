@@ -41,7 +41,6 @@ public class FileDAO {
         }
         return -1;
     }
-
     // 2. DELETE
     public static void deleteFileRecord(String fileName, int userId) throws SQLException {
         String sql = "DELETE FROM files WHERE filename = ? AND user_id = ?";

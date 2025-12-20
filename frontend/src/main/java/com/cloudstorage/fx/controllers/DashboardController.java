@@ -73,6 +73,7 @@ public class DashboardController {
     private Parent settingsView;
     private Parent favoritesView;
     private FavoritesController favoritesController;
+    private SettingsController settingsController;
 
     @FXML
     public void initialize() {
@@ -82,16 +83,34 @@ public class DashboardController {
 
     public void setUserData(User user) {
         if (user == null) return;
+
+        // 1. Establish the session
         SessionManager.login(user);
+
+        // 2. Set the text label
         userLabel.setText("Hello, " + user.getFirstName());
 
+        // 3. Update the user picture (Avatar)
+        // We use FileUtils to get the ImagePattern (fill) for the avatar circle
+        if (userPicture != null) {
+            String avatarUrl = user.getAvatarUrl();
+            // If your FileUtils.getUserAvatarFill handles the default placeholder internally:
+            userPicture.setFill(FileUtils.getUserAvatarFill(avatarUrl));
+        }
+
+        // 4. Resolve the bucket name logic
         if (user.getBucketName() != null && !user.getBucketName().isEmpty()) {
             this.currentUserBucket = user.getBucketName();
         } else {
+            // Fallback: Generate a bucket name from names if missing
             this.currentUserBucket = (user.getFirstName() + "-" + user.getLastName())
-                    .toLowerCase().replaceAll("[^a-z0-9-]", "");
+                    .toLowerCase()
+                    .replaceAll("[^a-z0-9-]", "");
         }
+
         System.out.println("Dashboard Bucket: " + this.currentUserBucket);
+
+        // 5. Load the files for the user
         loadUserFiles();
     }
 
@@ -227,7 +246,7 @@ public class DashboardController {
         if (FileUtils.isImage(ext)) {
             String safeName = name.replaceAll(" ", "%20");
             // NOTE: In production, generate a real presigned URL here using minioClient
-            String imageUrl = "http://localhost:9000/" + currentUserBucket + "/" + safeName;
+            String imageUrl = "https://bucket-production-f478.up.railway.app:443/" + currentUserBucket + "/" + safeName;
 
             Image image = new Image(imageUrl, true);
             showPopup(image, name, fileData.get("size"));
@@ -339,20 +358,33 @@ public class DashboardController {
             e.printStackTrace();
         }
     }
-
     @FXML
     private void handleSettings() {
         setActiveButton(btnSettings);
+
         try {
             if (settingsView == null) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/SettingsDashboard.fxml"));
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/com/cloudstorage/fx/SettingsDashboard.fxml")
+                );
                 settingsView = loader.load();
+
+                // 🔥 GET CONTROLLER ONCE
+                settingsController = loader.getController();
             }
+
+            // 🔥 FORCE REFRESH EVERY TIME
+            if (settingsController != null) {
+                settingsController.refresh();
+            }
+
             mainBorderPane.setCenter(settingsView);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     private void handleLogout() {

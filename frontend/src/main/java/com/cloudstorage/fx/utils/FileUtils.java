@@ -1,7 +1,20 @@
 package com.cloudstorage.fx.utils;
 
+import com.cloudstorage.config.MinioConfig;
+import com.cloudstorage.config.SessionManager;
+import com.cloudstorage.model.User;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MinioClient;
+import io.minio.http.Method;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.Paint;
+
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class FileUtils {
 
@@ -21,6 +34,36 @@ public class FileUtils {
         } catch (NumberFormatException e) {
             return "0 B";
         }
+    }
+    public static Paint getUserAvatarFill(String objectKey) {
+        Image image;
+
+        try {
+            // Attempt to load the default image
+            InputStream is = FileUtils.class.getResourceAsStream("/images/default-profile.jpg");
+
+            if (is == null) {
+                // This prevents the NullPointerException you're seeing
+                System.err.println("CRITICAL: Default avatar not found at /images/default-avatar.png");
+                // Return a simple colored fill so the app doesn't crash
+                return Color.DODGERBLUE;
+            }
+
+            image = new Image(is);
+
+            // If the user has a custom avatar, try to fetch it from MinIO
+            if (objectKey != null && !objectKey.isEmpty()) {
+                // ... (your MinIO presigned URL logic here) ...
+                // String url = minioClient.getPresignedObjectUrl(...);
+                // image = new Image(url, true); // true = background load
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error loading avatar: " + e.getMessage());
+            return Color.DODGERBLUE;
+        }
+
+        return new ImagePattern(image);
     }
     public static double parseSizeToMB(String sizeStr) {
         try {

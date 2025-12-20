@@ -8,10 +8,7 @@
     -fx-background-color: #022e7c;
 }
 
-/* User Profile */
-.profile-pic-main {
-    -fx-fill: url('https://i.pravatar.cc/150?img=7');
-}
+
 
 .user-label {
     -fx-text-fill: white;

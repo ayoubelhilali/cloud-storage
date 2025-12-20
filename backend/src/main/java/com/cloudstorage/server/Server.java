@@ -16,8 +16,8 @@ public class Server {
         // --- 1. SETUP MINIO CLIENT (Backend) ---
         // We need a specific client instance to pass to our FileService
         MinioClient minioClient = MinioClient.builder()
-                .endpoint("http://localhost:9000")
-                .credentials("minioadmin", "minioadmin")
+                .endpoint("https://bucket-production-f478.up.railway.app:443")
+                .credentials("cloud_storage", "cloud_storage123@")
                 .build();
 
         // --- 2. INITIALIZE SERVICES ---

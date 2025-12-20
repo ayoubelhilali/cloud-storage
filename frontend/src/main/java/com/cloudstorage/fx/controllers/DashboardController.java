@@ -1,6 +1,6 @@
 package com.cloudstorage.fx.controllers;
 
-import com.cloudstorage.config.MinioConfig; // Ensure this import exists
+import com.cloudstorage.config.MinioConfig;
 import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.database.FileDAO;
 import com.cloudstorage.fx.components.FileRowFactory;
@@ -12,7 +12,6 @@ import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.messages.Item;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,6 +31,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.time.ZonedDateTime; // Import needed for the fix
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -63,20 +63,20 @@ public class DashboardController {
 
     // Services
     private final FileApiService fileService = new FileApiService();
-    private MinioClient minioClient; // Added MinioClient field
+    private MinioClient minioClient;
     private String currentUserBucket;
 
     // View Cache
     private Parent sharedFilesView;
+    private SharedDashboardController sharedFilesController;
     private Parent uploadFilesView;
     private Parent settingsView;
     private Parent favoritesView;
-    private FavoritesController favoritesController; // Add this!
+    private FavoritesController favoritesController;
 
     @FXML
     public void initialize() {
         setActiveButton(btnMyCloud);
-        // Initialize MinIO Client using your Config class
         this.minioClient = MinioConfig.getClient();
     }
 
@@ -85,28 +85,23 @@ public class DashboardController {
         SessionManager.login(user);
         userLabel.setText("Hello, " + user.getFirstName());
 
-        // Ensure bucket name is set (fallback to username logic if null)
         if (user.getBucketName() != null && !user.getBucketName().isEmpty()) {
             this.currentUserBucket = user.getBucketName();
         } else {
-            // Fallback generation if needed
             this.currentUserBucket = (user.getFirstName() + "-" + user.getLastName())
                     .toLowerCase().replaceAll("[^a-z0-9-]", "");
         }
-
         System.out.println("Dashboard Bucket: " + this.currentUserBucket);
         loadUserFiles();
     }
 
-    // --- MAIN FILE LOADING LOGIC ---
+    // --- MAIN FILE LOADING LOGIC (FIXED) ---
     private void loadUserFiles() {
-        // 1. Safety Checks
         if (minioClient == null || currentUserBucket == null) return;
 
         Task<List<Map<String, String>>> fetchTask = new Task<>() {
             @Override
             protected List<Map<String, String>> call() throws Exception {
-                // Check if bucket exists
                 boolean exists = minioClient.bucketExists(
                         BucketExistsArgs.builder().bucket(currentUserBucket).build()
                 );
@@ -114,7 +109,6 @@ public class DashboardController {
                 List<Map<String, String>> uiDataList = new ArrayList<>();
 
                 if (exists) {
-                    // 2. Fetch ALL Files from MinIO
                     Iterable<Result<Item>> results = minioClient.listObjects(
                             ListObjectsArgs.builder().bucket(currentUserBucket).build());
 
@@ -123,29 +117,41 @@ public class DashboardController {
                         allItems.add(result.get());
                     }
 
-                    // 3. SORT by Date (Newest First)
-                    allItems.sort((item1, item2) ->
-                            item2.lastModified().compareTo(item1.lastModified())
-                    );
+                    // --- FIX: Null-Safe Sorting ---
+                    // Some items (like folders) might have null lastModified dates.
+                    allItems.sort((item1, item2) -> {
+                        ZonedDateTime d1 = null;
+                        ZonedDateTime d2 = null;
 
-                    // 4. FETCH FAVORITES from Database
+                        // Safely get dates, catching any potential internal nulls
+                        try { d1 = item1.lastModified(); } catch (Exception ignored) {}
+                        try { d2 = item2.lastModified(); } catch (Exception ignored) {}
+
+                        if (d1 == null && d2 == null) return 0;
+                        if (d1 == null) return 1;  // Nulls go to bottom
+                        if (d2 == null) return -1; // Nulls go to bottom
+
+                        return d2.compareTo(d1); // Newest First
+                    });
+                    // ------------------------------
+
                     long userId = SessionManager.getCurrentUser().getId();
                     List<String> myFavorites = FileDAO.getFavoriteFilenames(userId);
 
-                    // 5. Build the Data Maps
                     for (Item item : allItems) {
+                        // Skip folders or weird items with 0 size and no date
+                        if (item.isDir()) continue;
+
                         Map<String, String> fileData = new HashMap<>();
                         fileData.put("name", item.objectName());
                         fileData.put("size", String.valueOf(item.size()));
                         fileData.put("bucket", currentUserBucket);
 
-                        // MERGE: Check DB status
                         if (myFavorites.contains(item.objectName())) {
                             fileData.put("is_favorite", "true");
                         } else {
                             fileData.put("is_favorite", "false");
                         }
-
                         uiDataList.add(fileData);
                     }
                 }
@@ -155,8 +161,6 @@ public class DashboardController {
 
         fetchTask.setOnSucceeded(e -> {
             List<Map<String, String>> files = fetchTask.getValue();
-
-            // Clear UI
             filesContainer.getChildren().clear();
 
             if (files.isEmpty()) {
@@ -164,15 +168,11 @@ public class DashboardController {
                 emptyLabel.setStyle("-fx-text-fill: gray; -fx-padding: 20;");
                 filesContainer.getChildren().add(emptyLabel);
             } else {
-                // Add Rows
                 for (Map<String, String> fileData : files) {
-                    // Connect the row click to 'handleFileClick'
                     HBox row = FileRowFactory.createRow(fileData, this::handleFileClick);
                     filesContainer.getChildren().add(row);
                 }
             }
-
-            // Update Stats Bar
             updateStatistics(files);
         });
 
@@ -184,7 +184,6 @@ public class DashboardController {
         new Thread(fetchTask).start();
     }
 
-    // --- STATISTICS LOGIC ---
     private void updateStatistics(List<Map<String, String>> files) {
         double totalStorageUsed = 0.0;
         int images = 0, videos = 0, docs = 0, audio = 0, others = 0;
@@ -205,7 +204,6 @@ public class DashboardController {
 
         double sizeLeftPercentVal = FileUtils.sizeLeftPercent(totalStorageUsed);
 
-        // UI Update
         if (lblTotalFiles != null) lblTotalFiles.setText(files.size() + " Files");
         if (lblImageCount != null) lblImageCount.setText(images + " Images");
         if (lblVideoCount != null) lblVideoCount.setText(videos + " Videos");
@@ -222,26 +220,18 @@ public class DashboardController {
             sizeProgressBar.setProgress((100.0 - sizeLeftPercentVal) / 100.0);
     }
 
-    // --- CLICK HANDLER (Preview) ---
     private void handleFileClick(Map<String, String> fileData) {
         String name = fileData.get("name");
         String ext = FileUtils.getFileExtension(name);
 
-        // Determine if we can preview it as an image
         if (FileUtils.isImage(ext)) {
-            // Construct MinIO URL (Assuming local MinIO setup)
-            // Ideally, generate a presigned URL using minioClient.getPresignedObjectUrl(...)
             String safeName = name.replaceAll(" ", "%20");
+            // NOTE: In production, generate a real presigned URL here using minioClient
+            String imageUrl = "http://localhost:9000/" + currentUserBucket + "/" + safeName;
 
-            // For now, using direct local link logic (Update if you use Presigned URLs)
-            String imageUrl = "http://localhost:8080/files?bucket=" + currentUserBucket + "&key=" + safeName;
-
-            // Try to use MinIO stream if the URL approach is flaky
-            // But for this code, we pass the URL to the Image constructor
             Image image = new Image(imageUrl, true);
             showPopup(image, name, fileData.get("size"));
         } else {
-            // Non-image file
             showPopup(null, name, fileData.get("size"));
         }
     }
@@ -251,17 +241,10 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/ImagePreview.fxml"));
             Parent root = loader.load();
 
-            // Use reflection or cast to get your specific controller
-            // Assuming your controller class is ImagePreviewController
             Object controllerObj = loader.getController();
-
-            // We use reflection/dynamic checking to avoid import errors if you named it differently
             if (controllerObj instanceof com.cloudstorage.fx.controllers.ImagePreviewController) {
                 var controller = (com.cloudstorage.fx.controllers.ImagePreviewController) controllerObj;
-
                 String details = "Size: " + FileUtils.formatSize(size);
-
-                // Pass context for Deletion
                 controller.setDeleteContext(this.minioClient, this.currentUserBucket, this::loadUserFiles);
                 controller.setFileData(image, fileName, details);
             }
@@ -269,11 +252,9 @@ public class DashboardController {
             Stage popupStage = new Stage();
             popupStage.initModality(Modality.APPLICATION_MODAL);
             popupStage.initStyle(StageStyle.TRANSPARENT);
-
             if (mainBorderPane.getScene() != null) {
                 popupStage.initOwner(mainBorderPane.getScene().getWindow());
             }
-
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
             popupStage.setScene(scene);
@@ -285,8 +266,6 @@ public class DashboardController {
             ex.printStackTrace();
         }
     }
-
-    // --- NAVIGATION METHODS ---
 
     private void setActiveButton(Button activeButton) {
         List<Button> buttons = Arrays.asList(btnMyCloud, btnSharedFiles, btnFavorites, btnUpload, btnSettings);
@@ -304,14 +283,45 @@ public class DashboardController {
         setActiveButton(btnMyCloud);
         if (dashboardView != null) {
             mainBorderPane.setCenter(dashboardView);
-            loadUserFiles(); // Refresh list when returning
+            loadUserFiles();
         }
     }
 
     @FXML
     private void handleShowSharedFiles() {
         setActiveButton(btnSharedFiles);
-        loadView("/com/cloudstorage/fx/SharedFiles.fxml");
+        try {
+            if (sharedFilesView == null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/SharedFiles.fxml"));
+                sharedFilesView = loader.load();
+                Object controller = loader.getController();
+                if (controller instanceof SharedDashboardController) {
+                    sharedFilesController = (SharedDashboardController) controller;
+                }
+            } else if (sharedFilesController != null) {
+                sharedFilesController.loadSharedFiles();
+            }
+            mainBorderPane.setCenter(sharedFilesView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleShowFavorites() {
+        setActiveButton(btnFavorites);
+        try {
+            if (favoritesView == null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/Favorites.fxml"));
+                favoritesView = loader.load();
+                favoritesController = loader.getController();
+            } else {
+                favoritesController.refresh();
+            }
+            mainBorderPane.setCenter(favoritesView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -319,18 +329,12 @@ public class DashboardController {
         setActiveButton(btnUpload);
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/UploadFiles.fxml"));
-            Parent view = loader.load();
-
+            uploadFilesView = loader.load();
             Object controller = loader.getController();
-            // Check specific class name
             if (controller instanceof UploadFilesController) {
-                UploadFilesController uploadController = (UploadFilesController) controller;
-                uploadController.setOnUploadComplete(() -> {
-                    System.out.println("Upload finished. Refreshing list...");
-                    loadUserFiles();
-                });
+                ((UploadFilesController) controller).setOnUploadComplete(this::handleShowMyCloud);
             }
-            mainBorderPane.setCenter(view);
+            mainBorderPane.setCenter(uploadFilesView);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -339,33 +343,14 @@ public class DashboardController {
     @FXML
     private void handleSettings() {
         setActiveButton(btnSettings);
-        loadView("/com/cloudstorage/fx/Settings.fxml");
-    }
-
-    @FXML
-    private void handleShowFavorites() {
-        setActiveButton(btnFavorites);
-
         try {
-            if (favoritesView == null) {
-                // 1. First time loading: Load from Disk
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/Favorites.fxml"));
-                favoritesView = loader.load();
-
-                // 2. Save the controller for later use
-                favoritesController = loader.getController();
-            } else {
-                // 3. Subsequent times: Just REFRESH the data (Don't reload FXML)
-                // This makes the UI switch INSTANT, and the images populate quickly after
-                favoritesController.refresh();
+            if (settingsView == null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/SettingsDashboard.fxml"));
+                settingsView = loader.load();
             }
-
-            // 4. Show the cached view
-            mainBorderPane.setCenter(favoritesView);
-
+            mainBorderPane.setCenter(settingsView);
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not load Favorites view.");
         }
     }
 
@@ -391,17 +376,6 @@ public class DashboardController {
             stage.setTitle(title);
             stage.show();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void loadView(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
-            mainBorderPane.setCenter(view);
-        } catch (IOException e) {
-            System.err.println("Could not load FXML: " + fxmlPath);
             e.printStackTrace();
         }
     }

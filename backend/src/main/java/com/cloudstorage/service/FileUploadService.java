@@ -42,7 +42,7 @@ public class FileUploadService {
         metadata.setFilename(originalName);
         metadata.setFileSize(file.length());
         metadata.setMimeType(mimeType);
-        metadata.setIsFavorite(false); // Default
+        metadata.setFavorite(false); // Default
         metadata.setStorageKey(storageKey);
         metadata.setStorageBucket(bucketName); // CRITICAL: Save bucket name
 

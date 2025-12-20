@@ -26,6 +26,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -40,6 +41,7 @@ public class DashboardController {
     @FXML private VBox filesContainer;
     @FXML private BorderPane mainBorderPane;
     @FXML private VBox dashboardView;
+    @FXML private Circle userPicture;
 
     // Sidebar Buttons
     @FXML private Button btnMyCloud;
@@ -372,12 +374,21 @@ public class DashboardController {
         try {
             Preferences.userNodeForPackage(DashboardController.class).clear();
             SessionManager.logout();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/Login.fxml"));
+            openScene("/com/cloudstorage/fx/Login.fxml", "Login");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void openScene(String path, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
             Parent root = loader.load();
             Stage stage = (Stage) logoutButton.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Cloud Storage - Login");
-            stage.centerOnScreen();
+            stage.setTitle(title);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

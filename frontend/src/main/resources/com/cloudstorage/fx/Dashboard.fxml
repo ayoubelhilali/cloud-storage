@@ -33,7 +33,7 @@
             <children>
                 <VBox alignment="CENTER" spacing="10.0">
                     <children>
-                        <Circle radius="35.0" stroke="WHITE" strokeWidth="2.0" styleClass="profile-pic-main"/>
+                        <Circle fx:id="userPicture" radius="35.0" stroke="WHITE" strokeWidth="2.0" styleClass="profile-pic-main"/>
                         <Label fx:id="userLabel" styleClass="user-label" text="Hello,"/>
                     </children>
                     <VBox.margin>

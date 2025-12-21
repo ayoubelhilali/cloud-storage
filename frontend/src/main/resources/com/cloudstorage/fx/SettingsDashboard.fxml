@@ -65,8 +65,8 @@
                     <VBox spacing="20.0" HBox.hgrow="ALWAYS">
                         <VBox spacing="10">
                             <HBox alignment="BOTTOM_LEFT" spacing="8">
-                                <Label fx:id="usageTextLabel" styleClass="usage-amount" text="5.2 GB" />
-                                <Label styleClass="usage-total" text="of 15 GB Used" />
+                                <Label fx:id="usageTextLabel" styleClass="usage-amount" text="0 GB" />
+                                <Label styleClass="usage-total" text="of 5 GB Used" />
                             </HBox>
                             <ProgressBar fx:id="storageProgressBar" maxWidth="Infinity" progress="0.34" styleClass="modern-progress" />
                             <Label fx:id="percentageLabel" styleClass="usage-hint" text="34% of total capacity" />
@@ -75,7 +75,7 @@
                             <graphic><FontIcon iconLiteral="fas-broom" /></graphic>
                         </Button>
                     </VBox>
-                    <PieChart fx:id="storagePieChart" labelsVisible="true" legendVisible="true" prefHeight="220" prefWidth="350" />
+                    <PieChart fx:id="storagePieChart" labelsVisible="true" legendVisible="true" prefHeight="300" prefWidth="380" />
                 </HBox>
             </VBox>
 

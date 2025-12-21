@@ -210,61 +210,10 @@
                                 <VBox spacing="15.0">
                                     <children>
                                         <Label styleClass="section-title" text="Files"/>
-                                        <HBox spacing="15.0">
+                                        <HBox fx:id="foldersContainer" spacing="15.0">
                                             <children>
-                                                <VBox HBox.hgrow="ALWAYS" maxWidth="Infinity" minWidth="100.0"
-                                                      prefHeight="100.0" styleClass="file-folder">
-                                                    <padding>
-                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
-                                                    </padding>
-                                                    <children>
-                                                        <Label styleClass="folder-icon" text="📁" textFill="#6c5ce7"/>
-                                                        <Label styleClass="folder-name" text="Work"/>
-                                                        <Label styleClass="folder-count" text="820 files"/>
-                                                    </children>
-                                                    <effect><DropShadow color="#0000000d" offsetY="3.0"/></effect>
-                                                </VBox>
-
-                                                <VBox HBox.hgrow="ALWAYS" maxWidth="Infinity" minWidth="100.0"
-                                                      prefHeight="100.0" styleClass="file-folder">
-                                                    <padding>
-                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
-                                                    </padding>
-                                                    <children>
-                                                        <Label styleClass="folder-icon" text="📁" textFill="#00b894"/>
-                                                        <Label styleClass="folder-name" text="Personal"/>
-                                                        <Label styleClass="folder-count" text="115 files"/>
-                                                    </children>
-                                                    <effect><DropShadow color="#0000000d" offsetY="3.0"/></effect>
-                                                </VBox>
-
-                                                <VBox HBox.hgrow="ALWAYS" maxWidth="Infinity" minWidth="100.0"
-                                                      prefHeight="100.0" styleClass="file-folder">
-                                                    <padding>
-                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
-                                                    </padding>
-                                                    <children>
-                                                        <Label styleClass="folder-icon" text="📁" textFill="#e84393"/>
-                                                        <Label styleClass="folder-name" text="School"/>
-                                                        <Label styleClass="folder-count" text="65 files"/>
-                                                    </children>
-                                                    <effect><DropShadow color="#0000000d" offsetY="3.0"/></effect>
-                                                </VBox>
-
-                                                <VBox HBox.hgrow="ALWAYS" maxWidth="Infinity" minWidth="100.0"
-                                                      prefHeight="100.0" styleClass="file-folder">
-                                                    <padding>
-                                                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
-                                                    </padding>
-                                                    <children>
-                                                        <Label styleClass="folder-icon" text="🗑" textFill="#0984e3"/>
-                                                        <Label styleClass="folder-name" text="Archive"/>
-                                                        <Label styleClass="folder-count" text="31 files"/>
-                                                    </children>
-                                                    <effect><DropShadow color="#0000000d" offsetY="3.0"/></effect>
-                                                </VBox>
-
-                                                <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="80.0"
+                                                <Button mnemonicParsing="false" onAction="#handleAddFolder"
+                                                        prefHeight="100.0" prefWidth="80.0"
                                                         styleClass="add-folder-btn" text="+">
                                                     <effect><DropShadow color="#0000000d" offsetY="3.0"/></effect>
                                                 </Button>

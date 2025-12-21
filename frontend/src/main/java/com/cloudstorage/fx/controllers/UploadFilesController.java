@@ -165,31 +165,71 @@ public class UploadFilesController {
             return;
         }
 
-        // 🟦 UI item
+        // 🟦 UI item with modern design
         HBox itemBox = new HBox(15);
         itemBox.getStyleClass().add("progress-item");
         itemBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        itemBox.setPadding(new javafx.geometry.Insets(10));
+        itemBox.setPadding(new javafx.geometry.Insets(15));
 
-        Label iconLabel = new Label("📄");
+        // Determine file type and icon
+        String fileName = file.getName().toLowerCase();
+        Label iconLabel = new Label();
         iconLabel.getStyleClass().add("file-icon");
+        iconLabel.setMinSize(50, 50);
+        iconLabel.setMaxSize(50, 50);
+        iconLabel.setAlignment(javafx.geometry.Pos.CENTER);
 
-        VBox infoBox = new VBox(5);
+        String iconText = "📄";
+        String iconClass = "icon-blue";
+
+        if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".gif")) {
+            iconText = "🖼️";
+            iconClass = "icon-purple";
+        } else if (fileName.endsWith(".pdf")) {
+            iconText = "📕";
+            iconClass = "icon-red";
+        } else if (fileName.endsWith(".mp3") || fileName.endsWith(".wav")) {
+            iconText = "🎵";
+            iconClass = "icon-pink";
+        } else if (fileName.endsWith(".mp4") || fileName.endsWith(".avi") || fileName.endsWith(".mkv")) {
+            iconText = "🎬";
+            iconClass = "icon-orange";
+        } else if (fileName.endsWith(".zip") || fileName.endsWith(".rar")) {
+            iconText = "📦";
+            iconClass = "icon-teal";
+        }
+
+        iconLabel.setText(iconText);
+        iconLabel.getStyleClass().add(iconClass);
+
+        VBox infoBox = new VBox(8);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
 
         Label nameLabel = new Label(file.getName());
+        nameLabel.getStyleClass().add("filename-text");
+        nameLabel.setMaxWidth(Double.MAX_VALUE);
+        nameLabel.setWrapText(false);
+
+        Label sizeLabel = new Label(formatFileSize(file.length()));
+        sizeLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 12px;");
+
+        HBox header = new HBox(10);
+        header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label percentLabel = new Label("0%");
         percentLabel.getStyleClass().add("percentage-text");
 
-        HBox header = new HBox(nameLabel, new Region(), percentLabel);
-        HBox.setHgrow(header.getChildren().get(1), Priority.ALWAYS);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        header.getChildren().addAll(nameLabel, spacer, percentLabel);
 
         ProgressBar progressBar = new ProgressBar(0);
+        progressBar.getStyleClass().add("custom-progress-bar");
         progressBar.setMaxWidth(Double.MAX_VALUE);
 
-        infoBox.getChildren().addAll(header, progressBar);
+        infoBox.getChildren().addAll(header, progressBar, sizeLabel);
 
-        Button cancelBtn = new Button("✖");
+        Button cancelBtn = new Button("Cancel");
         cancelBtn.getStyleClass().add("cancel-btn");
 
         itemBox.getChildren().addAll(iconLabel, infoBox, cancelBtn);
@@ -214,18 +254,25 @@ public class UploadFilesController {
         });
 
         uploadTask.setOnSucceeded(e -> Platform.runLater(() -> {
-            percentLabel.setText("Done");
-            percentLabel.setStyle("-fx-text-fill: #00b894;");
+            percentLabel.setText("✓ Complete");
+            percentLabel.getStyleClass().clear();
+            percentLabel.getStyleClass().add("status-complete");
+            itemBox.getStyleClass().add("progress-item-success");
+            cancelBtn.setVisible(false);
+
             if (onUploadComplete != null) onUploadComplete.run();
             AlertUtils.showSuccess(
-                    "Upload success",
-                    "Your file has been uploaded successfully."
+                    "Upload Complete",
+                    file.getName() + " uploaded successfully!"
             );
         }));
 
         uploadTask.setOnFailed(e -> Platform.runLater(() -> {
-            percentLabel.setText("Failed");
-            percentLabel.setStyle("-fx-text-fill: #d63031;");
+            percentLabel.setText("✗ Failed");
+            percentLabel.getStyleClass().clear();
+            percentLabel.getStyleClass().add("status-error");
+            itemBox.getStyleClass().add("progress-item-error");
+            cancelBtn.setText("Remove");
 
             // --- ERROR DEBUGGING ---
             Throwable err = uploadTask.getException();
@@ -243,5 +290,15 @@ public class UploadFilesController {
         Thread t = new Thread(uploadTask);
         t.setDaemon(true);
         t.start();
+    }
+
+    /**
+     * Format file size in human-readable format
+     */
+    private String formatFileSize(long size) {
+        if (size < 1024) return size + " B";
+        if (size < 1024 * 1024) return String.format("%.2f KB", size / 1024.0);
+        if (size < 1024 * 1024 * 1024) return String.format("%.2f MB", size / (1024.0 * 1024));
+        return String.format("%.2f GB", size / (1024.0 * 1024 * 1024));
     }
 }

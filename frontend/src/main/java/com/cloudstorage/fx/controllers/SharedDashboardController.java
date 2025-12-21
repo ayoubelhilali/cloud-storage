@@ -4,6 +4,7 @@ import com.cloudstorage.controller.ShareController;
 import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.model.FileMetadata;
 import com.cloudstorage.util.ConfigLoader;
+import com.cloudstorage.fx.utils.FileUtils;
 import io.minio.MinioClient;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -15,9 +16,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color; // Import for Colors
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid; // Import for Icons
-import org.kordamp.ikonli.javafx.FontIcon; // Import for Icons
+import javafx.scene.paint.Color;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.awt.Desktop;
 import java.net.URI;
@@ -26,6 +27,12 @@ import java.util.List;
 public class SharedDashboardController {
 
     @FXML private VBox sharedFilesContainer;
+
+    // --- Stats Labels from FXML ---
+    @FXML private Label lblSharedImages;
+    @FXML private Label lblSharedVideos;
+    @FXML private Label lblSharedAudio;
+    @FXML private Label lblSharedDocs;
 
     private ShareController shareController;
 
@@ -61,13 +68,32 @@ public class SharedDashboardController {
     }
 
     public void loadSharedFiles() {
-        if (SessionManager.getCurrentUser() == null) return;
-        if (shareController == null) return;
+        if (SessionManager.getCurrentUser() == null || shareController == null) return;
 
         long userId = SessionManager.getCurrentUser().getId();
-        List<FileMetadata> files = shareController.getSharedFiles(userId);
 
+        // Fetch data on a background thread to keep UI smooth
+        new Thread(() -> {
+            try {
+                List<FileMetadata> files = shareController.getSharedFiles(userId);
+
+                Platform.runLater(() -> {
+                    updateUI(files);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void updateUI(List<FileMetadata> files) {
         sharedFilesContainer.getChildren().clear();
+
+        // Counters for the stats cards
+        int imgCount = 0;
+        int vidCount = 0;
+        int audioCount = 0;
+        int docCount = 0;
 
         if (files.isEmpty()) {
             Label emptyLabel = new Label("No files shared with you.");
@@ -75,96 +101,90 @@ public class SharedDashboardController {
             sharedFilesContainer.getChildren().add(emptyLabel);
         } else {
             for (FileMetadata file : files) {
+                String ext = FileUtils.getFileExtension(file.getFilename());
+
+                // Categorize for stats
+                if (FileUtils.isImage(ext)) imgCount++;
+                else if (FileUtils.isVideo(ext)) vidCount++;
+                else if (FileUtils.isAudio(ext)) audioCount++;
+                else docCount++;
+
+                // Add to list
                 sharedFilesContainer.getChildren().add(createRow(file));
             }
         }
+
+        // Update the top statistics labels
+        lblSharedImages.setText(String.valueOf(imgCount));
+        lblSharedVideos.setText(String.valueOf(vidCount));
+        lblSharedAudio.setText(String.valueOf(audioCount));
+        lblSharedDocs.setText(String.valueOf(docCount));
     }
 
-    // --- UPDATED DESIGN METHOD ---
     private HBox createRow(FileMetadata file) {
-        HBox row = new HBox(15); // Reduced spacing slightly for tighter look
+        HBox row = new HBox(15);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPrefHeight(70);
+        row.getStyleClass().add("recent-item"); // Using your dashboard CSS class
         row.setStyle("-fx-padding: 10 20; -fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);");
 
-        // 1. DYNAMIC ICON (Colors based on type)
+        String name = file.getFilename();
+        String ext = FileUtils.getFileExtension(name);
+
+        // Icon Logic
         Label iconLabel = new Label();
         iconLabel.setMinWidth(45);
         iconLabel.setMinHeight(45);
         iconLabel.setAlignment(Pos.CENTER);
 
-        // Determine extension
-        String name = file.getFilename(); // Or use getOriginalFilename if available
-        String ext = "";
-        int i = name.lastIndexOf('.');
-        if (i > 0) ext = name.substring(i + 1).toLowerCase();
-
-        // Icon Logic
         FontAwesomeSolid iconType;
         String iconColor;
         String bgColor;
 
-        switch (ext) {
-            case "png": case "jpg": case "jpeg": case "gif":
-                iconType = FontAwesomeSolid.CAMERA;
-                iconColor = "white";
-                bgColor = "#8e44ad"; // Purple
-                break;
-            case "pdf":
-                iconType = FontAwesomeSolid.FILE_PDF;
-                iconColor = "#e74c3c"; // Red
-                bgColor = "#fadbd8"; // Light Red BG
-                break;
-            case "doc": case "docx":
-                iconType = FontAwesomeSolid.FILE_WORD;
-                iconColor = "#2980b9"; // Blue
-                bgColor = "#d6eaf8"; // Light Blue BG
-                break;
-            case "zip": case "rar":
-                iconType = FontAwesomeSolid.FILE_ARCHIVE;
-                iconColor = "#f39c12"; // Orange
-                bgColor = "#fdebd0";
-                break;
-            default:
-                iconType = FontAwesomeSolid.FILE;
-                iconColor = "#7f8c8d"; // Grey
-                bgColor = "#ecf0f1";
-                break;
+        if (FileUtils.isImage(ext)) {
+            iconType = FontAwesomeSolid.CAMERA;
+            iconColor = "white";
+            bgColor = "#8e44ad";
+        } else if (ext.equals("pdf")) {
+            iconType = FontAwesomeSolid.FILE_PDF;
+            iconColor = "#e74c3c";
+            bgColor = "#fadbd8";
+        } else if (FileUtils.isAudio(ext)) {
+            iconType = FontAwesomeSolid.MICROPHONE;
+            iconColor = "#3498db";
+            bgColor = "#d6eaf8";
+        } else if (FileUtils.isVideo(ext)) {
+            iconType = FontAwesomeSolid.VIDEO;
+            iconColor = "#d53f8c";
+            bgColor = "#fff0f6";
+        } else {
+            iconType = FontAwesomeSolid.FILE;
+            iconColor = "#7f8c8d";
+            bgColor = "#ecf0f1";
         }
 
         FontIcon fontIcon = new FontIcon(iconType);
         fontIcon.setIconSize(22);
+        fontIcon.setIconColor(Color.web(iconColor.equals("white") ? "#FFFFFF" : iconColor));
 
-        // If the background is light, use the colored icon. If background is dark (like image), use white icon.
-        if (ext.matches("png|jpg|jpeg|gif")) {
-            fontIcon.setIconColor(Color.WHITE);
-            iconLabel.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 10;");
-        } else {
-            fontIcon.setIconColor(Color.web(iconColor));
-            iconLabel.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 10;");
-        }
         iconLabel.setGraphic(fontIcon);
+        iconLabel.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 10;");
 
-
-        // 2. TEXT METADATA
-        VBox metaBox = new VBox(3); // Small vertical spacing
+        // Meta Data
+        VBox metaBox = new VBox(3);
         metaBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label nameLabel = new Label(name);
-        // FORCE TEXT COLOR TO DARK GREY (#2c3e50) TO ENSURE VISIBILITY
+        Label nameLabel = new Label(FileUtils.truncateFileName(name, 40));
         nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;");
-        nameLabel.setWrapText(false);
 
-        Label sizeLabel = new Label((file.getFileSize() / 1024) + " KB");
+        Label sizeLabel = new Label(FileUtils.formatSize(String.valueOf(file.getFileSize())));
         sizeLabel.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 12px;");
 
         metaBox.getChildren().addAll(nameLabel, sizeLabel);
 
-        // Spacer
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // 3. DOWNLOAD BUTTON
         Button downloadBtn = new Button("Download");
         downloadBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;");
         downloadBtn.setOnAction(e -> handleDownload(file));
@@ -190,9 +210,7 @@ public class SharedDashboardController {
             } else {
                 showAlert("Error", "Browser not supported.");
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
             showAlert("Download Failed", "Could not access file: " + e.getMessage());
         }
     }

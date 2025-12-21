@@ -2,8 +2,9 @@ package com.cloudstorage.fx.controllers;
 
 import com.cloudstorage.config.MinioConfig;
 import com.cloudstorage.config.SessionManager;
-import com.cloudstorage.database.FileDAO;
 import com.cloudstorage.database.UserDAO;
+import com.cloudstorage.fx.utils.AlertUtils;
+import com.cloudstorage.fx.utils.AvatarCache;
 import com.cloudstorage.model.User;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
@@ -15,6 +16,7 @@ import io.minio.http.Method;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
@@ -23,6 +25,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,13 +35,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
-/**
- * Controller for the Settings View.
- * Provides a modern interface for profile management, storage visualization, and security.
- */
 public class SettingsController {
 
-    // --- FXML UI Components ---
     @FXML private Circle avatarCircle;
     @FXML private TextField firstNameField, lastNameField, emailField, downloadPathField;
     @FXML private ProgressBar storageProgressBar;
@@ -47,85 +45,125 @@ public class SettingsController {
     @FXML private CheckBox notifyShare, notifyLogin, notifyStorage;
     @FXML private PasswordField currentPasswordField, newPasswordField;
 
-    // --- Services ---
+    private DashboardController dashboardController;
     private final UserDAO userDAO = new UserDAO();
-    private final FileDAO fileDAO = new FileDAO();
     private MinioClient minioClient;
     private final Preferences prefs = Preferences.userNodeForPackage(SettingsController.class);
 
-    // --- Constants ---
-    private static final String DEFAULT_AVATAR = "/images/default-avatar.png";
-    private static final long MAX_STORAGE_BYTES = 15L * 1024 * 1024 * 1024; // Updated to 15GB to match UI
+    private static final String DEFAULT_AVATAR = "/images/default-profile.jpg";
+    private static final long MAX_STORAGE_BYTES = 15L * 1024 * 1024 * 1024;
 
-    // Modern Blue-centric Palette for the PieChart
     private final Map<String, String> CATEGORY_COLORS = Map.of(
-            "Images", "#0061FF",    // Primary Blue
-            "Videos", "#60A5FA",    // Light Blue
-            "Documents", "#3B82F6", // Medium Blue
-            "Audio", "#93C5FD",     // Sky Blue
-            "Others", "#CBD5E1"     // Slate Grey
+            "Images", "#10B981",
+            "Videos", "#8B5CF6",
+            "Documents", "#F59E0B",
+            "Audio", "#EF4444",
+            "Others", "#6366F1"
     );
 
     @FXML
     public void initialize() {
         this.minioClient = MinioConfig.getClient();
-        refresh();
+        if (storagePieChart != null) {
+            storagePieChart.setLabelsVisible(true);
+            storagePieChart.setLegendVisible(true);
+            // Fix size: disable auto-sizing constraints that might shrink it
+            storagePieChart.setAnimated(true);
+        }
     }
 
-    /**
-     * Refreshes all data sections in the settings page.
-     */
+    public void setDashboardController(DashboardController dashboardController) {
+        this.dashboardController = dashboardController;
+    }
+
     public void refresh() {
         loadUserProfile();
         loadStorageStats();
         loadPreferences();
     }
 
-    // =================================================================================
-    // SECTION 1: PROFILE & AVATAR
-    // =================================================================================
-
     private void loadUserProfile() {
         User user = SessionManager.getCurrentUser();
-        if (user != null) {
-            firstNameField.setText(user.getFirstName());
-            lastNameField.setText(user.getLastName());
-            emailField.setText(user.getEmail());
-            loadAvatarImage(user.getAvatarUrl());
-        }
+        if (user == null) return;
+
+        firstNameField.setText(user.getFirstName());
+        lastNameField.setText(user.getLastName());
+        emailField.setText(user.getEmail());
+
+        // Use a small delay to ensure the UI is rendered before filling the circle
+        Platform.runLater(() -> loadAvatarImage(user.getAvatarUrl()));
     }
 
     private void loadAvatarImage(String objectKey) {
-        // Set default placeholder
-        InputStream is = getClass().getResourceAsStream(DEFAULT_AVATAR);
-        if (is != null) {
-            avatarCircle.setFill(new ImagePattern(new Image(is)));
+        if (avatarCircle == null) return;
+
+        // 1. Instant Cache Check
+        if (objectKey != null && !objectKey.isEmpty() && AvatarCache.contains(objectKey)) {
+            Image cached = AvatarCache.get(objectKey);
+            if (cached != null && !cached.isError()) {
+                avatarCircle.setFill(new ImagePattern(cached));
+                return;
+            }
         }
 
-        if (objectKey == null || objectKey.isEmpty()) return;
+        // 2. Set Placeholder immediately (The light blue you see in your screenshot)
+        setInitialPlaceholder();
 
+        if (objectKey == null || objectKey.isEmpty() || minioClient == null) {
+            return;
+        }
+
+        // 3. Robust Async Loading
         new Thread(() -> {
             try {
                 User user = SessionManager.getCurrentUser();
+                String bucket = user.getBucketName();
+
+                // LOGGING: Check these values in your console!
+                System.out.println("Settings: Attempting load from Bucket: " + bucket + " | Key: " + objectKey);
+
                 String url = minioClient.getPresignedObjectUrl(
                         GetPresignedObjectUrlArgs.builder()
                                 .method(Method.GET)
-                                .bucket(user.getBucketName())
+                                .bucket(bucket)
                                 .object(objectKey)
-                                .expiry(1, TimeUnit.HOURS)
+                                .expiry(2, TimeUnit.HOURS)
                                 .build());
 
-                Image image = new Image(url, true); // Background loading true
+                // backgroundLoading = true is vital to keep the UI smooth
+                Image image = new Image(url, true);
 
                 image.progressProperty().addListener((obs, oldVal, newVal) -> {
-                    if (newVal.doubleValue() == 1.0) {
-                        Platform.runLater(() -> avatarCircle.setFill(new ImagePattern(image)));
+                    if (newVal.doubleValue() >= 1.0) {
+                        if (!image.isError()) {
+                            Platform.runLater(() -> {
+                                AvatarCache.put(objectKey, image);
+                                avatarCircle.setFill(new ImagePattern(image));
+                                System.out.println("Settings: Avatar loaded successfully.");
+                            });
+                        } else {
+                            System.err.println("Settings: Image loading error: " + image.getException());
+                        }
                     }
                 });
             } catch (Exception e) {
-                System.err.println("Avatar fetch failed: " + e.getMessage());
+                System.err.println("Settings: Failed to get Presigned URL: " + e.getMessage());
             }
         }).start();
+    }
+
+    private void setInitialPlaceholder() {
+        try {
+            InputStream is = getClass().getResourceAsStream(DEFAULT_AVATAR);
+            if (is != null) {
+                avatarCircle.setFill(new ImagePattern(new Image(is)));
+            } else {
+                // This is likely what you are seeing in the screenshot
+                avatarCircle.setFill(Color.web("#EBF2FF"));
+            }
+        } catch (Exception e) {
+            avatarCircle.setFill(Color.LIGHTGRAY);
+        }
     }
 
     @FXML
@@ -134,14 +172,13 @@ public class SettingsController {
         if (user == null) return;
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Profile Picture");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(avatarCircle.getScene().getWindow());
 
         if (file != null) {
             new Thread(() -> {
                 try {
-                    String objectName = "avatars/" + user.getId() + "_" + System.currentTimeMillis() + ".jpg";
+                    String objectName = "/images/" + user.getId() + "_avatar.jpg";
                     try (FileInputStream fis = new FileInputStream(file)) {
                         minioClient.putObject(PutObjectArgs.builder()
                                 .bucket(user.getBucketName())
@@ -153,16 +190,80 @@ public class SettingsController {
 
                     if (userDAO.updateAvatar(user.getId(), objectName)) {
                         user.setAvatarUrl(objectName);
+                        AvatarCache.remove(objectName); // Force refresh
                         Platform.runLater(() -> {
                             loadAvatarImage(objectName);
-                            showSnackBar("Success", "Profile picture updated.");
+                            AlertUtils.showSuccess("Success", "Avatar updated.");
+                            if (dashboardController != null) {
+                                dashboardController.refreshAvatar(objectName);
+                                // Optional: Return to dashboard
+                                dashboardController.handleShowMyCloud();
+                            }
                         });
                     }
-                } catch (Exception e) {
-                    Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Upload Error", e.getMessage()));
-                }
+                } catch (Exception e) { e.printStackTrace(); }
             }).start();
         }
+    }
+
+    private void loadStorageStats() {
+        User user = SessionManager.getCurrentUser();
+        if (user == null || minioClient == null) return;
+
+        new Thread(() -> {
+            try {
+                String bucket = user.getBucketName();
+                Map<String, Long> typeSizes = new HashMap<>();
+                long totalUsedBytes = 0;
+
+                Iterable<Result<Item>> results = minioClient.listObjects(
+                        ListObjectsArgs.builder().bucket(bucket).recursive(true).build());
+
+                for (Result<Item> result : results) {
+                    Item item = result.get();
+                    long size = item.size();
+                    totalUsedBytes += size;
+                    String category = getFileCategory(item.objectName());
+                    typeSizes.put(category, typeSizes.getOrDefault(category, 0L) + size);
+                }
+
+                final long finalTotal = totalUsedBytes;
+                ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+                typeSizes.forEach((cat, size) -> pieData.add(new PieChart.Data(cat, size / (1024.0 * 1024.0))));
+
+                Platform.runLater(() -> {
+                    storagePieChart.setData(pieData);
+                    updateStatsUI(finalTotal);
+                    applyPieColors();
+                });
+            } catch (Exception e) { e.printStackTrace(); }
+        }).start();
+    }
+
+    private void applyPieColors() {
+        for (PieChart.Data data : storagePieChart.getData()) {
+            String color = CATEGORY_COLORS.getOrDefault(data.getName(), "#6366F1");
+            if (data.getNode() != null) {
+                data.getNode().setStyle("-fx-pie-color: " + color + "; -fx-border-color: white; -fx-border-width: 1;");
+            }
+        }
+    }
+
+    private void updateStatsUI(long usedBytes) {
+        double usedGB = usedBytes / (1024.0 * 1024.0 * 1024.0);
+        double progress = (double) usedBytes / MAX_STORAGE_BYTES;
+        usageTextLabel.setText(String.format("%.2f GB Used", usedGB));
+        percentageLabel.setText(String.format("%.1f%% of total", progress * 100));
+        storageProgressBar.setProgress(progress);
+    }
+
+    private String getFileCategory(String filename) {
+        String name = filename.toLowerCase();
+        if (name.matches(".*\\.(jpg|jpeg|png|gif|webp)$")) return "Images";
+        if (name.matches(".*\\.(mp4|mov|avi)$")) return "Videos";
+        if (name.matches(".*\\.(pdf|docx|txt)$")) return "Documents";
+        if (name.matches(".*\\.(mp3|wav)$")) return "Audio";
+        return "Others";
     }
 
     @FXML
@@ -172,110 +273,23 @@ public class SettingsController {
         String lName = lastNameField.getText().trim();
         String email = emailField.getText().trim();
 
-        if (fName.isEmpty() || lName.isEmpty() || email.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Validation", "Please fill in all profile fields.");
-            return;
-        }
+        if (fName.isEmpty() || lName.isEmpty() || email.isEmpty()) return;
 
         new Thread(() -> {
             if (userDAO.updateProfile(user.getId(), fName, lName, email)) {
                 user.setFirstName(fName);
                 user.setLastName(lName);
                 user.setEmail(email);
-                Platform.runLater(() -> showSnackBar("Updated", "Profile information saved."));
-            }
-        }).start();
-    }
-
-    // =================================================================================
-    // SECTION 2: STORAGE ANALYTICS
-    // =================================================================================
-
-    private void loadStorageStats() {
-        User user = SessionManager.getCurrentUser();
-        if (user == null || minioClient == null) return;
-
-        new Thread(() -> {
-            try {
-                String bucket = user.getBucketName();
-                long totalUsedBytes = 0;
-                Map<String, Long> typeSizes = new HashMap<>();
-                Map<String, Integer> typeCounts = new HashMap<>();
-
-                Iterable<Result<Item>> results = minioClient.listObjects(
-                        ListObjectsArgs.builder().bucket(bucket).recursive(true).build());
-
-                for (Result<Item> result : results) {
-                    Item item = result.get();
-                    if (item.isDir()) continue;
-
-                    long size = item.size();
-                    totalUsedBytes += size;
-
-                    String category = getFileCategory(item.objectName());
-                    typeSizes.put(category, typeSizes.getOrDefault(category, 0L) + size);
-                    typeCounts.put(category, typeCounts.getOrDefault(category, 0) + 1);
-                }
-
-                final long finalTotal = totalUsedBytes;
-                ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
-
-                // Construct labels with counts: "Images (24)"
-                typeSizes.forEach((category, size) -> {
-                    int count = typeCounts.getOrDefault(category, 0);
-                    double sizeMB = size / (1024.0 * 1024.0);
-                    pieData.add(new PieChart.Data(category + " (" + count + ")", sizeMB));
-                });
-
                 Platform.runLater(() -> {
-                    updateStatsUI(finalTotal, pieData);
-                    applyPieColors();
+                    AlertUtils.showSuccess("Success", "Profile updated.");
+                    if (dashboardController != null) {
+                        dashboardController.setUserData(user);
+                        dashboardController.handleShowMyCloud();
+                    }
                 });
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }).start();
     }
-
-    private void updateStatsUI(long usedBytes, ObservableList<PieChart.Data> pieData) {
-        double usedGB = usedBytes / (1024.0 * 1024.0 * 1024.0);
-        double progress = (double) usedBytes / MAX_STORAGE_BYTES;
-
-        if (usageTextLabel != null) usageTextLabel.setText(String.format("%.2f GB", usedGB));
-        if (percentageLabel != null) percentageLabel.setText(String.format("%.0f%% of total capacity", progress * 100));
-        if (storageProgressBar != null) storageProgressBar.setProgress(progress);
-
-        if (storagePieChart != null) {
-            storagePieChart.setData(pieData);
-            storagePieChart.setLegendVisible(true);
-            storagePieChart.setLabelsVisible(true);
-        }
-    }
-
-    private void applyPieColors() {
-        for (PieChart.Data data : storagePieChart.getData()) {
-            String label = data.getName();
-            CATEGORY_COLORS.forEach((category, color) -> {
-                if (label.contains(category)) {
-                    data.getNode().setStyle("-fx-pie-color: " + color + "; -fx-border-color: white; -fx-border-width: 2;");
-                }
-            });
-        }
-    }
-
-    private String getFileCategory(String filename) {
-        String name = filename.toLowerCase();
-        if (name.matches(".*\\.(jpg|jpeg|png|gif|bmp|webp)$")) return "Images";
-        if (name.matches(".*\\.(mp4|mov|avi|mkv|wmv)$")) return "Videos";
-        if (name.matches(".*\\.(pdf|docx|txt|pptx|xlsx|odt|rtf)$")) return "Documents";
-        if (name.matches(".*\\.(mp3|wav|flac|m4a|ogg)$")) return "Audio";
-        return "Others";
-    }
-
-    // =================================================================================
-    // SECTION 3: PREFERENCES & SECURITY
-    // =================================================================================
 
     private void loadPreferences() {
         downloadPathField.setText(prefs.get("download_path", System.getProperty("user.home") + File.separator + "Downloads"));
@@ -284,74 +298,80 @@ public class SettingsController {
         notifyStorage.setSelected(prefs.getBoolean("notify_storage", true));
     }
 
-    @FXML
-    private void handleBrowseLocation() {
+    @FXML private void handleBrowseLocation() {
         DirectoryChooser dc = new DirectoryChooser();
-        dc.setTitle("Select Download Folder");
         File dir = dc.showDialog(downloadPathField.getScene().getWindow());
         if (dir != null) {
             downloadPathField.setText(dir.getAbsolutePath());
             prefs.put("download_path", dir.getAbsolutePath());
-            showSnackBar("Path Saved", "Default download location updated.");
         }
     }
 
+    @FXML private void handleClearCache() {
+        AvatarCache.clear();
+        AlertUtils.showSuccess("Cache Cleared", "Images will reload.");
+    }
+
     @FXML
-    private void handleChangePassword() {
+    public void handleChangePassword(ActionEvent actionEvent) {
         User user = SessionManager.getCurrentUser();
-        String neo = newPasswordField.getText();
-        if (neo == null || neo.length() < 6) {
-            showAlert(Alert.AlertType.WARNING, "Security", "Password must be at least 6 characters.");
+        String newPassword = newPasswordField.getText();
+
+        // 1. Validation: Ensure it's not empty and meets length requirements
+        if (newPassword == null || newPassword.trim().length() < 6) {
+            AlertUtils.showError("Security", "Password must be at least 6 characters.");
             return;
         }
 
         new Thread(() -> {
-            if (userDAO.updatePassword(user.getId(), neo)) {
+            try {
+                // Logic: updatePassword should hash the password before saving to DB
+                boolean success = userDAO.updatePassword(user.getId(), newPassword);
+
                 Platform.runLater(() -> {
-                    showSnackBar("Success", "Password changed successfully.");
-                    newPasswordField.clear();
-                    currentPasswordField.clear();
+                    if (success) {
+                        AlertUtils.showSuccess("Success", "Password updated. Please use the new password next time you login.");
+                        newPasswordField.clear();
+                        currentPasswordField.clear();
+                    } else {
+                        AlertUtils.showError("Update Failed", "We couldn't update the password in the database.");
+                    }
                 });
+            } catch (Exception e) {
+                Platform.runLater(() -> AlertUtils.showError("Database Error", e.getMessage()));
             }
         }).start();
     }
-
     @FXML
-    private void handleDeleteAccount() {
+    public void handleDeleteAccount(ActionEvent actionEvent) {
+        User user = SessionManager.getCurrentUser();
+        if (user == null) return;
+
+        // 1. Mandatory Confirmation
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Delete Account");
-        confirm.setHeaderText("Warning: Permanent Action");
-        confirm.setContentText("This will permanently delete your account and all stored files. Continue?");
+        confirm.setHeaderText("Are you absolutely sure?");
+        confirm.setContentText("This will permanently delete your profile and all stored files. This cannot be undone.");
 
-        confirm.showAndWait().ifPresent(type -> {
-            if (type == ButtonType.OK) {
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
                 new Thread(() -> {
-                    if (userDAO.deleteUser(SessionManager.getCurrentUser().getId())) {
-                        Platform.runLater(Platform::exit);
+                    try {
+                        // Logic: This should delete DB records and Minio bucket data
+                        if (userDAO.deleteUser(user.getId())) {
+                            Platform.runLater(() -> {
+                                AlertUtils.showSuccess("Account Deleted", "Your account has been successfully removed.");
+
+                                // 2. Cleanup session and exit application
+                                SessionManager.logout();
+                                Platform.exit();
+                            });
+                        }
+                    } catch (Exception e) {
+                        Platform.runLater(() -> AlertUtils.showError("Error", "Could not delete account: " + e.getMessage()));
                     }
                 }).start();
             }
         });
-    }
-
-    @FXML
-    private void handleClearCache() {
-        showSnackBar("Cache Cleared", "Local temporary files removed.");
-    }
-
-    // --- Helper UI Methods ---
-
-    private void showSnackBar(String title, String msg) {
-        // Implementation for a modern alert or simple notification
-        System.out.println(title + ": " + msg);
-        showAlert(Alert.AlertType.INFORMATION, title, msg);
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String msg) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
     }
 }

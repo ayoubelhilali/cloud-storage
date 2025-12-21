@@ -156,6 +156,7 @@ public class ImagePreviewController {
                     try (PDDocument document = PDDocument.load(stream)) {
                         PDFRenderer renderer = new PDFRenderer(document);
                         BufferedImage bufferedImage = renderer.renderImageWithDPI(0, 150);
+                        System.out.println("PDF preview generated for " + fileName);
                         return SwingFXUtils.toFXImage(bufferedImage, null);
                     }
                 }

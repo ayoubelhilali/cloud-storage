@@ -5,56 +5,83 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
-<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox spacing="30.0" styleClass="root" stylesheets="@../../../css/UploadFiles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.UploadFilesController">
-    <padding>
-        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-    </padding>
-    <children>
-        <HBox alignment="CENTER">
+<ScrollPane fitToWidth="true" styleClass="scroll-pane" stylesheets="@../../../css/UploadFiles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cloudstorage.fx.controllers.UploadFilesController">
+    <content>
+        <VBox spacing="30.0" styleClass="root">
+            <padding>
+                <Insets bottom="50.0" left="50.0" right="50.0" top="40.0" />
+            </padding>
             <children>
-                <Label styleClass="page-title" text="Upload files" />
-            </children>
-        </HBox>
+                <!-- Header Section -->
+                <VBox spacing="8">
+                    <Label styleClass="page-title" text="Upload Files" />
+                    <Label styleClass="upload-text-sub" text="Drag and drop your files or browse from your computer" />
+                </VBox>
 
-        <VBox fx:id="dropZone" alignment="CENTER" prefHeight="350.0" spacing="20.0" styleClass="upload-card">
-            <children>
-                <VBox alignment="CENTER" styleClass="icon-bg">
+                <Separator opacity="0.15" />
+
+                <!-- Upload Drop Zone -->
+                <VBox fx:id="dropZone" alignment="CENTER" prefHeight="380.0" spacing="25.0" styleClass="upload-card">
+                    <padding>
+                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                    </padding>
                     <children>
-                        <SVGPath content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" fill="WHITE" scaleX="2.0" scaleY="2.0" styleClass="upload-icon-shape" />
+                        <!-- Icon with Gradient Background -->
+                        <VBox alignment="CENTER" styleClass="icon-bg">
+                            <children>
+                                <FontIcon iconColor="WHITE" iconLiteral="fas-cloud-upload-alt" iconSize="48" />
+                            </children>
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="10">
+                            <Label styleClass="upload-text-header" text="Drag &amp; Drop Files Here" />
+                            <Label styleClass="upload-text-sub" text="OR" />
+                        </VBox>
+
+                        <Button fx:id="btnBrowse" mnemonicParsing="false" onAction="#handleBrowseFile" styleClass="browse-btn" text="Browse Files">
+                            <graphic>
+                                <FontIcon iconColor="WHITE" iconLiteral="fas-folder-open" iconSize="16" />
+                            </graphic>
+                        </Button>
+
+                        <VBox alignment="CENTER" spacing="8" style="-fx-padding: 20 0 0 0;">
+                            <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 12px; -fx-font-weight: 600;" text="Supported formats: Images, Videos, Documents, Archives" />
+                            <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 12px;" text="Maximum file size: 100MB per file" />
+                        </VBox>
                     </children>
                 </VBox>
 
-                <Label styleClass="upload-text-header" text="Drag &amp; drop your files here" />
-
-                <Label styleClass="upload-text-sub" text="or" />
-
-                <Button fx:id="btnBrowse" mnemonicParsing="false" onAction="#handleBrowseFile" styleClass="browse-btn" text="Choose files from your computer" />
-            </children>
-        </VBox>
-
-        <VBox spacing="15.0" VBox.vgrow="ALWAYS">
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <!-- Progress Section -->
+                <VBox spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <Label styleClass="section-title" text="Upload progress" />
-                        <Region HBox.hgrow="ALWAYS" />
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <FontIcon iconColor="#0061FF" iconLiteral="fas-tasks" iconSize="20" />
+                                <Label styleClass="section-title" text="Upload Progress" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-font-weight: 600;" text="0 files uploading" />
+                            </children>
+                        </HBox>
+
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="progressListContainer" spacing="12.0">
+                                    <padding>
+                                        <Insets bottom="10.0" />
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
                     </children>
-                </HBox>
-
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
-                    <content>
-                        <VBox fx:id="progressListContainer" spacing="10.0">
-
-                        </VBox>
-                    </content>
-                </ScrollPane>
+                </VBox>
             </children>
         </VBox>
-    </children>
-</VBox>
+    </content>
+</ScrollPane>

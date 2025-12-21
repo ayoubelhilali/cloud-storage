@@ -54,8 +54,8 @@ public class FileDAO {
         }
     }
 
-    // 3. SET FAVORITE (This is the method causing your error - ensure it looks exactly like this)
-    public static boolean setFavorite(long userId, String fileName, boolean isFavorite, String bucketName) {
+    // 3. SET FAVORITE (Fixed to handle file size properly)
+    public static boolean setFavorite(long userId, String fileName, boolean isFavorite, String bucketName, long fileSize) {
         // A. Try to UPDATE existing record
         String updateSql = "UPDATE files SET is_favorite = ? WHERE user_id = ? AND filename = ?";
 
@@ -70,15 +70,16 @@ public class FileDAO {
 
             if (affectedRows > 0) return true;
 
-            // B. If UPDATE failed, INSERT it (Upsert)
-            String insertSql = "INSERT INTO files (user_id, filename, is_favorite, file_size, storage_key, storage_bucket, uploaded_at) VALUES (?, ?, ?, 0, ?, ?, NOW())";
+            // B. If UPDATE failed, INSERT it with proper file size
+            String insertSql = "INSERT INTO files (user_id, filename, is_favorite, file_size, storage_key, storage_bucket, uploaded_at) VALUES (?, ?, ?, ?, ?, ?, NOW())";
 
             try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                 insertStmt.setLong(1, userId);
                 insertStmt.setString(2, fileName);
                 insertStmt.setBoolean(3, isFavorite);
-                insertStmt.setString(4, fileName);
-                insertStmt.setString(5, bucketName); // <--- Matches the argument passed from FileRowFactory
+                insertStmt.setLong(4, fileSize); // Use actual file size
+                insertStmt.setString(5, fileName);
+                insertStmt.setString(6, bucketName);
 
                 insertStmt.executeUpdate();
                 return true;
@@ -89,6 +90,11 @@ public class FileDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Overloaded method for backward compatibility (defaults to 0)
+    public static boolean setFavorite(long userId, String fileName, boolean isFavorite, String bucketName) {
+        return setFavorite(userId, fileName, isFavorite, bucketName, 0);
     }
 
     // 4. FETCH ALL FAVORITES (Full Object)
@@ -183,5 +189,89 @@ public class FileDAO {
         if (mime.contains("video")) return "Videos";
         if (mime.contains("pdf") || mime.contains("word") || mime.contains("text")) return "Documents";
         return "Other";
+    }
+
+    public static boolean createFolder(String name, long userId) {
+        String sql = "INSERT INTO folders (name, user_id) VALUES (?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, name);
+            pstmt.setLong(2, userId);
+
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ CREATE FOLDER FAILED: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Fetches all folders for a user and calculates the number of files inside each.
+     */
+    public static List<Map<String, Object>> getFoldersByUserId(long userId) {
+        List<Map<String, Object>> folders = new ArrayList<>();
+        // Join folders with files to get dynamic file counts
+        String sql = "SELECT f.id, f.name, COUNT(fi.id) as file_count " +
+                "FROM folders f " +
+                "LEFT JOIN files fi ON f.id = fi.folder_id " +
+                "WHERE f.user_id = ? " +
+                "GROUP BY f.id, f.name " +
+                "ORDER BY f.name ASC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> folderData = new HashMap<>();
+                    folderData.put("id", rs.getLong("id"));
+                    folderData.put("name", rs.getString("name"));
+                    folderData.put("file_count", rs.getInt("file_count"));
+                    folders.add(folderData);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ FETCH FOLDERS FAILED: " + e.getMessage());
+        }
+        return folders;
+    }
+
+    public static boolean updateFileFolder(long userId, String fileName, long folderId, String bucket, long size) {
+        // 1. Try to UPDATE the existing record first
+        String updateSql = "UPDATE files SET folder_id = ? WHERE user_id = ? AND filename = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
+
+            pstmt.setLong(1, folderId);
+            pstmt.setLong(2, userId);
+            pstmt.setString(3, fileName);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) return true; // Successfully updated existing record
+
+            // 2. If NO rows were updated, the file isn't in SQL yet. INSERT it.
+            String insertSql = "INSERT INTO files (user_id, folder_id, filename, file_size, storage_key, storage_bucket, uploaded_at) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, NOW())";
+
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setLong(1, userId);
+                insertStmt.setLong(2, folderId);
+                insertStmt.setString(3, fileName);
+                insertStmt.setLong(4, size);
+                insertStmt.setString(5, fileName); // Storage key matches filename
+                insertStmt.setString(6, bucket);
+
+                insertStmt.executeUpdate();
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ FOLDER MOVE FAILED: " + e.getMessage());
+            return false;
+        }
     }
 }

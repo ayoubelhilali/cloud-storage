@@ -15,6 +15,7 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <BorderPane fx:id="mainBorderPane"
             maxHeight="-Infinity" maxWidth="-Infinity"
             minHeight="700.0" minWidth="1100.0"
@@ -46,7 +47,7 @@
                         styleClass="nav-button, nav-button-active" text="My cloud"
                         onAction="#handleShowMyCloud">
                     <graphic>
-                        <Label styleClass="nav-icon-active" text="☁"/>
+                        <FontIcon iconLiteral="fas-cloud" styleClass="nav-icon-active"/>
                     </graphic>
                     <padding>
                         <Insets left="20.0"/>
@@ -58,7 +59,7 @@
                         styleClass="nav-button" text="Shared Files"
                         onAction="#handleShowSharedFiles">
                     <graphic>
-                        <Label styleClass="nav-icon" text="👥"/>
+                        <FontIcon iconLiteral="fas-share-alt" styleClass="nav-icon"/>
                     </graphic>
                     <padding>
                         <Insets left="20.0"/>
@@ -70,7 +71,7 @@
                         styleClass="nav-button" text="Favorites"
                         onAction="#handleShowFavorites">
                     <graphic>
-                        <Label styleClass="nav-icon" text="⭐"/>
+                        <FontIcon iconLiteral="fas-star" styleClass="nav-icon"/>
                     </graphic>
                     <padding>
                         <Insets left="20.0"/>
@@ -82,7 +83,7 @@
                         styleClass="nav-button" text="Upload Files"
                         onAction="#handleUpload">
                     <graphic>
-                        <Label styleClass="nav-icon" text="⬆"/>
+                        <FontIcon iconLiteral="fas-upload" styleClass="nav-icon"/>
                     </graphic>
                     <padding>
                         <Insets left="20.0"/>
@@ -96,7 +97,7 @@
                         styleClass="nav-button" text="Settings"
                         onAction="#handleSettings">
                     <graphic>
-                        <Label styleClass="nav-icon" text="⚙"/>
+                        <FontIcon iconLiteral="fas-cog" styleClass="nav-icon"/>
                     </graphic>
                     <padding>
                         <Insets left="20.0"/>
@@ -108,7 +109,7 @@
                         styleClass="nav-button" text="Log Out"
                         onAction="#handleLogout">
                     <graphic>
-                        <Label styleClass="nav-icon" text="🚪"/>
+                        <FontIcon iconLiteral="fas-sign-out-alt" styleClass="nav-icon"/>
                     </graphic>
                     <padding>
                         <Insets left="20.0"/>
@@ -124,20 +125,6 @@
                 <Insets bottom="30.0" left="30.0" right="30.0" top="30.0"/>
             </padding>
             <children>
-                <HBox alignment="CENTER_LEFT">
-                    <children>
-                        <TextField HBox.hgrow="ALWAYS" maxWidth="Infinity"
-                                   prefHeight="70.0" promptText="🔍  Search" styleClass="search-bar">
-                            <font>
-                                <Font size="14.0"/>
-                            </font>
-                            <effect>
-                                <DropShadow color="#0000000d" offsetY="2.0"/>
-                            </effect>
-                        </TextField>
-                    </children>
-                </HBox>
-
                 <HBox spacing="25.0" VBox.vgrow="ALWAYS">
                     <children>
 

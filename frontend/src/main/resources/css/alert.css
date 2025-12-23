@@ -44,6 +44,28 @@
     -fx-background-color: #2b6cb0;
 }
 
+/* Cancel Button */
+.alert-btn-cancel {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #2d3748;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 24px;
+    -fx-cursor: hand;
+}
+.alert-btn-cancel:hover {
+    -fx-background-color: #cbd5e0;
+}
+
+/* Danger Button */
+.alert-btn-danger {
+    -fx-background-color: #f56565;
+    -fx-text-fill: white;
+}
+.alert-btn-danger:hover {
+    -fx-background-color: #e53e3e;
+}
+
 /* ========================================= */
 /* 🟢 DYNAMIC BORDER COLORS */
 /* ========================================= */

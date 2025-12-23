@@ -1,6 +1,7 @@
 package com.cloudstorage.fx.controllers;
 
 import com.cloudstorage.database.InsertUser;
+import com.cloudstorage.fx.utils.AlertUtils;
 import com.cloudstorage.service.MinioService; // Make sure this is imported
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -209,10 +210,10 @@ public class RegisterController {
             registerButton.setText("CREATE ACCOUNT");
 
             if (result == null) {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Account created successfully!");
+                AlertUtils.showSuccess("Registration Successful", "Your account has been created successfully!");
                 OpenLoginPage(null);
             } else {
-                showAlert(Alert.AlertType.ERROR, "Error", result);
+                AlertUtils.showError("Registration Failed: ", result);
             }
         });
 

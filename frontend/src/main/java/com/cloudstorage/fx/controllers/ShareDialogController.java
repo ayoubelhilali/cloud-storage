@@ -15,11 +15,11 @@ public class ShareDialogController {
     @FXML private TextField emailField;
 
     private String targetFilename;
+    private Stage stage;
     private final ShareController shareController;
 
     public ShareDialogController() {
         // Initialize backend controller
-        // Ideally, move MinioClient initialization to a global Config class to avoid recreating it everywhere
         MinioClient minioClient = MinioClient.builder()
                 .endpoint("http://127.0.0.1:9000")
                 .credentials("YOUR_ACCESS_KEY", "YOUR_SECRET_KEY")
@@ -27,24 +27,40 @@ public class ShareDialogController {
         this.shareController = new ShareController(minioClient);
     }
 
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
     public void setTargetFile(String filename) {
         this.targetFilename = filename;
-        this.fileNameLabel.setText(filename);
+        if (fileNameLabel != null) {
+            // Truncate long filenames
+            String displayName = filename.length() > 40
+                ? filename.substring(0, 37) + "..."
+                : filename;
+            fileNameLabel.setText(displayName);
+        }
     }
 
     @FXML
     private void handleShare() {
         String email = emailField.getText();
 
+        // Validation
         if (email == null || email.trim().isEmpty()) {
             AlertUtils.showError("Input Error", "Please enter an email address.");
+            return;
+        }
+
+        // Simple email validation
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            AlertUtils.showError("Invalid Email", "Please enter a valid email address.");
             return;
         }
 
         long senderId = SessionManager.getCurrentUser().getId();
 
         // Call Backend
-        // Note: Make sure 'targetFilename' matches what is in your DB (files table)
         String result = shareController.shareFileByName(targetFilename, senderId, email);
 
         if ("SUCCESS".equals(result)) {
@@ -61,7 +77,11 @@ public class ShareDialogController {
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) emailField.getScene().getWindow();
-        stage.close();
+        if (stage != null) {
+            stage.close();
+        } else {
+            Stage currentStage = (Stage) emailField.getScene().getWindow();
+            currentStage.close();
+        }
     }
 }

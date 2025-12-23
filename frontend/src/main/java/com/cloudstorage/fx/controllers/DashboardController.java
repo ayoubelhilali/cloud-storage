@@ -223,15 +223,31 @@ public class DashboardController {
 
     @FXML
     private void handleAddFolder() {
-        TextInputDialog dialog = new TextInputDialog("New Folder");
-        dialog.showAndWait().ifPresent(name -> {
-            if (name.trim().isEmpty()) return;
-            new Thread(() -> {
-                if (FileDAO.createFolder(name.trim(), SessionManager.getCurrentUser().getId())) {
-                    Platform.runLater(this::loadUserFolders);
-                }
-            }).start();
-        });
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/AddFolderDialog.fxml"));
+            Parent root = loader.load();
+
+            AddFolderDialogController controller = loader.getController();
+
+            Stage dialogStage = new Stage();
+            dialogStage.initStyle(StageStyle.UTILITY);
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(mainBorderPane.getScene().getWindow());
+            dialogStage.setTitle("Create Folder");
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/dialogs.css").toExternalForm());
+            dialogStage.setScene(scene);
+
+            controller.setStage(dialogStage);
+            controller.setOnSuccess(this::loadUserFolders);
+
+            dialogStage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtils.showError("Dialog Error", "Could not open Add Folder dialog.");
+        }
     }
 
     private String getRandomFolderColor() {
@@ -285,14 +301,56 @@ public class DashboardController {
     }
 
     private void updateStatistics(List<Map<String, String>> files) {
+        // Calculate total storage
         double totalMB = 0;
+
+        // Count file types
+        int imageCount = 0;
+        int videoCount = 0;
+        int docCount = 0;
+        int audioCount = 0;
+
         for (Map<String, String> file : files) {
+            String fileName = file.get("name").toLowerCase();
             totalMB += FileUtils.parseSizeToMB(file.get("size"));
+
+            // Count by file extension
+            if (fileName.matches(".*\\.(jpg|jpeg|png|gif|bmp|webp|svg)$")) {
+                imageCount++;
+            } else if (fileName.matches(".*\\.(mp4|mov|avi|mkv|wmv|flv|webm)$")) {
+                videoCount++;
+            } else if (fileName.matches(".*\\.(pdf|doc|docx|txt|xls|xlsx|ppt|pptx|odt)$")) {
+                docCount++;
+            } else if (fileName.matches(".*\\.(mp3|wav|flac|aac|ogg|m4a|wma)$")) {
+                audioCount++;
+            }
         }
-        if (usedStorageCount != null)
+
+        // Update storage UI
+        if (usedStorageCount != null) {
             usedStorageCount.setText(String.format("%.2f MB Used of 5GB", totalMB));
-        if (sizeProgressBar != null)
+        }
+        if (sizeProgressBar != null) {
             sizeProgressBar.setProgress(totalMB / 5120.0);
+        }
+        if (sizeLeftPercent != null) {
+            double percentUsed = (totalMB / 5120.0) * 100;
+            sizeLeftPercent.setText(String.format("%.1f%%", percentUsed));
+        }
+
+        // Update file type counts
+        if (lblImageCount != null) {
+            lblImageCount.setText(imageCount + " file" + (imageCount != 1 ? "s" : ""));
+        }
+        if (lblVideoCount != null) {
+            lblVideoCount.setText(videoCount + " file" + (videoCount != 1 ? "s" : ""));
+        }
+        if (lblDocCount != null) {
+            lblDocCount.setText(docCount + " file" + (docCount != 1 ? "s" : ""));
+        }
+        if (lblAudioCount != null) {
+            lblAudioCount.setText(audioCount + " file" + (audioCount != 1 ? "s" : ""));
+        }
     }
 
     private void handleFileClick(Map<String, String> fileData) {

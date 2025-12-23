@@ -10,6 +10,7 @@
     -fx-success: #10B981;
     -fx-warning: #F59E0B;
     -fx-danger: #EF4444;
+    -fx-danger-hover: #DC2626;
 }
 
 .main-container {
@@ -139,15 +140,15 @@
 .btn-icon:hover { -fx-background-color: -fx-primary-hover; }
 
 .btn-danger-text {
-    -fx-background-color: transparent;
-    -fx-text-fill: -fx-danger;
+    -fx-background-color: -fx-danger;
+    -fx-text-fill: white;
     -fx-font-weight: 600;
+    -fx-padding: 10 24;
+    -fx-background-radius: 8;
     -fx-cursor: hand;
-    -fx-underline: false;
 }
 .btn-danger-text:hover {
-    -fx-text-fill: #DC2626;
-    -fx-underline: true;
+    -fx-background-color: -fx-danger-hover;
 }
 
 /* Progress Bar */

@@ -194,13 +194,12 @@ public class FileRowFactory {
         return btn;
     }
 
-    // --- NEW: Opens the Share Dialog ---
+    // --- Opens the Share Dialog ---
     private static void openShareDialog(Map<String, String> fileData) {
         try {
-            FXMLLoader loader = new FXMLLoader(FileRowFactory.class.getResource("/com/cloudstorage/fx/sharefiledialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(FileRowFactory.class.getResource("/com/cloudstorage/fx/ShareFileDialog.fxml"));
             Parent root = loader.load();
 
-            // Pass the filename/ID to the controller
             ShareDialogController controller = loader.getController();
             controller.setTargetFile(fileData.get("name"));
 
@@ -208,7 +207,15 @@ public class FileRowFactory {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.UTILITY);
             stage.setTitle("Share File");
-            stage.setScene(new Scene(root));
+
+            Scene scene = new Scene(root);
+
+            // Load the custom dialog CSS
+            String cssPath = FileRowFactory.class.getResource("/css/dialogs.css").toExternalForm();
+            scene.getStylesheets().add(cssPath);
+
+            stage.setScene(scene);
+            controller.setStage(stage);
             stage.showAndWait();
 
         } catch (IOException e) {
@@ -217,82 +224,56 @@ public class FileRowFactory {
         }
     }
 
-    private static void addToFolder(Map<String, String> fileData,Runnable refreshCallback) {
+    private static void addToFolder(Map<String, String> fileData, Runnable refreshCallback) {
         var user = SessionManager.getCurrentUser();
         if (user == null) return;
 
         String fileName = fileData.get("name");
+        String folderIdStr = fileData.get("folder_id");
+        Long currentFolderId = null;
 
-        // 1. Fetch existing folders from the database
-        // We run this on a background thread but need the result for the UI dialog
-        new Thread(() -> {
+        // Parse current folder ID if file is in a folder
+        if (folderIdStr != null && !folderIdStr.isEmpty() && !"null".equals(folderIdStr)) {
             try {
-                List<Map<String, Object>> folders = FileDAO.getFoldersByUserId(user.getId());
-                Platform.runLater(() -> {
-                    if (folders.isEmpty()) {
-                        AlertUtils.showError("No Folders", "Please create a folder first from the dashboard.");
-                        return;
-                    }
-
-                    // 2. Create a list of folder names for the choice dialog
-                    List<String> folderNames = folders.stream()
-                            .map(f -> (String) f.get("name"))
-                            .collect(Collectors.toList());
-
-                    ChoiceDialog<String> dialog = new ChoiceDialog<>(folderNames.get(0), folderNames);
-                    dialog.setTitle("Move to Folder");
-                    dialog.setHeaderText("Select destination for: " + fileName);
-                    dialog.setContentText("Choose Folder:");
-
-                    dialog.showAndWait().ifPresent(selectedFolderName -> {
-                        // Find the ID of the selected folder
-                        Long selectedFolderId = folders.stream()
-                                .filter(f -> f.get("name").equals(selectedFolderName))
-                                .map(f -> (Long) f.get("id"))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (selectedFolderId != null) {
-                            // Pass the extra parameters: bucket and size
-                            updateFileFolderInDb(
-                                    user.getId(),
-                                    fileName,
-                                    selectedFolderId,
-                                    fileData.get("bucket"),
-                                    fileData.get("size"),
-                                    refreshCallback
-                            );
-                        }
-                    });
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> AlertUtils.showError("Error", "Could not load folders."));
+                currentFolderId = Long.parseLong(folderIdStr);
+            } catch (NumberFormatException e) {
+                System.err.println("Could not parse folder_id: " + folderIdStr);
             }
-        }).start();
-    }
+        }
 
-    private static void updateFileFolderInDb(long userId, String fileName, long folderId, String bucket, String sizeStr,Runnable refreshCallback) {
-        long size = 0;
-        try { size = Long.parseLong(sizeStr); } catch (Exception ignored) {}
+        try {
+            FXMLLoader loader = new FXMLLoader(FileRowFactory.class.getResource("/com/cloudstorage/fx/AddToFolderDialog.fxml"));
+            Parent root = loader.load();
 
-        final long finalSize = size;
-        Thread dbThread = new Thread(() -> {
-            // Updated call to handle the new "Upsert" logic
-            boolean success = FileDAO.updateFileFolder(userId, fileName, folderId, bucket, finalSize);
+            com.cloudstorage.fx.controllers.AddToFolderDialogController controller = loader.getController();
+            controller.setFileName(fileName);
+            controller.setCurrentFolderId(currentFolderId);
 
-            Platform.runLater(() -> {
-                if (success) {
-                    AlertUtils.showSuccess("Moved", fileName + " moved to folder.");
-                    if (refreshCallback != null) {
-                        refreshCallback.run();
-                    }
-                } else {
-                    AlertUtils.showError("Database Error", "Check console for SQL errors.");
+            Stage dialogStage = new Stage();
+            dialogStage.initStyle(StageStyle.UTILITY);
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.setTitle("Move to Folder");
+
+            Scene scene = new Scene(root);
+
+            // Load the custom dialog CSS
+            String cssPath = FileRowFactory.class.getResource("/css/dialogs.css").toExternalForm();
+            scene.getStylesheets().add(cssPath);
+
+            dialogStage.setScene(scene);
+            controller.setStage(dialogStage);
+            controller.setOnSuccess(() -> {
+                if (refreshCallback != null) {
+                    refreshCallback.run();
                 }
             });
-        });
-        dbThread.setDaemon(true);
-        dbThread.start();
+
+            dialogStage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtils.showError("Dialog Error", "Could not open Move to Folder dialog.");
+        }
     }
 
     private static void downloadFile(Map<String, String> fileData) {

@@ -37,15 +37,15 @@
 
 .nav-icon {
     /* CHANGED: From Gray to Pure White for high visibility */
-    -fx-text-fill: white;
+    -fx-icon-color: white;
     /* CHANGED: Added font size to make icons physically larger */
-    -fx-font-size: 22px;
+    -fx-icon-size: 20px;
 }
 
 .nav-icon-active {
-    -fx-text-fill: white;
+    -fx-icon-color: white;
     /* Ensure active icon is also large */
-    -fx-font-size: 22px;
+    -fx-icon-size: 20px;
 }
 
 /* Center Content */

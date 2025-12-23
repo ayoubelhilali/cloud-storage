@@ -1,7 +1,9 @@
 package com.cloudstorage.fx.controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -12,6 +14,12 @@ public class CustomAlertController {
     @FXML private FontIcon alertIcon;
     @FXML private Label titleLabel;
     @FXML private Label messageLabel;
+    @FXML private HBox buttonBox;
+    @FXML private Button okButton;
+
+    private Stage stage;
+    private Runnable onConfirmCallback;
+    private boolean isConfirmMode = false;
 
     public void setAlert(String title, String message, String type) {
         titleLabel.setText(title);
@@ -41,9 +49,44 @@ public class CustomAlertController {
         }
     }
 
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void setConfirmMode(boolean isConfirm, Runnable onConfirm) {
+        this.isConfirmMode = isConfirm;
+        this.onConfirmCallback = onConfirm;
+
+        if (isConfirm && buttonBox != null && okButton != null) {
+            // Clear existing buttons
+            buttonBox.getChildren().clear();
+
+            // Create Cancel button
+            Button cancelButton = new Button("Cancel");
+            cancelButton.getStyleClass().add("alert-btn-cancel");
+            cancelButton.setOnAction(e -> closeAlert());
+
+            // Create Confirm button
+            Button confirmButton = new Button("Delete");
+            confirmButton.getStyleClass().addAll("alert-btn", "alert-btn-danger");
+            confirmButton.setOnAction(e -> handleConfirm());
+
+            // Add buttons
+            buttonBox.getChildren().addAll(cancelButton, confirmButton);
+            buttonBox.setSpacing(10);
+        }
+    }
+
     @FXML
     private void closeAlert() {
-        Stage stage = (Stage) alertCard.getScene().getWindow();
-        stage.close();
+        Stage stageToClose = stage != null ? stage : (Stage) alertCard.getScene().getWindow();
+        stageToClose.close();
+    }
+
+    private void handleConfirm() {
+        if (onConfirmCallback != null) {
+            onConfirmCallback.run();
+        }
+        closeAlert();
     }
 }

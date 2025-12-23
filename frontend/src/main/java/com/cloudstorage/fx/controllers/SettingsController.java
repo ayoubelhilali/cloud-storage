@@ -6,6 +6,7 @@ import com.cloudstorage.database.UserDAO;
 import com.cloudstorage.fx.utils.AlertUtils;
 import com.cloudstorage.fx.utils.AvatarCache;
 import com.cloudstorage.model.User;
+import com.cloudstorage.util.PasswordUtil;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -315,22 +316,55 @@ public class SettingsController {
     @FXML
     public void handleChangePassword(ActionEvent actionEvent) {
         User user = SessionManager.getCurrentUser();
+        String currentPassword = currentPasswordField.getText();
         String newPassword = newPasswordField.getText();
 
-        // 1. Validation: Ensure it's not empty and meets length requirements
-        if (newPassword == null || newPassword.trim().length() < 6) {
-            AlertUtils.showError("Security", "Password must be at least 6 characters.");
+        // 1. Validation: Check if fields are empty
+        if (currentPassword == null || currentPassword.trim().isEmpty()) {
+            AlertUtils.showError("Validation Error", "Please enter your current password.");
+            return;
+        }
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            AlertUtils.showError("Validation Error", "Please enter a new password.");
+            return;
+        }
+
+        // 2. Validation: Ensure new password meets length requirements
+        if (newPassword.trim().length() < 6) {
+            AlertUtils.showError("Security", "New password must be at least 6 characters.");
+            return;
+        }
+
+        // 3. Check if current and new passwords are the same
+        if (currentPassword.equals(newPassword)) {
+            AlertUtils.showError("Validation Error", "New password must be different from current password.");
             return;
         }
 
         new Thread(() -> {
             try {
-                // Logic: updatePassword should hash the password before saving to DB
-                boolean success = userDAO.updatePassword(user.getId(), newPassword);
+                // 4. Verify current password
+                String currentPasswordHash = PasswordUtil.hash(currentPassword);
+                if (!currentPasswordHash.equals(user.getPassword())) {
+                    Platform.runLater(() -> {
+                        AlertUtils.showError("Authentication Failed", "Current password is incorrect.");
+                        currentPasswordField.clear();
+                    });
+                    return;
+                }
+
+                // 5. Hash the new password
+                String newPasswordHash = PasswordUtil.hash(newPassword);
+
+                // 6. Update password in database
+                boolean success = userDAO.updatePassword(user.getId(), newPasswordHash);
 
                 Platform.runLater(() -> {
                     if (success) {
-                        AlertUtils.showSuccess("Success", "Password updated. Please use the new password next time you login.");
+                        // Update the session user's password hash
+                        user.setPassword(newPasswordHash);
+                        AlertUtils.showSuccess("Success", "Password updated successfully. Please use the new password next time you login.");
                         newPasswordField.clear();
                         currentPasswordField.clear();
                     } else {
@@ -338,7 +372,10 @@ public class SettingsController {
                     }
                 });
             } catch (Exception e) {
-                Platform.runLater(() -> AlertUtils.showError("Database Error", e.getMessage()));
+                Platform.runLater(() -> {
+                    AlertUtils.showError("Database Error", "An error occurred: " + e.getMessage());
+                    e.printStackTrace();
+                });
             }
         }).start();
     }
@@ -347,31 +384,33 @@ public class SettingsController {
         User user = SessionManager.getCurrentUser();
         if (user == null) return;
 
-        // 1. Mandatory Confirmation
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete Account");
-        confirm.setHeaderText("Are you absolutely sure?");
-        confirm.setContentText("This will permanently delete your profile and all stored files. This cannot be undone.");
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
+        // Use custom confirmation alert
+        AlertUtils.showConfirmation(
+            "Delete Account",
+            "This will permanently delete your profile and all stored files. This action cannot be undone.",
+            () -> {
+                // This runs when user clicks "Delete" button
                 new Thread(() -> {
                     try {
-                        // Logic: This should delete DB records and Minio bucket data
                         if (userDAO.deleteUser(user.getId())) {
                             Platform.runLater(() -> {
                                 AlertUtils.showSuccess("Account Deleted", "Your account has been successfully removed.");
-
-                                // 2. Cleanup session and exit application
+                                // Cleanup session and exit application
                                 SessionManager.logout();
                                 Platform.exit();
                             });
+                        } else {
+                            Platform.runLater(() ->
+                                AlertUtils.showError("Error", "Could not delete account. Please try again.")
+                            );
                         }
                     } catch (Exception e) {
-                        Platform.runLater(() -> AlertUtils.showError("Error", "Could not delete account: " + e.getMessage()));
+                        Platform.runLater(() ->
+                            AlertUtils.showError("Error", "Could not delete account: " + e.getMessage())
+                        );
                     }
                 }).start();
             }
-        });
+        );
     }
 }

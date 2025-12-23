@@ -7,41 +7,41 @@
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.cloudstorage.fx.controllers.AddFolderDialogController"
-      styleClass="custom-dialog" maxWidth="550.0" minWidth="480.0">
+      styleClass="custom-dialog" maxWidth="580.0" minWidth="500.0">
 
-    <!-- Header with Blue Gradient Background -->
-    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="dialog-header">
-        <FontIcon iconLiteral="fas-folder-plus" styleClass="dialog-icon"/>
+    <!-- Header with Purple Gradient Background -->
+    <HBox alignment="CENTER_LEFT" spacing="18" styleClass="dialog-header">
+        <FontIcon iconLiteral="fas-folder-plus" styleClass="dialog-icon" iconSize="36"/>
         <VBox VBox.vgrow="ALWAYS">
             <Label text="Create New Folder" styleClass="dialog-title"/>
-            <Label text="Organize your files with a new folder" styleClass="dialog-subtitle"/>
+            <Label text="Organize your files with a custom folder" styleClass="dialog-subtitle"/>
         </VBox>
     </HBox>
 
     <!-- Body Content -->
-    <VBox spacing="20" styleClass="dialog-body">
-        <VBox spacing="8">
+    <VBox spacing="22" styleClass="dialog-body">
+        <VBox spacing="10">
             <Label text="FOLDER NAME" styleClass="input-label"/>
-            <TextField fx:id="folderNameField" promptText="e.g., Documents, Photos, Projects..."
+            <TextField fx:id="folderNameField" promptText="e.g., Work Documents, Family Photos, Projects..."
                        styleClass="dialog-input"/>
             <Label fx:id="errorLabel" styleClass="error-label" visible="false" managed="false"/>
         </VBox>
 
         <!-- Info Box -->
-        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="info-box">
-            <FontIcon iconLiteral="fas-lightbulb" styleClass="info-icon"/>
+        <HBox alignment="CENTER_LEFT" spacing="14" styleClass="info-box">
+            <FontIcon iconLiteral="fas-lightbulb" styleClass="info-icon" iconSize="20"/>
             <Label text="Use letters, numbers, spaces, hyphens, or underscores (2-50 characters)"
                    wrapText="true" styleClass="info-text" HBox.hgrow="ALWAYS"/>
         </HBox>
     </VBox>
 
     <!-- Buttons -->
-    <HBox alignment="CENTER_RIGHT" spacing="12" styleClass="dialog-buttons">
-        <Button text="Cancel" onAction="#handleCancel" styleClass="dialog-btn-cancel" minWidth="100"/>
+    <HBox alignment="CENTER_RIGHT" spacing="14" styleClass="dialog-buttons">
+        <Button text="Cancel" onAction="#handleCancel" styleClass="dialog-btn-cancel" minWidth="110"/>
         <Button text="Create Folder" onAction="#handleCreate" styleClass="dialog-btn-primary"
-                minWidth="140" defaultButton="true">
+                minWidth="150" defaultButton="true">
             <graphic>
-                <FontIcon iconLiteral="fas-check" iconSize="14"/>
+                <FontIcon iconLiteral="fas-check" iconSize="15" iconColor="white"/>
             </graphic>
         </Button>
     </HBox>

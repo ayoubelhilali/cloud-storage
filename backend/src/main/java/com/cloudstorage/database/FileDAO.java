@@ -112,7 +112,11 @@ public class FileDAO {
                 FileMetadata metadata = new FileMetadata();
                 metadata.setId(rs.getLong("id"));
                 metadata.setUserId(rs.getLong("user_id"));
-                metadata.setFolderId(rs.getObject("folder_id") != null ? rs.getLong("folder_id") : null);
+
+                // Handle nullable folder_id
+                Object folderIdObj = rs.getObject("folder_id");
+                metadata.setFolderId(folderIdObj != null ? rs.getLong("folder_id") : null);
+
                 metadata.setFilename(rs.getString("filename"));
                 metadata.setFileSize(rs.getLong("file_size"));
                 metadata.setMimeType(rs.getString("mime_type"));
@@ -122,6 +126,12 @@ public class FileDAO {
 
                 favoriteFiles.add(metadata);
             }
+
+            System.out.println("✅ Retrieved " + favoriteFiles.size() + " favorite files for user " + userId);
+        } catch (SQLException e) {
+            System.err.println("❌ GET FAVORITE FILES FAILED: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-throw to be handled by caller
         }
         return favoriteFiles;
     }
@@ -137,10 +147,15 @@ public class FileDAO {
             pstmt.setLong(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    favorites.add(rs.getString("filename"));
+                    String filename = rs.getString("filename");
+                    if (filename != null && !filename.trim().isEmpty()) {
+                        favorites.add(filename);
+                    }
                 }
             }
+            System.out.println("✅ Retrieved " + favorites.size() + " favorite filenames for user " + userId);
         } catch (SQLException e) {
+            System.err.println("❌ GET FAVORITE FILENAMES FAILED: " + e.getMessage());
             e.printStackTrace();
         }
         return favorites;

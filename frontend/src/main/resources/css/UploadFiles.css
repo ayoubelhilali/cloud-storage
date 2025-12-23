@@ -249,12 +249,7 @@
     -fx-font-size: 13px;
 }
 
-/* Animations */
-@keyframes pulse {
-    0%, 100% { -fx-opacity: 1; }
-    50% { -fx-opacity: 0.6; }
-}
-
+/* Hover effect for upload cards */
 .upload-card:hover {
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.12), 35, 0, 0, 10);
 }

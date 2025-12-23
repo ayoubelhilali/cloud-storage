@@ -20,9 +20,13 @@ public class UploadFilesController {
     @FXML private VBox dropZone;
     @FXML private Button btnBrowse;
     @FXML private VBox progressListContainer;
+    @FXML private Label uploadCountLabel;
 
     // 🟢 Service
     private final FileUploadService uploadService = new FileUploadService();
+
+    // 🟡 Active uploads counter
+    private int activeUploads = 0;
 
     // 🟣 Callback après upload
     private Runnable onUploadComplete;
@@ -34,6 +38,38 @@ public class UploadFilesController {
     @FXML
     public void initialize() {
         setupDragAndDrop();
+        updateUploadCountLabel();
+    }
+
+    // =========================================================
+    // 🟡 Update Upload Counter
+    // =========================================================
+    private void updateUploadCountLabel() {
+        Platform.runLater(() -> {
+            if (uploadCountLabel != null) {
+                if (activeUploads == 0) {
+                    uploadCountLabel.setText("No files uploading");
+                    uploadCountLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-font-weight: 600;");
+                } else if (activeUploads == 1) {
+                    uploadCountLabel.setText("1 file uploading");
+                    uploadCountLabel.setStyle("-fx-text-fill: #0061FF; -fx-font-size: 13px; -fx-font-weight: 700;");
+                } else {
+                    uploadCountLabel.setText(activeUploads + " files uploading");
+                    uploadCountLabel.setStyle("-fx-text-fill: #0061FF; -fx-font-size: 13px; -fx-font-weight: 700;");
+                }
+            }
+        });
+    }
+
+    private void incrementActiveUploads() {
+        activeUploads++;
+        updateUploadCountLabel();
+    }
+
+    private void decrementActiveUploads() {
+        activeUploads--;
+        if (activeUploads < 0) activeUploads = 0;
+        updateUploadCountLabel();
     }
 
     // =========================================================
@@ -235,6 +271,9 @@ public class UploadFilesController {
         itemBox.getChildren().addAll(iconLabel, infoBox, cancelBtn);
         progressListContainer.getChildren().add(0, itemBox);
 
+        // 🟡 Increment active uploads counter
+        incrementActiveUploads();
+
         // 🟡 Task Upload
         Task<Void> uploadTask = new Task<>() {
             @Override
@@ -254,6 +293,7 @@ public class UploadFilesController {
         });
 
         uploadTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            decrementActiveUploads(); // Decrement counter
             percentLabel.setText("✓ Complete");
             percentLabel.getStyleClass().clear();
             percentLabel.getStyleClass().add("status-complete");
@@ -268,6 +308,7 @@ public class UploadFilesController {
         }));
 
         uploadTask.setOnFailed(e -> Platform.runLater(() -> {
+            decrementActiveUploads(); // Decrement counter
             percentLabel.setText("✗ Failed");
             percentLabel.getStyleClass().clear();
             percentLabel.getStyleClass().add("status-error");
@@ -283,7 +324,10 @@ public class UploadFilesController {
         }));
 
         cancelBtn.setOnAction(e -> {
-            if (uploadTask.isRunning()) uploadTask.cancel();
+            if (uploadTask.isRunning()) {
+                uploadTask.cancel();
+                decrementActiveUploads(); // Decrement counter when cancelled
+            }
             progressListContainer.getChildren().remove(itemBox);
         });
 

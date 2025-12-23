@@ -366,7 +366,15 @@ public class FavoritesController {
      */
     private void removeFavorite(FileMetadata file) {
         User currentUser = SessionManager.getCurrentUser();
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            AlertUtils.showError("Error", "User session not found");
+            return;
+        }
+
+        if (file == null || file.getFilename() == null) {
+            AlertUtils.showError("Error", "Invalid file");
+            return;
+        }
 
         String bucketName = currentUser.getBucketName();
         if (bucketName == null || bucketName.isEmpty()) {
@@ -376,16 +384,22 @@ public class FavoritesController {
 
         final String finalBucket = bucketName;
         new Thread(() -> {
-            boolean success = FileDAO.setFavorite(currentUser.getId(), file.getFilename(), false, finalBucket, file.getFileSize());
-            Platform.runLater(() -> {
-                if (success) {
-                    SessionManager.setFavoritesChanged(true);
-                    refresh(); // Reload the favorites list
-                    AlertUtils.showSuccess("Removed", file.getFilename() + " removed from favorites.");
-                } else {
-                    AlertUtils.showError("Error", "Could not remove from favorites.");
-                }
-            });
+            try {
+                boolean success = FileDAO.setFavorite(currentUser.getId(), file.getFilename(), false, finalBucket, file.getFileSize());
+                Platform.runLater(() -> {
+                    if (success) {
+                        SessionManager.setFavoritesChanged(true);
+                        refresh(); // Reload the favorites list
+                        AlertUtils.showSuccess("Removed", file.getFilename() + " removed from favorites.");
+                    } else {
+                        AlertUtils.showError("Error", "Could not remove from favorites.");
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    AlertUtils.showError("Error", "Failed to remove from favorites: " + e.getMessage());
+                });
+            }
         }).start();
     }
 

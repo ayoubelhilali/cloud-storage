@@ -17,8 +17,11 @@ import io.minio.MinioClient;
 import io.minio.http.Method;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
@@ -26,11 +29,15 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.awt.Desktop;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -382,7 +389,15 @@ public class SharedDashboardController {
 
     private void toggleFavorite(SharedFileInfo file, Button favoriteBtn) {
         User user = SessionManager.getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            AlertUtils.showError("Error", "User session not found");
+            return;
+        }
+
+        if (file == null || file.getFilename() == null) {
+            AlertUtils.showError("Error", "Invalid file");
+            return;
+        }
 
         boolean newState = !file.isFavorite();
         file.setFavorite(newState);
@@ -397,23 +412,35 @@ public class SharedDashboardController {
 
         // Update database in background
         new Thread(() -> {
-            boolean success = FileDAO.setFavorite(user.getId(), file.getFilename(), 
-                    newState, file.getStorageBucket(), file.getFileSize());
-            if (!success) {
+            try {
+                boolean success = FileDAO.setFavorite(user.getId(), file.getFilename(),
+                        newState, file.getStorageBucket(), file.getFileSize());
+                if (!success) {
+                    Platform.runLater(() -> {
+                        file.setFavorite(!newState);
+                        if (icon != null) {
+                            icon.setIconColor(Color.web(!newState ? "#e74c3c" : "#bdc3c7"));
+                        }
+                        AlertUtils.showError("Error", "Could not update favorites.");
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        AlertUtils.showSuccess(
+                            newState ? "Added to Favorites" : "Removed from Favorites",
+                            file.getFilename() + " was updated."
+                        );
+                    });
+                }
+            } catch (Exception e) {
                 Platform.runLater(() -> {
                     file.setFavorite(!newState);
                     if (icon != null) {
                         icon.setIconColor(Color.web(!newState ? "#e74c3c" : "#bdc3c7"));
                     }
-                    AlertUtils.showError("Error", "Could not update favorites.");
+                    AlertUtils.showError("Error", "Failed to update favorites: " + e.getMessage());
                 });
             }
         }).start();
-
-        AlertUtils.showSuccess(
-            newState ? "Added to Favorites" : "Removed from Favorites",
-            file.getFilename() + " was updated."
-        );
     }
 
     private void handleDownload(SharedFileInfo file) {
@@ -607,41 +634,67 @@ public class SharedDashboardController {
      * Shows dialog to create a new folder
      */
     private void showCreateFolderDialog(SharedFileInfo file) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Create New Folder");
-        dialog.setHeaderText("Enter folder name:");
-        dialog.setContentText("Folder name:");
+        try {
+            // Load the modern Add Folder Dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/AddFolderDialog.fxml"));
+            Parent root = loader.load();
 
-        dialog.showAndWait().ifPresent(folderName -> {
-            if (folderName.trim().isEmpty()) {
-                AlertUtils.showError("Invalid Name", "Folder name cannot be empty.");
-                return;
-            }
+            AddFolderDialogController controller = loader.getController();
 
-            User currentUser = SessionManager.getCurrentUser();
-            if (currentUser == null) return;
+            // Create and configure the stage
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(StageStyle.TRANSPARENT);
+            dialogStage.setTitle("Create New Folder");
 
-            new Thread(() -> {
-                boolean created = FileDAO.createFolder(folderName.trim(), currentUser.getId());
-                if (created) {
-                    // Get the new folder ID and move the file
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            scene.getStylesheets().add(getClass().getResource("/css/dialogs.css").toExternalForm());
+
+            dialogStage.setScene(scene);
+            controller.setStage(dialogStage);
+
+            // Callback after folder is created - move the file to it
+            controller.setOnSuccess(() -> {
+                User currentUser = SessionManager.getCurrentUser();
+                if (currentUser == null) return;
+
+                new Thread(() -> {
+                    // Get the newly created folder
                     List<Map<String, Object>> folders = FileDAO.getFoldersByUserId(currentUser.getId());
                     Long newFolderId = folders.stream()
-                            .filter(f -> folderName.trim().equals(f.get("name")))
+                            .filter(f -> f.get("name") != null)
                             .map(f -> (Long) f.get("id"))
-                            .findFirst()
+                            .max(Long::compareTo)
                             .orElse(null);
 
                     if (newFolderId != null) {
-                        Platform.runLater(() -> executeMoveToFolder(file, newFolderId));
-                    } else {
-                        Platform.runLater(() -> AlertUtils.showSuccess("Folder Created", "Folder \"" + folderName + "\" created. You can now move files to it."));
+                        boolean moved = FileDAO.updateFileFolder(
+                                currentUser.getId(),
+                                file.getFilename(),
+                                newFolderId,
+                                file.getStorageBucket(),
+                                file.getFileSize()
+                        );
+
+                        Platform.runLater(() -> {
+                            if (moved) {
+                                AlertUtils.showSuccess("File Organized", "File moved to new folder successfully.");
+                                loadSharedFiles(); // Refresh
+                            } else {
+                                AlertUtils.showError("Move Failed", "Could not move file to folder.");
+                            }
+                        });
                     }
-                } else {
-                    Platform.runLater(() -> AlertUtils.showError("Error", "Could not create folder."));
-                }
-            }).start();
-        });
+                }).start();
+            });
+
+            dialogStage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtils.showError("Dialog Error", "Could not open folder creation dialog.");
+        }
     }
 
     /**

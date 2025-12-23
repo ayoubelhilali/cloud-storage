@@ -344,9 +344,11 @@ public class SettingsController {
 
         new Thread(() -> {
             try {
-                // 4. Verify current password
-                String currentPasswordHash = PasswordUtil.hash(currentPassword);
-                if (!currentPasswordHash.equals(user.getPassword())) {
+                // 4. Verify current password - Hash the entered password and compare
+                String enteredPasswordHash = PasswordUtil.hash(currentPassword);
+                String storedPasswordHash = user.getPassword();
+
+                if (!enteredPasswordHash.equals(storedPasswordHash)) {
                     Platform.runLater(() -> {
                         AlertUtils.showError("Authentication Failed", "Current password is incorrect.");
                         currentPasswordField.clear();

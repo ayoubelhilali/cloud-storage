@@ -568,14 +568,24 @@ public class FileCardFactory {
      */
     private static void toggleFavorite(FileMetadata file, String bucketName, Button favoriteBtn, Runnable onRefresh) {
         User user = SessionManager.getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            AlertUtils.showError("Error", "User session not found");
+            return;
+        }
+
+        if (file == null || file.getFilename() == null) {
+            AlertUtils.showError("Error", "Invalid file");
+            return;
+        }
 
         boolean currentFav = isFavorite(file.getFilename());
         boolean newState = !currentFav;
 
         // Update UI immediately with animation
         FontIcon icon = (FontIcon) favoriteBtn.getGraphic();
-        icon.setIconColor(Color.web(newState ? "#e74c3c" : "#cbd5e1"));
+        if (icon != null) {
+            icon.setIconColor(Color.web(newState ? "#e74c3c" : "#cbd5e1"));
+        }
         favoriteBtn.setTooltip(new Tooltip(newState ? "Remove from Favorites" : "Add to Favorites"));
 
         // Scale animation for feedback
@@ -590,18 +600,30 @@ public class FileCardFactory {
 
         // Update database in background
         new Thread(() -> {
-            boolean success = FileDAO.setFavorite(user.getId(), file.getFilename(), newState, bucketName, file.getFileSize());
-            Platform.runLater(() -> {
-                if (success) {
-                    SessionManager.setFavoritesChanged(true);
-                    if (onRefresh != null) onRefresh.run();
-                    AlertUtils.showSuccess(newState ? "Added to Favorites" : "Removed from Favorites", file.getFilename());
-                } else {
-                    // Revert UI on failure
-                    icon.setIconColor(Color.web(currentFav ? "#e74c3c" : "#cbd5e1"));
-                    AlertUtils.showError("Error", "Could not update favorites");
-                }
-            });
+            try {
+                boolean success = FileDAO.setFavorite(user.getId(), file.getFilename(), newState, bucketName, file.getFileSize());
+                Platform.runLater(() -> {
+                    if (success) {
+                        SessionManager.setFavoritesChanged(true);
+                        if (onRefresh != null) onRefresh.run();
+                        AlertUtils.showSuccess(newState ? "Added to Favorites" : "Removed from Favorites", file.getFilename());
+                    } else {
+                        // Revert UI on failure
+                        if (icon != null) {
+                            icon.setIconColor(Color.web(currentFav ? "#e74c3c" : "#cbd5e1"));
+                        }
+                        AlertUtils.showError("Error", "Could not update favorites");
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    // Revert UI on error
+                    if (icon != null) {
+                        icon.setIconColor(Color.web(currentFav ? "#e74c3c" : "#cbd5e1"));
+                    }
+                    AlertUtils.showError("Error", "Failed to update favorites: " + e.getMessage());
+                });
+            }
         }).start();
     }
 
@@ -689,56 +711,37 @@ public class FileCardFactory {
             return;
         }
 
-        new Thread(() -> {
-            try {
-                List<Map<String, Object>> folders = FileDAO.getFoldersByUserId(currentUser.getId());
+        try {
+            // Load the modern Add to Folder Dialog
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                FileCardFactory.class.getResource("/com/cloudstorage/fx/AddToFolderDialog.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
 
-                Platform.runLater(() -> {
-                    if (folders.isEmpty()) {
-                        AlertUtils.showError("No Folders", "Please create a folder first from the dashboard.");
-                        return;
-                    }
+            com.cloudstorage.fx.controllers.AddToFolderDialogController controller = loader.getController();
 
-                    List<String> folderNames = folders.stream()
-                            .map(f -> (String) f.get("name"))
-                            .collect(Collectors.toList());
+            // Create and configure the stage
+            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            dialogStage.setTitle("Move to Folder");
 
-                    ChoiceDialog<String> dialog = new ChoiceDialog<>(folderNames.get(0), folderNames);
-                    dialog.setTitle("Move to Folder");
-                    dialog.setHeaderText("Select destination for: " + file.getFilename());
-                    dialog.setContentText("Choose Folder:");
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            scene.getStylesheets().add(
+                FileCardFactory.class.getResource("/css/dialogs.css").toExternalForm()
+            );
 
-                    dialog.showAndWait().ifPresent(selectedFolderName -> {
-                        Long selectedFolderId = folders.stream()
-                                .filter(f -> f.get("name").equals(selectedFolderName))
-                                .map(f -> (Long) f.get("id"))
-                                .findFirst()
-                                .orElse(null);
+            dialogStage.setScene(scene);
+            controller.setStage(dialogStage);
+            controller.setFileName(file.getFilename());
+            controller.setOnSuccess(onRefresh);
 
-                        if (selectedFolderId != null) {
-                            new Thread(() -> {
-                                boolean success = FileDAO.updateFileFolder(
-                                        currentUser.getId(),
-                                        file.getFilename(),
-                                        selectedFolderId,
-                                        bucketName,
-                                        file.getFileSize()
-                                );
-                                Platform.runLater(() -> {
-                                    if (success) {
-                                        AlertUtils.showSuccess("Moved", file.getFilename() + " moved to folder.");
-                                        if (onRefresh != null) onRefresh.run();
-                                    } else {
-                                        AlertUtils.showError("Error", "Could not move file.");
-                                    }
-                                });
-                            }).start();
-                        }
-                    });
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> AlertUtils.showError("Error", "Could not load folders."));
-            }
-        }).start();
+            dialogStage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Dialog Error", "Could not open folder selection dialog.");
+        }
     }
 }

@@ -402,15 +402,33 @@ public class DashboardController {
 
     @FXML
     private void handleAddFolder() {
-        TextInputDialog dialog = new TextInputDialog("New Folder");
-        dialog.showAndWait().ifPresent(name -> {
-            if (name.trim().isEmpty()) return;
-            new Thread(() -> {
-                if (FileDAO.createFolder(name.trim(), SessionManager.getCurrentUser().getId())) {
-                    Platform.runLater(this::loadUserFolders);
-                }
-            }).start();
-        });
+        try {
+            // Load the modern Add Folder Dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/AddFolderDialog.fxml"));
+            Parent root = loader.load();
+
+            AddFolderDialogController controller = loader.getController();
+
+            // Create and configure the stage
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(StageStyle.TRANSPARENT);
+            dialogStage.setTitle("Create New Folder");
+
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            scene.getStylesheets().add(getClass().getResource("/css/dialogs.css").toExternalForm());
+
+            dialogStage.setScene(scene);
+            controller.setStage(dialogStage);
+            controller.setOnSuccess(this::loadUserFolders);
+
+            dialogStage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtils.showError("Dialog Error", "Could not open folder creation dialog.");
+        }
     }
 
     private String getRandomFolderColor() {

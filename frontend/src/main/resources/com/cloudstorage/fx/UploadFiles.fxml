@@ -66,7 +66,7 @@
                                 <FontIcon iconColor="#0061FF" iconLiteral="fas-tasks" iconSize="20" />
                                 <Label styleClass="section-title" text="Upload Progress" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-font-weight: 600;" text="0 files uploading" />
+                                <Label fx:id="uploadCountLabel" style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-font-weight: 600;" text="0 files uploading" />
                             </children>
                         </HBox>
 

@@ -5,43 +5,25 @@ import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.database.FileDAO;
 import com.cloudstorage.fx.utils.AlertUtils;
 import com.cloudstorage.fx.utils.FileUtils;
-import com.cloudstorage.fx.controllers.ShareDialogController;
-import com.cloudstorage.model.FileMetadata;
 import io.minio.DownloadObjectArgs;
 import io.minio.MinioClient;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Popup;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
@@ -221,20 +203,19 @@ public class FileRowFactory {
             openShareDialog(fileData);
         });
 
-        // 4. Options Button (•••)
-        Button moreBtn = new Button("•••");
-        moreBtn.getStyleClass().add("action-btn-more");
-        Tooltip moreTooltip = new Tooltip("More Options");
-        moreTooltip.getStyleClass().add("modern-tooltip");
-        moreBtn.setTooltip(moreTooltip);
-
-        moreBtn.setOnMouseClicked(e -> {
+        // 4. Add to Folder Button
+        Button addToFolderBtn = createInlineActionButton(
+            FontAwesomeSolid.FOLDER_PLUS,
+            "Add to Folder",
+            "#f39c12"
+        );
+        addToFolderBtn.getStyleClass().add("action-btn-folder");
+        addToFolderBtn.setOnAction(e -> {
             e.consume();
-            Bounds bounds = moreBtn.localToScreen(moreBtn.getBoundsInLocal());
-            showFileMenu(moreBtn, bounds.getMinX(), bounds.getMinY() - 40, truncatedName, fileData, refreshFoldersCallback);
+            addToFolder(fileData, refreshFoldersCallback);
         });
 
-        actionButtons.getChildren().addAll(favoriteBtn, downloadBtn, shareBtn, moreBtn);
+        actionButtons.getChildren().addAll(favoriteBtn, downloadBtn, shareBtn, addToFolderBtn);
 
         // Enhanced hover effect (matches SharedDashboardController)
         row.setOnMouseEntered(e -> {
@@ -275,88 +256,6 @@ public class FileRowFactory {
         return btn;
     }
 
-    public static void showFileMenu(Node parent, double x, double y, String truncatedName, Map<String, String> fileData,Runnable refreshFoldersCallback) {
-        Popup popup = new Popup();
-        popup.setAutoHide(true);
-
-        HBox menuBox = new HBox(8);
-        menuBox.getStyleClass().add("file-menu-horizontal");
-        menuBox.getStylesheets().add(Objects.requireNonNull(FileRowFactory.class.getResource("/css/Dashboard.css")).toExternalForm());
-
-        // 0. Preview Button (NEW - Prévisualisation média)
-        Button previewBtn = createMenuButton(FontAwesomeSolid.EYE, "Preview File",
-                () -> openMediaPreview(fileData), popup);
-
-        // 1. Favorite Button
-        boolean isFavorite = Boolean.parseBoolean(fileData.getOrDefault("is_favorite", "false"));
-        String favTooltip = isFavorite ? "Remove from Favorites" : "Add to Favorites";
-        Button favoriteBtn = createMenuButton(FontAwesomeSolid.STAR, favTooltip,
-                () -> {}, popup); // Action définie après
-        
-        // Appliquer le style initial selon l'état favori
-        updateFavoriteButtonStyle(favoriteBtn, isFavorite);
-        
-        // Action du bouton favori avec feedback visuel
-        favoriteBtn.setOnAction(e -> {
-            boolean newFavoriteState = !Boolean.parseBoolean(fileData.getOrDefault("is_favorite", "false"));
-            addToFavorite(fileData, newFavoriteState, favoriteBtn);
-            popup.hide();
-        });
-
-        // 2. Share Button
-        Button shareBtn = createMenuButton(FontAwesomeSolid.SHARE_ALT, "Share File",
-                () -> openShareDialog(fileData), popup);
-
-        // 3. Download Button
-        Button downloadBtn = createMenuButton(FontAwesomeSolid.DOWNLOAD, "Download",
-                () -> downloadFile(fileData), popup);
-
-        // 4. Add to Folder Button
-        Button folderBtn = createMenuButton(FontAwesomeSolid.FOLDER_PLUS, "Add to Folder",
-                () -> addToFolder(fileData,refreshFoldersCallback), popup);
-
-        menuBox.getChildren().addAll(previewBtn, favoriteBtn, shareBtn, downloadBtn, folderBtn);
-
-        popup.getContent().add(menuBox);
-        popup.show(parent, x, y);
-    }
-
-    /**
-     * Ouvre le dialogue de prévisualisation média
-     * Supporte : Images, PDF, Vidéos, Audio et autres documents
-     */
-    private static void openMediaPreview(Map<String, String> fileData) {
-        String fileName = fileData.get("name");
-        String bucket = fileData.get("bucket");
-
-        if (fileName == null || bucket == null) {
-            AlertUtils.showError("Erreur", "Informations du fichier manquantes.");
-            return;
-        }
-
-        io.minio.MinioClient client = MinioConfig.getClient();
-        if (client == null) {
-            AlertUtils.showError("Erreur", "Connexion au serveur non établie.");
-            return;
-        }
-
-        MediaPreviewDialog.showPreview(fileName, bucket, client);
-    }
-
-    private static Button createMenuButton(Ikon iconCode, String tooltipText, Runnable action, Popup popup) {
-        Button btn = new Button();
-        FontIcon icon = new FontIcon(iconCode);
-        btn.setGraphic(icon);
-        Tooltip tooltip = new Tooltip(tooltipText);
-        tooltip.getStyleClass().add("modern-tooltip");
-        btn.setTooltip(tooltip);
-        btn.setOnAction(e -> {
-            action.run();
-            popup.hide();
-        });
-        return btn;
-    }
-
     // --- Opens the Enhanced Share Dialog with user search ---
     private static void openShareDialog(Map<String, String> fileData) {
         String filename = fileData.get("name");
@@ -366,82 +265,44 @@ public class FileRowFactory {
         FileCardFactory.openShareDialogEnhanced(filename, bucket);
     }
 
-    private static void addToFolder(Map<String, String> fileData,Runnable refreshCallback) {
+    private static void addToFolder(Map<String, String> fileData, Runnable refreshCallback) {
         var user = SessionManager.getCurrentUser();
         if (user == null) return;
 
         String fileName = fileData.get("name");
 
-        // 1. Fetch existing folders from the database
-        // We run this on a background thread but need the result for the UI dialog
-        new Thread(() -> {
-            try {
-                List<Map<String, Object>> folders = FileDAO.getFoldersByUserId(user.getId());
-                Platform.runLater(() -> {
-                    if (folders.isEmpty()) {
-                        AlertUtils.showError("No Folders", "Please create a folder first from the dashboard.");
-                        return;
-                    }
+        try {
+            // Load the modern Add to Folder Dialog
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                FileRowFactory.class.getResource("/com/cloudstorage/fx/AddToFolderDialog.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
 
-                    // 2. Create a list of folder names for the choice dialog
-                    List<String> folderNames = folders.stream()
-                            .map(f -> (String) f.get("name"))
-                            .collect(Collectors.toList());
+            com.cloudstorage.fx.controllers.AddToFolderDialogController controller = loader.getController();
 
-                    ChoiceDialog<String> dialog = new ChoiceDialog<>(folderNames.get(0), folderNames);
-                    dialog.setTitle("Move to Folder");
-                    dialog.setHeaderText("Select destination for: " + fileName);
-                    dialog.setContentText("Choose Folder:");
+            // Create and configure the stage
+            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            dialogStage.setTitle("Move to Folder");
 
-                    dialog.showAndWait().ifPresent(selectedFolderName -> {
-                        // Find the ID of the selected folder
-                        Long selectedFolderId = folders.stream()
-                                .filter(f -> f.get("name").equals(selectedFolderName))
-                                .map(f -> (Long) f.get("id"))
-                                .findFirst()
-                                .orElse(null);
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            scene.getStylesheets().add(
+                FileRowFactory.class.getResource("/css/dialogs.css").toExternalForm()
+            );
 
-                        if (selectedFolderId != null) {
-                            // Pass the extra parameters: bucket and size
-                            updateFileFolderInDb(
-                                    user.getId(),
-                                    fileName,
-                                    selectedFolderId,
-                                    fileData.get("bucket"),
-                                    fileData.get("size"),
-                                    refreshCallback
-                            );
-                        }
-                    });
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> AlertUtils.showError("Error", "Could not load folders."));
-            }
-        }).start();
-    }
+            dialogStage.setScene(scene);
+            controller.setStage(dialogStage);
+            controller.setFileName(fileName);
+            controller.setOnSuccess(refreshCallback);
 
-    private static void updateFileFolderInDb(long userId, String fileName, long folderId, String bucket, String sizeStr,Runnable refreshCallback) {
-        long size = 0;
-        try { size = Long.parseLong(sizeStr); } catch (Exception ignored) {}
+            dialogStage.showAndWait();
 
-        final long finalSize = size;
-        Thread dbThread = new Thread(() -> {
-            // Updated call to handle the new "Upsert" logic
-            boolean success = FileDAO.updateFileFolder(userId, fileName, folderId, bucket, finalSize);
-
-            Platform.runLater(() -> {
-                if (success) {
-                    AlertUtils.showSuccess("Moved", fileName + " moved to folder.");
-                    if (refreshCallback != null) {
-                        refreshCallback.run();
-                    }
-                } else {
-                    AlertUtils.showError("Database Error", "Check console for SQL errors.");
-                }
-            });
-        });
-        dbThread.setDaemon(true);
-        dbThread.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.showError("Dialog Error", "Could not open folder selection dialog.");
+        }
     }
 
     private static void downloadFile(Map<String, String> fileData) {
@@ -490,29 +351,25 @@ public class FileRowFactory {
         downloadThread.start();
     }
 
-    /**
-     * Met à jour le style visuel du bouton favori
-     */
-    private static void updateFavoriteButtonStyle(Button favoriteBtn, boolean isFavorite) {
-        FontIcon icon = (FontIcon) favoriteBtn.getGraphic();
-        if (isFavorite) {
-            favoriteBtn.getStyleClass().add("is_favorite");
-            icon.setIconColor(Color.web("#FFD700")); // Or/jaune pour favori
-        } else {
-            favoriteBtn.getStyleClass().remove("is_favorite");
-            icon.setIconColor(Color.web("#718096")); // Gris par défaut
-        }
-        
-        // Mettre à jour le tooltip
-        String tooltip = isFavorite ? "Remove from Favorites" : "Add to Favorites";
-        favoriteBtn.setTooltip(new Tooltip(tooltip));
-    }
 
     private static void addToFavorite(Map<String, String> fileData, boolean makeFavorite, Button favoriteBtn) {
         var user = SessionManager.getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            AlertUtils.showError("Error", "User session not found");
+            return;
+        }
+
         String fileName = fileData.get("name");
+        if (fileName == null || fileName.trim().isEmpty()) {
+            AlertUtils.showError("Error", "Invalid file name");
+            return;
+        }
+
         String bucketName = fileData.get("bucket");
+        if (bucketName == null || bucketName.trim().isEmpty()) {
+            AlertUtils.showError("Error", "Invalid bucket name");
+            return;
+        }
 
         // Parse the file size from the fileData
         long fileSize = 0;
@@ -525,30 +382,65 @@ public class FileRowFactory {
             System.err.println("Failed to parse file size: " + e.getMessage());
         }
 
-        // Mise à jour immédiate du style du bouton (feedback visuel)
-        Platform.runLater(() -> updateFavoriteButtonStyle(favoriteBtn, makeFavorite));
+        // Update button style immediately for visual feedback
+        Platform.runLater(() -> {
+            FontIcon icon = (FontIcon) favoriteBtn.getGraphic();
+            if (makeFavorite) {
+                favoriteBtn.getStyleClass().add("is-favorite");
+                icon.setIconColor(Color.web("#e74c3c"));
+            } else {
+                favoriteBtn.getStyleClass().remove("is-favorite");
+                icon.setIconColor(Color.web("#bdc3c7"));
+            }
+            favoriteBtn.setTooltip(new Tooltip(makeFavorite ? "Remove from Favorites" : "Add to Favorites"));
+        });
 
         fileData.put("is_favorite", String.valueOf(makeFavorite));
         SessionManager.setFavoritesChanged(true);
 
         final long finalFileSize = fileSize;
         Thread dbThread = new Thread(() -> {
-            boolean success = FileDAO.setFavorite(user.getId(), fileName, makeFavorite, bucketName, finalFileSize);
-            if (!success) {
+            try {
+                boolean success = FileDAO.setFavorite(user.getId(), fileName, makeFavorite, bucketName, finalFileSize);
+                if (!success) {
+                    Platform.runLater(() -> {
+                        fileData.put("is_favorite", String.valueOf(!makeFavorite));
+                        // Revert visual feedback on error
+                        FontIcon icon = (FontIcon) favoriteBtn.getGraphic();
+                        if (!makeFavorite) {
+                            favoriteBtn.getStyleClass().add("is-favorite");
+                            icon.setIconColor(Color.web("#e74c3c"));
+                        } else {
+                            favoriteBtn.getStyleClass().remove("is-favorite");
+                            icon.setIconColor(Color.web("#bdc3c7"));
+                        }
+                        AlertUtils.showError("Sync Error", "Could not save changes to database.");
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        AlertUtils.showSuccess(
+                                makeFavorite ? "Added to Favorites" : "Removed from Favorites",
+                                fileName + " was updated."
+                        );
+                    });
+                }
+            } catch (Exception e) {
                 Platform.runLater(() -> {
                     fileData.put("is_favorite", String.valueOf(!makeFavorite));
-                    // Annuler le feedback visuel en cas d'erreur
-                    updateFavoriteButtonStyle(favoriteBtn, !makeFavorite);
-                    AlertUtils.showError("Sync Error", "Could not save changes to database.");
+                    // Revert visual feedback on error
+                    FontIcon icon = (FontIcon) favoriteBtn.getGraphic();
+                    if (!makeFavorite) {
+                        favoriteBtn.getStyleClass().add("is-favorite");
+                        icon.setIconColor(Color.web("#e74c3c"));
+                    } else {
+                        favoriteBtn.getStyleClass().remove("is-favorite");
+                        icon.setIconColor(Color.web("#bdc3c7"));
+                    }
+                    AlertUtils.showError("Error", "Failed to update favorites: " + e.getMessage());
                 });
             }
         });
         dbThread.setDaemon(true);
         dbThread.start();
-
-        AlertUtils.showSuccess(
-                makeFavorite ? "Added to Favorites" : "Removed from Favorites",
-                fileName + " was updated."
-        );
     }
 }

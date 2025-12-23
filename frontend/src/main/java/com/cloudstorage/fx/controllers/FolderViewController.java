@@ -347,29 +347,51 @@ public class FolderViewController {
      */
     private void toggleFavorite(FileMetadata file, Button favBtn, boolean[] isFav) {
         User user = SessionManager.getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            AlertUtils.showError("Error", "User session not found");
+            return;
+        }
+
+        if (file == null || file.getFilename() == null) {
+            AlertUtils.showError("Error", "Invalid file");
+            return;
+        }
 
         boolean newState = !isFav[0];
         
         // Update UI immediately
         FontIcon icon = (FontIcon) favBtn.getGraphic();
-        icon.setIconColor(Color.web(newState ? "#e74c3c" : "#bdc3c7"));
+        if (icon != null) {
+            icon.setIconColor(Color.web(newState ? "#e74c3c" : "#bdc3c7"));
+        }
         favBtn.setTooltip(new Tooltip(newState ? "Remove from Favorites" : "Add to Favorites"));
 
         // Update database in background
         new Thread(() -> {
-            boolean success = FileDAO.setFavorite(user.getId(), file.getFilename(), newState, userBucket, file.getFileSize());
-            Platform.runLater(() -> {
-                if (success) {
-                    isFav[0] = newState;
-                    SessionManager.setFavoritesChanged(true);
-                    AlertUtils.showSuccess(newState ? "Added to Favorites" : "Removed from Favorites", file.getFilename());
-                } else {
-                    // Revert UI on failure
-                    icon.setIconColor(Color.web(isFav[0] ? "#e74c3c" : "#bdc3c7"));
-                    AlertUtils.showError("Error", "Could not update favorites");
-                }
-            });
+            try {
+                boolean success = FileDAO.setFavorite(user.getId(), file.getFilename(), newState, userBucket, file.getFileSize());
+                Platform.runLater(() -> {
+                    if (success) {
+                        isFav[0] = newState;
+                        SessionManager.setFavoritesChanged(true);
+                        AlertUtils.showSuccess(newState ? "Added to Favorites" : "Removed from Favorites", file.getFilename());
+                    } else {
+                        // Revert UI on failure
+                        if (icon != null) {
+                            icon.setIconColor(Color.web(isFav[0] ? "#e74c3c" : "#bdc3c7"));
+                        }
+                        AlertUtils.showError("Error", "Could not update favorites");
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    // Revert UI on error
+                    if (icon != null) {
+                        icon.setIconColor(Color.web(isFav[0] ? "#e74c3c" : "#bdc3c7"));
+                    }
+                    AlertUtils.showError("Error", "Failed to update favorites: " + e.getMessage());
+                });
+            }
         }).start();
     }
 

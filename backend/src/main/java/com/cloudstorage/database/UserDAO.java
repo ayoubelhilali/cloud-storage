@@ -106,4 +106,70 @@ public class UserDAO {
             return false;
         }
     }
+
+    // 7. SEARCH USERS BY NAME OR EMAIL
+    /**
+     * Searches for users by first name, last name, or email.
+     * Returns a list of matching users (excluding the current user).
+     */
+    public java.util.List<User> searchUsers(String query, long excludeUserId) {
+        java.util.List<User> users = new java.util.ArrayList<>();
+        String sql = "SELECT id, username, email, first_name, last_name, profile_picture_url " +
+                     "FROM users WHERE id != ? AND " +
+                     "(LOWER(first_name) LIKE LOWER(?) OR " +
+                     "LOWER(last_name) LIKE LOWER(?) OR " +
+                     "LOWER(email) LIKE LOWER(?)) " +
+                     "LIMIT 10";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            String searchPattern = "%" + query.trim() + "%";
+            stmt.setLong(1, excludeUserId);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+            
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                User user = new User(
+                    rs.getLong("id"),
+                    rs.getString("username"),
+                    rs.getString("email"),
+                    null, // Don't return password hash
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
+                    rs.getString("profile_picture_url")
+                );
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+    
+    // 8. GET USER BY ID
+    public User getUserById(long userId) {
+        String sql = "SELECT id, username, email, first_name, last_name, profile_picture_url FROM users WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new User(
+                    rs.getLong("id"),
+                    rs.getString("username"),
+                    rs.getString("email"),
+                    null,
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
+                    rs.getString("profile_picture_url")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -141,9 +141,11 @@
                                                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
                                                     </padding>
                                                     <children>
+                                                        <HBox alignment="TOP_RIGHT">
+                                                            <Label fx:id="lblImageCount" styleClass="category-badge" text="0"/>
+                                                        </HBox>
                                                         <Label styleClass="category-icon" text="📷"/>
                                                         <Label styleClass="category-title" text="Pictures"/>
-                                                        <Label fx:id="lblImageCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#6c5ce74d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -154,10 +156,11 @@
                                                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
                                                     </padding>
                                                     <children>
-                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0"/>
+                                                        <HBox alignment="TOP_RIGHT">
+                                                            <Label fx:id="lblDocCount" styleClass="category-badge" text="0"/>
+                                                        </HBox>
                                                         <Label styleClass="category-icon" text="📄"/>
                                                         <Label styleClass="category-title" text="Documents"/>
-                                                        <Label fx:id="lblDocCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#00b8944d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -168,10 +171,11 @@
                                                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
                                                     </padding>
                                                     <children>
-                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0"/>
+                                                        <HBox alignment="TOP_RIGHT">
+                                                            <Label fx:id="lblVideoCount" styleClass="category-badge" text="0"/>
+                                                        </HBox>
                                                         <Label styleClass="category-icon" text="🎥"/>
                                                         <Label styleClass="category-title" text="Videos"/>
-                                                        <Label fx:id="lblVideoCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#e843934d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -182,10 +186,11 @@
                                                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
                                                     </padding>
                                                     <children>
-                                                        <HBox alignment="TOP_RIGHT" prefHeight="17.0"/>
+                                                        <HBox alignment="TOP_RIGHT">
+                                                            <Label fx:id="lblAudioCount" styleClass="category-badge" text="0"/>
+                                                        </HBox>
                                                         <Label styleClass="category-icon" text="🎤"/>
                                                         <Label styleClass="category-title" text="Audio"/>
-                                                        <Label fx:id="lblAudioCount" styleClass="category-subtitle"/>
                                                     </children>
                                                     <effect><DropShadow color="#0984e34d" offsetY="5.0"/></effect>
                                                 </VBox>
@@ -262,33 +267,10 @@
                                     <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0"/></padding>
                                     <children>
                                         <Label styleClass="widget-header" text="Your Shared Folders"/>
-                                        <VBox spacing="15.0">
-                                            <children>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="55.0" styleClass="shared-item, shared-blue">
-                                                    <padding><Insets left="15.0" right="15.0"/></padding>
-                                                    <children>
-                                                        <Label styleClass="shared-item-text" text="Keynote Files"/>
-                                                        <Region HBox.hgrow="ALWAYS"/>
-                                                        <Circle radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-1"/>
-                                                        <Circle layoutX="179.0" layoutY="35.0" radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-2">
-                                                            <HBox.margin><Insets left="-10.0"/></HBox.margin>
-                                                        </Circle>
-                                                    </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="55.0" styleClass="shared-item, shared-purple">
-                                                    <padding><Insets left="15.0" right="15.0"/></padding>
-                                                    <children>
-                                                        <Label styleClass="shared-item-text" text="Vacation Photos"/>
-                                                        <Region HBox.hgrow="ALWAYS"/>
-                                                        <Circle radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-3"/>
-                                                        <Circle layoutX="179.0" layoutY="35.0" radius="14.0" stroke="WHITE" strokeWidth="2.0" styleClass="avatar-4">
-                                                            <HBox.margin><Insets left="-10.0"/></HBox.margin>
-                                                        </Circle>
-                                                    </children>
-                                                </HBox>
-                                            </children>
+                                        <VBox fx:id="sharedFoldersContainer" spacing="12.0">
+                                            <!-- Dynamic shared folders will be loaded here -->
                                         </VBox>
-                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="add-more-btn" text="+ Add More">
+                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="add-more-btn" text="+ View All Shared" onAction="#handleViewAllShared">
                                             <padding><Insets bottom="12.0" top="12.0"/></padding>
                                         </Button>
                                     </children>

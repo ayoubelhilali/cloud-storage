@@ -274,4 +274,35 @@ public class FileDAO {
             return false;
         }
     }
+
+    /**
+     * Récupère tous les fichiers d'un dossier spécifique
+     */
+    public static List<FileMetadata> getFilesByFolderId(long folderId, long userId) throws SQLException {
+        List<FileMetadata> files = new ArrayList<>();
+        String sql = "SELECT * FROM files WHERE folder_id = ? AND user_id = ? ORDER BY uploaded_at DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, folderId);
+            stmt.setLong(2, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                FileMetadata metadata = new FileMetadata();
+                metadata.setId(rs.getLong("id"));
+                metadata.setUserId(rs.getLong("user_id"));
+                metadata.setFolderId(rs.getObject("folder_id") != null ? rs.getLong("folder_id") : null);
+                metadata.setFilename(rs.getString("filename"));
+                metadata.setFileSize(rs.getLong("file_size"));
+                metadata.setMimeType(rs.getString("mime_type"));
+                metadata.setStorageKey(rs.getString("storage_key"));
+                metadata.setStorageBucket(rs.getString("storage_bucket"));
+                metadata.setFavorite(rs.getBoolean("is_favorite"));
+                files.add(metadata);
+            }
+        }
+        return files;
+    }
 }

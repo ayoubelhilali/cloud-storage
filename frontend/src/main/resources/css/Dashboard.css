@@ -106,6 +106,18 @@
     -fx-text-fill: #dfe6e9;
 }
 
+/* Category Badge - Compteur numérique */
+.category-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.25);
+    -fx-background-radius: 15;
+    -fx-text-fill: white;
+    -fx-font-family: "System Bold";
+    -fx-font-size: 12px;
+    -fx-padding: 3 10 3 10;
+    -fx-min-width: 25px;
+    -fx-alignment: center;
+}
+
 /* Folder/Files Row */
 .file-folder {
     -fx-background-color: white;
@@ -344,10 +356,370 @@
     -fx-background-radius: 4px;
 }
 
+/* ================================= */
+/* SHARED FILES - Info Labels        */
+/* ================================= */
+.shared-info-label {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 11px;
+}
 
+.shared-info-label.date {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 10px;
+}
+
+/* Shared file card hover effect */
+.recent-item:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+/* ================================= */
+/* SHARE DIALOG - Enhanced Styles    */
+/* ================================= */
+.share-dialog-header {
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-text-fill: #2c3e50;
+}
+
+.share-search-field {
+    -fx-pref-height: 45;
+    -fx-background-radius: 10;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 10;
+    -fx-padding: 0 15;
+    -fx-font-size: 14px;
+}
+
+.share-search-field:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(three-pass-box, rgba(52, 152, 219, 0.3), 5, 0, 0, 0);
+}
+
+.user-result-card {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.user-result-card:hover {
+    -fx-background-color: #e8f6ff;
+}
+
+.user-result-card.selected {
+    -fx-background-color: #e8f6ff;
+    -fx-border-color: #3498db;
+    -fx-border-radius: 15;
+    -fx-border-width: 2;
+}
 
 /* Avatars (Split from style to CSS as requested) */
 .avatar-1 { -fx-fill: url('https://i.pravatar.cc/150?img=10'); }
 .avatar-2 { -fx-fill: url('https://i.pravatar.cc/150?img=12'); }
 .avatar-3 { -fx-fill: url('https://i.pravatar.cc/150?img=20'); }
 .avatar-4 { -fx-fill: url('https://i.pravatar.cc/150?img=22'); }
+
+/* ================================= */
+/* INLINE ACTION BUTTONS             */
+/* ================================= */
+.inline-action-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 8;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+    -fx-pref-width: 32;
+    -fx-pref-height: 32;
+}
+
+.inline-action-btn:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.inline-action-btn:pressed {
+    -fx-background-color: #e2e8f0;
+}
+
+/* Favorite Button */
+.action-btn-favorite .ikonli-font-icon {
+    -fx-icon-color: #bdc3c7;
+}
+
+.action-btn-favorite:hover .ikonli-font-icon {
+    -fx-icon-color: #e74c3c;
+}
+
+.action-btn-favorite.is-favorite .ikonli-font-icon {
+    -fx-icon-color: #e74c3c;
+}
+
+/* Download Button */
+.action-btn-download .ikonli-font-icon {
+    -fx-icon-color: #94a3b8;
+}
+
+.action-btn-download:hover {
+    -fx-background-color: #e8f4fc;
+}
+
+.action-btn-download:hover .ikonli-font-icon {
+    -fx-icon-color: #3498db;
+}
+
+/* Options Button (•••) */
+.action-btn-more {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+}
+
+.action-btn-more:hover {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #64748b;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+    -fx-opacity: 0.7;
+}
+
+.recent-item:hover .action-buttons {
+    -fx-opacity: 1;
+}
+
+/* ================================= */
+/* FILE METADATA LABELS              */
+/* ================================= */
+.file-meta {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+}
+
+.meta-type {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 4;
+    -fx-padding: 2 6 2 6;
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748b;
+}
+
+.meta-size {
+    -fx-text-fill: #94a3b8;
+}
+
+.meta-date {
+    -fx-text-fill: #a0aec0;
+}
+
+.meta-separator {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 8px;
+}
+
+/* Icon Background Colors */
+.icon-bg-orange {
+    -fx-background-color: #f59e0b;
+}
+
+.icon-bg-gray {
+    -fx-background-color: #64748b;
+}
+
+/* ================================= */
+/* ENHANCED RECENT ITEM HOVER        */
+/* ================================= */
+.recent-item {
+    -fx-transition: all 0.2s ease;
+}
+
+.recent-item:hover {
+    -fx-background-color: #f8fafc;
+    -fx-scale-x: 1.005;
+    -fx-scale-y: 1.005;
+}
+
+/* ================================= */
+/* SHARED FOLDERS SECTION            */
+/* ================================= */
+.shared-folders-section {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 20;
+}
+
+.shared-folder-card {
+    -fx-background-radius: 15;
+    -fx-padding: 15;
+    -fx-cursor: hand;
+    -fx-min-width: 220;
+    -fx-pref-width: 240;
+}
+
+.shared-folder-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4);
+}
+
+.shared-folder-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #2d3436;
+}
+
+.shared-folder-meta {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 12px;
+}
+
+/* Collaborator Avatars */
+.collaborator-avatar {
+    -fx-stroke: white;
+    -fx-stroke-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+}
+
+.collaborator-count {
+    -fx-background-color: #e0e0e0;
+    -fx-background-radius: 50;
+    -fx-text-fill: #555;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+/* ================================= */
+/* FAVORITES CARD ENHANCED           */
+/* ================================= */
+.favorites-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.favorites-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(9,132,227,0.2), 12, 0, 0, 4);
+    -fx-background-color: #fafbfc;
+}
+
+.favorites-card .action-buttons {
+    -fx-opacity: 0;
+}
+
+.favorites-card:hover .action-buttons {
+    -fx-opacity: 1;
+}
+
+/* ================================= */
+/* SHARED FILE CARD ENHANCED         */
+/* ================================= */
+.shared-file-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.shared-file-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(9,132,227,0.25), 12, 0, 0, 4);
+    -fx-background-color: #fafbfc;
+}
+
+.shared-file-card .action-buttons {
+    -fx-opacity: 0.7;
+}
+
+.shared-file-card:hover .action-buttons {
+    -fx-opacity: 1;
+}
+
+/* ================================= */
+/* GRID ITEM ENHANCED                */
+/* ================================= */
+.grid-item {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.grid-item:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(9,132,227,0.2), 12, 0, 0, 4);
+    -fx-background-color: #fafbfc;
+}
+
+.grid-item .action-buttons {
+    -fx-opacity: 0;
+}
+
+.grid-item:hover .action-buttons {
+    -fx-opacity: 1;
+}
+
+/* ================================= */
+/* SHARE DIALOG ANIMATIONS           */
+/* ================================= */
+.share-dialog-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 5);
+}
+
+.user-card-animated {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.user-card-animated:hover {
+    -fx-background-color: #e8f6ff;
+    -fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.2), 10, 0, 0, 3);
+}
+
+.user-card-animated.selected {
+    -fx-background-color: #e8f6ff;
+    -fx-border-color: #3498db;
+    -fx-border-radius: 15;
+    -fx-border-width: 2;
+}
+
+/* Primary action button */
+.btn-primary {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 12 25;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2980b9;
+}
+
+.btn-primary:disabled {
+    -fx-background-color: #bdc3c7;
+    -fx-cursor: default;
+}
+
+/* Secondary action button */
+.btn-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7f8c8d;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-text-fill: #2c3e50;
+}

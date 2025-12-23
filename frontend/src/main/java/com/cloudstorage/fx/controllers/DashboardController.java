@@ -3,6 +3,7 @@ package com.cloudstorage.fx.controllers;
 import com.cloudstorage.config.MinioConfig;
 import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.database.FileDAO;
+import com.cloudstorage.database.ShareDAO;
 import com.cloudstorage.fx.components.FileRowFactory;
 import com.cloudstorage.fx.service.FileApiService;
 import com.cloudstorage.fx.utils.AlertUtils;
@@ -18,14 +19,15 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -46,6 +48,7 @@ public class DashboardController {
     @FXML private BorderPane mainBorderPane;
     @FXML private VBox dashboardView;
     @FXML private Circle userPicture;
+    @FXML private VBox sharedFoldersContainer;
 
     // Sidebar Buttons
     @FXML private Button btnMyCloud, btnSharedFiles, btnFavorites, btnUpload, btnSettings, logoutButton;
@@ -63,6 +66,11 @@ public class DashboardController {
     // View Cache
     private Parent sharedFilesView, uploadFilesView, settingsView, favoritesView;
     private SettingsController settingsController;
+
+    // Colors for shared folder cards
+    private static final String[] FOLDER_COLORS = {
+        "#dff9fb", "#e0c3fc", "#c7ecee", "#ffeaa7", "#fab1a0", "#81ecec", "#dfe6e9"
+    };
 
     @FXML
     public void initialize() {
@@ -92,6 +100,7 @@ public class DashboardController {
         loadUserAvatar(user.getAvatarUrl());
         loadUserFolders();
         loadUserFiles();
+        loadSharedFolders();
     }
 
     // =================================================================================
@@ -190,6 +199,155 @@ public class DashboardController {
         new Thread(fetchFoldersTask).start();
     }
 
+    // =================================================================================
+    // SECTION 2.5: DYNAMIC SHARED FOLDERS (Right Panel)
+    // =================================================================================
+
+    /**
+     * Loads shared folders dynamically with collaborator avatars
+     */
+    private void loadSharedFolders() {
+        User user = SessionManager.getCurrentUser();
+        if (user == null || sharedFoldersContainer == null) return;
+
+        Task<List<Map<String, Object>>> fetchTask = new Task<>() {
+            @Override
+            protected List<Map<String, Object>> call() throws Exception {
+                return ShareDAO.getSharedFoldersWithCollaborators(user.getId());
+            }
+        };
+
+        fetchTask.setOnSucceeded(e -> {
+            sharedFoldersContainer.getChildren().clear();
+            List<Map<String, Object>> sharedFolders = fetchTask.getValue();
+
+            if (sharedFolders.isEmpty()) {
+                Label emptyLabel = new Label("No shared folders yet");
+                emptyLabel.setStyle("-fx-text-fill: #a0aec0; -fx-font-size: 13px;");
+                sharedFoldersContainer.getChildren().add(emptyLabel);
+                return;
+            }
+
+            // Display up to 3 shared folders
+            int count = Math.min(sharedFolders.size(), 3);
+            for (int i = 0; i < count; i++) {
+                Map<String, Object> folderData = sharedFolders.get(i);
+                HBox folderCard = createSharedFolderCard(folderData, i);
+                sharedFoldersContainer.getChildren().add(folderCard);
+            }
+        });
+
+        fetchTask.setOnFailed(e -> {
+            System.err.println("Failed to load shared folders: " + fetchTask.getException().getMessage());
+        });
+
+        new Thread(fetchTask).start();
+    }
+
+    /**
+     * Creates a shared folder card with collaborator avatars
+     */
+    @SuppressWarnings("unchecked")
+    private HBox createSharedFolderCard(Map<String, Object> folderData, int index) {
+        HBox card = new HBox();
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPrefHeight(50);
+        card.getStyleClass().addAll("shared-item");
+        card.setStyle("-fx-background-color: " + FOLDER_COLORS[index % FOLDER_COLORS.length] + "; -fx-background-radius: 12; -fx-cursor: hand;");
+        card.setPadding(new Insets(0, 15, 0, 15));
+
+        // Folder name
+        String folderName = (String) folderData.getOrDefault("name", "Shared Folder");
+        Label nameLabel = new Label(folderName);
+        nameLabel.getStyleClass().add("shared-item-text");
+        nameLabel.setMaxWidth(120);
+        
+        // Tooltip with full name
+        Tooltip nameTip = new Tooltip(folderName);
+        nameTip.getStyleClass().add("modern-tooltip");
+        Tooltip.install(nameLabel, nameTip);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Collaborator avatars
+        HBox avatarsBox = new HBox(-8); // Negative spacing for overlap
+        avatarsBox.setAlignment(Pos.CENTER_RIGHT);
+
+        List<Map<String, String>> collaborators = (List<Map<String, String>>) folderData.getOrDefault("collaborators", new ArrayList<>());
+        int displayCount = Math.min(collaborators.size(), 3);
+
+        for (int i = 0; i < displayCount; i++) {
+            Map<String, String> collab = collaborators.get(i);
+            Circle avatar = createCollaboratorAvatar(collab, i);
+            avatarsBox.getChildren().add(avatar);
+        }
+
+        // If more collaborators, show +N badge
+        if (collaborators.size() > 3) {
+            Label countBadge = new Label("+" + (collaborators.size() - 3));
+            countBadge.setStyle("-fx-background-color: #e0e0e0; -fx-background-radius: 50; -fx-padding: 3 6; -fx-font-size: 10px; -fx-text-fill: #555; -fx-font-weight: bold;");
+            HBox.setMargin(countBadge, new Insets(0, 0, 0, 5));
+            avatarsBox.getChildren().add(countBadge);
+        }
+
+        card.getChildren().addAll(nameLabel, spacer, avatarsBox);
+
+        // Click to navigate to shared files
+        card.setOnMouseClicked(e -> handleShowSharedFiles());
+
+        // Hover effect
+        card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: derive(" + FOLDER_COLORS[index % FOLDER_COLORS.length] + ", -10%); -fx-background-radius: 12; -fx-cursor: hand;"));
+        card.setOnMouseExited(e -> card.setStyle("-fx-background-color: " + FOLDER_COLORS[index % FOLDER_COLORS.length] + "; -fx-background-radius: 12; -fx-cursor: hand;"));
+
+        return card;
+    }
+
+    /**
+     * Creates a circular avatar for a collaborator
+     */
+    private Circle createCollaboratorAvatar(Map<String, String> collab, int index) {
+        Circle avatar = new Circle(14);
+        avatar.setStroke(Color.WHITE);
+        avatar.setStrokeWidth(2);
+        avatar.getStyleClass().add("collaborator-avatar");
+
+        String firstName = collab.getOrDefault("firstName", "U");
+        String lastName = collab.getOrDefault("lastName", "");
+        
+        // Use initials as fallback color
+        String[] colors = {"#6c5ce7", "#00b894", "#e84393", "#0984e3", "#f1c40f", "#e74c3c"};
+        avatar.setFill(Color.web(colors[index % colors.length]));
+
+        // Try to load avatar image if available
+        String avatarUrl = collab.get("avatarUrl");
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            try {
+                Image img = new Image("https://i.pravatar.cc/50?img=" + (index + 10), true);
+                img.progressProperty().addListener((obs, old, progress) -> {
+                    if (progress.doubleValue() >= 1.0 && !img.isError()) {
+                        Platform.runLater(() -> avatar.setFill(new ImagePattern(img)));
+                    }
+                });
+            } catch (Exception ignored) {}
+        }
+
+        // Tooltip with name
+        Tooltip tip = new Tooltip(firstName + " " + lastName);
+        tip.getStyleClass().add("modern-tooltip");
+        Tooltip.install(avatar, tip);
+
+        return avatar;
+    }
+
+    /**
+     * Handler for "View All Shared" button
+     */
+    @FXML
+    private void handleViewAllShared() {
+        handleShowSharedFiles();
+    }
+
     private VBox createFolderComponent(Long id, String name, String count) {
         VBox folder = new VBox();
         folder.getStyleClass().add("file-folder");
@@ -211,43 +369,48 @@ public class DashboardController {
         folder.getChildren().addAll(icon, nameLbl, countLbl);
         folder.setEffect(new javafx.scene.effect.DropShadow(3.0, Color.web("#0000000d")));
 
-        folder.setOnMouseClicked(e -> {
-            this.currentFolderId = id;
-            loadUserFiles(); // Filter by this folder
-            foldersContainer.getChildren().forEach(n -> n.getStyleClass().remove("folder-active"));
-            folder.getStyleClass().add("folder-active");
-        });
+        // Ouvrir la vue du dossier au clic
+        folder.setOnMouseClicked(e -> openFolderView(id, name));
 
         return folder;
     }
 
+    /**
+     * Ouvre l'interface dédiée d'un dossier
+     */
+    private void openFolderView(Long folderId, String folderName) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/FolderView.fxml"));
+            Parent folderView = loader.load();
+
+            FolderViewController controller = loader.getController();
+            controller.setFolder(folderId, folderName, currentUserBucket);
+            controller.setOnBackCallback(v -> {
+                // Retour au dashboard principal
+                mainBorderPane.setCenter(dashboardView);
+                loadUserFolders(); // Rafraîchir les dossiers
+                loadUserFiles();   // Rafraîchir les fichiers
+            });
+
+            mainBorderPane.setCenter(folderView);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            AlertUtils.showError("Navigation Error", "Could not open folder view.");
+        }
+    }
+
     @FXML
     private void handleAddFolder() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/AddFolderDialog.fxml"));
-            Parent root = loader.load();
-
-            AddFolderDialogController controller = loader.getController();
-
-            Stage dialogStage = new Stage();
-            dialogStage.initStyle(StageStyle.UTILITY);
-            dialogStage.initModality(Modality.APPLICATION_MODAL);
-            dialogStage.initOwner(mainBorderPane.getScene().getWindow());
-            dialogStage.setTitle("Create Folder");
-
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/dialogs.css").toExternalForm());
-            dialogStage.setScene(scene);
-
-            controller.setStage(dialogStage);
-            controller.setOnSuccess(this::loadUserFolders);
-
-            dialogStage.showAndWait();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            AlertUtils.showError("Dialog Error", "Could not open Add Folder dialog.");
-        }
+        TextInputDialog dialog = new TextInputDialog("New Folder");
+        dialog.showAndWait().ifPresent(name -> {
+            if (name.trim().isEmpty()) return;
+            new Thread(() -> {
+                if (FileDAO.createFolder(name.trim(), SessionManager.getCurrentUser().getId())) {
+                    Platform.runLater(this::loadUserFolders);
+                }
+            }).start();
+        });
     }
 
     private String getRandomFolderColor() {
@@ -300,61 +463,121 @@ public class DashboardController {
         new Thread(fetchTask).start();
     }
 
+    /**
+     * Updates all dashboard statistics dynamically:
+     * - Total storage used (in MB/GB)
+     * - Storage progress bar
+     * - Percentage used
+     * - File counts by category
+     * - Storage size by category
+     */
     private void updateStatistics(List<Map<String, String>> files) {
-        // Calculate total storage
-        double totalMB = 0;
-
-        // Count file types
+        // Storage capacity in bytes (5 GB)
+        final long STORAGE_CAPACITY_BYTES = 5L * 1024 * 1024 * 1024;
+        
+        // Counters
+        long totalBytes = 0;
+        long imageBytes = 0;
+        long videoBytes = 0;
+        long audioBytes = 0;
+        long docBytes = 0;
+        
         int imageCount = 0;
         int videoCount = 0;
-        int docCount = 0;
         int audioCount = 0;
-
+        int docCount = 0;
+        
         for (Map<String, String> file : files) {
-            String fileName = file.get("name").toLowerCase();
-            totalMB += FileUtils.parseSizeToMB(file.get("size"));
-
-            // Count by file extension
-            if (fileName.matches(".*\\.(jpg|jpeg|png|gif|bmp|webp|svg)$")) {
+            // Parse file size from bytes string
+            long fileSize = 0;
+            try {
+                String sizeStr = file.get("size");
+                if (sizeStr != null && !sizeStr.isEmpty()) {
+                    fileSize = Long.parseLong(sizeStr);
+                }
+            } catch (NumberFormatException e) {
+                // Try parsing from formatted size
+                fileSize = (long)(FileUtils.parseSizeToMB(file.get("size")) * 1024 * 1024);
+            }
+            
+            totalBytes += fileSize;
+            
+            // Categorize by file extension
+            String ext = FileUtils.getFileExtension(file.get("name"));
+            if (FileUtils.isImage(ext)) {
                 imageCount++;
-            } else if (fileName.matches(".*\\.(mp4|mov|avi|mkv|wmv|flv|webm)$")) {
+                imageBytes += fileSize;
+            } else if (FileUtils.isVideo(ext)) {
                 videoCount++;
-            } else if (fileName.matches(".*\\.(pdf|doc|docx|txt|xls|xlsx|ppt|pptx|odt)$")) {
-                docCount++;
-            } else if (fileName.matches(".*\\.(mp3|wav|flac|aac|ogg|m4a|wma)$")) {
+                videoBytes += fileSize;
+            } else if (FileUtils.isAudio(ext)) {
                 audioCount++;
+                audioBytes += fileSize;
+            } else {
+                docCount++;
+                docBytes += fileSize;
             }
         }
-
-        // Update storage UI
+        
+        // Calculate storage values
+        double usedGB = totalBytes / (1024.0 * 1024.0 * 1024.0);
+        double usedMB = totalBytes / (1024.0 * 1024.0);
+        double percentUsed = (totalBytes * 100.0) / STORAGE_CAPACITY_BYTES;
+        double progress = totalBytes / (double) STORAGE_CAPACITY_BYTES;
+        
+        // Update storage labels
         if (usedStorageCount != null) {
-            usedStorageCount.setText(String.format("%.2f MB Used of 5GB", totalMB));
+            if (usedGB >= 1.0) {
+                usedStorageCount.setText(String.format("%.2f GB Used of 5 GB", usedGB));
+            } else {
+                usedStorageCount.setText(String.format("%.2f MB Used of 5 GB", usedMB));
+            }
         }
-        if (sizeProgressBar != null) {
-            sizeProgressBar.setProgress(totalMB / 5120.0);
-        }
+        
         if (sizeLeftPercent != null) {
-            double percentUsed = (totalMB / 5120.0) * 100;
-            sizeLeftPercent.setText(String.format("%.1f%%", percentUsed));
+            sizeLeftPercent.setText(String.format("%.1f%% used", percentUsed));
         }
-
-        // Update file type counts
-        if (lblImageCount != null) {
-            lblImageCount.setText(imageCount + " file" + (imageCount != 1 ? "s" : ""));
+        
+        if (sizeProgressBar != null) {
+            sizeProgressBar.setProgress(Math.min(progress, 1.0));
         }
-        if (lblVideoCount != null) {
-            lblVideoCount.setText(videoCount + " file" + (videoCount != 1 ? "s" : ""));
-        }
-        if (lblDocCount != null) {
-            lblDocCount.setText(docCount + " file" + (docCount != 1 ? "s" : ""));
-        }
-        if (lblAudioCount != null) {
-            lblAudioCount.setText(audioCount + " file" + (audioCount != 1 ? "s" : ""));
+        
+        // Update category counters (badges)
+        if (lblImageCount != null) lblImageCount.setText(String.valueOf(imageCount));
+        if (lblVideoCount != null) lblVideoCount.setText(String.valueOf(videoCount));
+        if (lblAudioCount != null) lblAudioCount.setText(String.valueOf(audioCount));
+        if (lblDocCount != null) lblDocCount.setText(String.valueOf(docCount));
+        
+        // Update total files count
+        if (lblTotalFiles != null) {
+            lblTotalFiles.setText(String.valueOf(files.size()));
         }
     }
+    
+    /**
+     * Refreshes the dashboard after file operations (upload, delete, etc.)
+     * Called from other controllers to update statistics.
+     */
+    public void refreshDashboard() {
+        loadUserFiles();
+        loadUserFolders();
+    }
 
+    /**
+     * Gère le clic sur un fichier pour afficher la prévisualisation média
+     * Supporte : Images, PDF, Vidéos, Audio et autres documents
+     */
     private void handleFileClick(Map<String, String> fileData) {
-        // Implementation for preview popup
+        String fileName = fileData.get("name");
+        String bucket = fileData.get("bucket");
+        
+        if (fileName == null || bucket == null || minioClient == null) {
+            AlertUtils.showError("Erreur", "Impossible d'ouvrir le fichier.");
+            return;
+        }
+        
+        // Utiliser le nouveau dialogue de prévisualisation média
+        com.cloudstorage.fx.components.MediaPreviewDialog.showPreview(fileName, bucket, minioClient);
     }
 
     // =================================================================================

@@ -3,8 +3,8 @@ package com.cloudstorage.fx.components;
 import com.cloudstorage.config.MinioConfig;
 import com.cloudstorage.config.SessionManager;
 import com.cloudstorage.database.FileDAO;
-import com.cloudstorage.fx.controllers.ShareDialogEnhancedController;
-import com.cloudstorage.fx.controllers.SettingsController;
+import com.cloudstorage.fx.controllers.dialogs.ShareDialogEnhancedController;
+import com.cloudstorage.fx.controllers.views.SettingsController;
 import com.cloudstorage.fx.utils.AlertUtils;
 import com.cloudstorage.fx.utils.FileUtils;
 import com.cloudstorage.model.FileMetadata;
@@ -34,10 +34,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
 /**
  * Factory class for creating consistent file cards across all interfaces.
@@ -665,7 +663,7 @@ public class FileCardFactory {
     public static void openShareDialogEnhanced(FileMetadata file, String bucketName) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    FileCardFactory.class.getResource("/com/cloudstorage/fx/ShareFileDialogEnhanced.fxml")
+                    FileCardFactory.class.getResource("/com/cloudstorage/fx/dialogs/ShareFileDialogEnhanced.fxml")
             );
             Parent root = loader.load();
 
@@ -714,11 +712,11 @@ public class FileCardFactory {
         try {
             // Load the modern Add to Folder Dialog
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                FileCardFactory.class.getResource("/com/cloudstorage/fx/AddToFolderDialog.fxml")
+                FileCardFactory.class.getResource("/com/cloudstorage/fx/dialogs/AddToFolderDialog.fxml")
             );
             javafx.scene.Parent root = loader.load();
 
-            com.cloudstorage.fx.controllers.AddToFolderDialogController controller = loader.getController();
+            com.cloudstorage.fx.controllers.dialogs.AddToFolderDialogController controller = loader.getController();
 
             // Create and configure the stage
             javafx.stage.Stage dialogStage = new javafx.stage.Stage();

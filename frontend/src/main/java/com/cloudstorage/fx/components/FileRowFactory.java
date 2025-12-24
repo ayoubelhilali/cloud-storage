@@ -26,8 +26,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
-import java.util.List;
 
 public class FileRowFactory {
 
@@ -203,7 +201,19 @@ public class FileRowFactory {
             openShareDialog(fileData);
         });
 
-        // 4. Add to Folder Button
+        // 4. Delete Button
+        Button deleteBtn = createInlineActionButton(
+            FontAwesomeSolid.TRASH,
+            "Delete File",
+            "#e74c3c"
+        );
+        deleteBtn.getStyleClass().add("action-btn-delete");
+        deleteBtn.setOnAction(e -> {
+            e.consume();
+            deleteFile(fileData, refreshFoldersCallback);
+        });
+
+        // 5. Add to Folder Button
         Button addToFolderBtn = createInlineActionButton(
             FontAwesomeSolid.FOLDER_PLUS,
             "Add to Folder",
@@ -215,7 +225,7 @@ public class FileRowFactory {
             addToFolder(fileData, refreshFoldersCallback);
         });
 
-        actionButtons.getChildren().addAll(favoriteBtn, downloadBtn, shareBtn, addToFolderBtn);
+        actionButtons.getChildren().addAll(favoriteBtn, downloadBtn, shareBtn, deleteBtn, addToFolderBtn);
 
         // Enhanced hover effect (matches SharedDashboardController)
         row.setOnMouseEntered(e -> {
@@ -274,11 +284,11 @@ public class FileRowFactory {
         try {
             // Load the modern Add to Folder Dialog
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                FileRowFactory.class.getResource("/com/cloudstorage/fx/AddToFolderDialog.fxml")
+                FileRowFactory.class.getResource("/com/cloudstorage/fx/dialogs/AddToFolderDialog.fxml")
             );
             javafx.scene.Parent root = loader.load();
 
-            com.cloudstorage.fx.controllers.AddToFolderDialogController controller = loader.getController();
+            com.cloudstorage.fx.controllers.dialogs.AddToFolderDialogController controller = loader.getController();
 
             // Create and configure the stage
             javafx.stage.Stage dialogStage = new javafx.stage.Stage();
@@ -315,7 +325,7 @@ public class FileRowFactory {
         }
 
         // 1. Retrieve the download path from Preferences (Set in SettingsController)
-        Preferences prefs = Preferences.userNodeForPackage(com.cloudstorage.fx.controllers.SettingsController.class);
+        Preferences prefs = Preferences.userNodeForPackage(com.cloudstorage.fx.controllers.views.SettingsController.class);
         String defaultPath = System.getProperty("user.home") + File.separator + "Downloads";
         String downloadDir = prefs.get("download_path", defaultPath);
 
@@ -418,6 +428,15 @@ public class FileRowFactory {
                     });
                 } else {
                     Platform.runLater(() -> {
+                        // ✅ Create notification for favorite action (only when adding to favorites)
+                        if (makeFavorite) {
+                            com.cloudstorage.util.NotificationHelper.createInfoNotification(
+                                user.getId(),
+                                "Added to Favorites",
+                                "\"" + fileName + "\" was added to your favorites"
+                            );
+                        }
+
                         AlertUtils.showSuccess(
                                 makeFavorite ? "Added to Favorites" : "Removed from Favorites",
                                 fileName + " was updated."
@@ -443,4 +462,70 @@ public class FileRowFactory {
         dbThread.setDaemon(true);
         dbThread.start();
     }
+
+    /**
+     * Deletes a file from MinIO and database with confirmation dialog
+     */
+    private static void deleteFile(Map<String, String> fileData, Runnable refreshCallback) {
+        var user = SessionManager.getCurrentUser();
+        if (user == null) {
+            AlertUtils.showError("Error", "User session not found");
+            return;
+        }
+
+        String fileName = fileData.get("name");
+        String bucketName = fileData.get("bucket");
+
+        if (fileName == null || bucketName == null) {
+            AlertUtils.showError("Error", "Invalid file information");
+            return;
+        }
+
+        // Show confirmation dialog using custom alert
+        String confirmMessage = "Are you sure you want to delete \"" + FileUtils.truncateFileName(fileName, 30) + "\"? This action cannot be undone.";
+
+        AlertUtils.showConfirmation(
+            "Delete File",
+            confirmMessage,
+            () -> {
+                // Delete in background thread when confirmed
+                Thread deleteThread = new Thread(() -> {
+                    try {
+                        MinioClient minioClient = MinioConfig.getClient();
+
+                        // Delete from MinIO
+                        minioClient.removeObject(
+                            io.minio.RemoveObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(fileName)
+                                .build()
+                        );
+
+                        // Delete from database
+                        FileDAO.deleteFileRecord(fileName, (int) user.getId());
+
+                        Platform.runLater(() -> {
+                            // ✅ Create notification for file deletion
+                            com.cloudstorage.util.NotificationHelper.notifyFileDeleted(user.getId(), fileName);
+
+                            AlertUtils.showSuccess("Deleted", fileName + " was deleted successfully.");
+                            // Refresh the file list
+                            if (refreshCallback != null) {
+                                refreshCallback.run();
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Platform.runLater(() ->
+                            AlertUtils.showError("Delete Failed", "Could not delete " + fileName + ": " + e.getMessage())
+                        );
+                    }
+                });
+                deleteThread.setDaemon(true);
+                deleteThread.start();
+            }
+        );
+    }
 }
+

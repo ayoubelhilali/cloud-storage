@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cloudstorage.fx.controllers.dialogs.AddToFolderDialogController"
+      styleClass="custom-dialog" maxWidth="580.0" minWidth="500.0">
+
+    <!-- Header with Purple Gradient Background -->
+    <HBox alignment="CENTER_LEFT" spacing="18" styleClass="dialog-header">
+        <FontIcon iconLiteral="fas-folder-open" styleClass="dialog-icon" iconSize="36"/>
+        <VBox VBox.vgrow="ALWAYS">
+            <Label text="Move to Folder" styleClass="dialog-title"/>
+            <Label fx:id="fileNameLabel" text="Select destination folder for your file"
+                   styleClass="dialog-subtitle"/>
+        </VBox>
+    </HBox>
+
+    <!-- Body Content -->
+    <VBox spacing="22" styleClass="dialog-body">
+        <VBox spacing="10">
+            <Label text="DESTINATION FOLDER" styleClass="input-label"/>
+            <ComboBox fx:id="folderComboBox" promptText="Choose a folder..."
+                      styleClass="dialog-combo" maxWidth="Infinity"/>
+            <Label fx:id="errorLabel" styleClass="error-label" visible="false" managed="false"/>
+        </VBox>
+
+        <!-- Info Box -->
+        <HBox alignment="CENTER_LEFT" spacing="14" styleClass="info-box">
+            <FontIcon iconLiteral="fas-info-circle" styleClass="info-icon" iconSize="20"/>
+            <Label text="The file will be moved to the selected folder and organized for easy access"
+                   wrapText="true" styleClass="info-text" HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </VBox>
+
+    <!-- Buttons -->
+    <HBox alignment="CENTER_RIGHT" spacing="14" styleClass="dialog-buttons">
+        <Button text="Cancel" onAction="#handleCancel" styleClass="dialog-btn-cancel" minWidth="110"/>
+        <Button text="Move File" onAction="#handleMove" styleClass="dialog-btn-primary"
+                minWidth="150" defaultButton="true">
+            <graphic>
+                <FontIcon iconLiteral="fas-arrow-right" iconSize="15" iconColor="white"/>
+            </graphic>
+        </Button>
+    </HBox>
+
+</VBox>
+

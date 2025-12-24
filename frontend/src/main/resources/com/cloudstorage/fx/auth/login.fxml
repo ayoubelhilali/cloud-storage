@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cloudstorage.fx.controllers.auth.LoginController"
+      stylesheets="@/css/login.css"
+      spacing="0"
+      prefWidth="850" prefHeight="550"
+      styleClass="home-root">
+
+    <!-- LEFT SIDE (Form Side) -->
+    <VBox fx:id="leftContainer"
+          styleClass="left-container"
+          spacing="0"
+          prefWidth="400" HBox.hgrow="ALWAYS">
+
+        <!-- Top Left: Spacer (Keeps layout structure) -->
+        <StackPane fx:id="topLeft" styleClass="top-left-section" prefHeight="100" />
+
+        <!-- Bottom Left: Main Content Area -->
+        <StackPane fx:id="bottomLeft" styleClass="bottom-left-section" VBox.vgrow="ALWAYS">
+            <!-- Padding: Top=10 Right=40 Bottom=40 Left=40 -->
+            <VBox spacing="15" alignment="TOP_LEFT" style="-fx-padding: 10 40 40 40;">
+
+                <!-- TITLE AND SUBTITLE GROUP -->
+                <VBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Welcome Back" styleClass="header-title"/>
+
+                    <!-- Fixed: wrapText="true" and removed fixed height -->
+                    <Label styleClass="header-subtitle"
+                           wrapText="true"
+                           maxWidth="310"
+                           minHeight="-Infinity"
+                           text="Sign in to access your dashboard and continue storing your files securely."/>
+                </VBox>
+
+                <!-- INPUTS -->
+                <VBox spacing="5">
+                    <Label text="Email Address" styleClass="input-label"/>
+                    <TextField fx:id="emailField" promptText="name@example.com" styleClass="text-field"/>
+                </VBox>
+
+                <VBox spacing="5">
+                    <Label text="Password" styleClass="input-label"/>
+                    <PasswordField fx:id="passwordField" promptText="Enter your password" styleClass="text-field"/>
+                </VBox>
+
+                <Button fx:id="loginButton" text="LOGIN" onAction="#handleLogin"
+                        styleClass="login-button" maxWidth="Infinity"/>
+                <HBox spacing="2" alignment="CENTER">
+                    <Label style="-fx-font-size: 16px" text="Don't have an account?" />
+                    <Button styleClass="register-link" text="Register" fx:id="registerButton" onAction="#OpenRegisterPage" />
+                </HBox>
+
+                <Label fx:id="statusLabel" styleClass="status-label" textAlignment="CENTER" style="-fx-font-size: 16px"/>
+            </VBox>
+        </StackPane>
+    </VBox>
+
+    <!-- RIGHT SIDE (Visual Side) -->
+    <VBox fx:id="rightContainer"
+          styleClass="right-container"
+          spacing="0"
+          prefWidth="450" HBox.hgrow="ALWAYS">
+
+        <!-- Top Right: Blue Curve -->
+        <StackPane fx:id="topRight" styleClass="top-right-section" prefHeight="150" alignment="CENTER">
+            <ImageView fx:id="logoImage" fitHeight="90" preserveRatio="true" smooth="true">
+                <image>
+                    <Image url="@/images/logo.png"/>
+                </image>
+            </ImageView>
+        </StackPane>
+
+        <!-- Bottom Right: Blue Background -->
+        <StackPane fx:id="bottomRight" styleClass="bottom-right-section" VBox.vgrow="ALWAYS">
+            <ImageView fx:id="mainImage" fitWidth="350" preserveRatio="true" smooth="true">
+                <image>
+                    <Image url="@/images/login-image.png"/>
+                </image>
+            </ImageView>
+        </StackPane>
+    </VBox>
+</HBox>

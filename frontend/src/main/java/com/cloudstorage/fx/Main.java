@@ -11,7 +11,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/HomePage.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/cloudstorage/fx/auth/HomePage.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
 
             stage.setTitle("One Cloud");

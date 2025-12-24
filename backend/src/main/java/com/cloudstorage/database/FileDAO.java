@@ -320,4 +320,56 @@ public class FileDAO {
         }
         return files;
     }
+
+    /**
+     * Deletes a folder and all its associated files from the database
+     * @param folderId The ID of the folder to delete
+     * @param userId The user ID for security validation
+     * @return true if deletion was successful, false otherwise
+     */
+    public static boolean deleteFolder(long folderId, long userId) {
+        // First, verify the folder belongs to the user
+        String verifySql = "SELECT id FROM folders WHERE id = ? AND user_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Verify ownership
+            try (PreparedStatement verifyStmt = conn.prepareStatement(verifySql)) {
+                verifyStmt.setLong(1, folderId);
+                verifyStmt.setLong(2, userId);
+                ResultSet rs = verifyStmt.executeQuery();
+
+                if (!rs.next()) {
+                    System.err.println("❌ DELETE FOLDER FAILED: Folder not found or unauthorized");
+                    return false;
+                }
+            }
+
+            // Delete all files in the folder
+            String deleteFilesSql = "DELETE FROM files WHERE folder_id = ? AND user_id = ?";
+            try (PreparedStatement deleteFilesStmt = conn.prepareStatement(deleteFilesSql)) {
+                deleteFilesStmt.setLong(1, folderId);
+                deleteFilesStmt.setLong(2, userId);
+                int filesDeleted = deleteFilesStmt.executeUpdate();
+                System.out.println("🗑️ Deleted " + filesDeleted + " files from folder");
+            }
+
+            // Delete the folder itself
+            String deleteFolderSql = "DELETE FROM folders WHERE id = ? AND user_id = ?";
+            try (PreparedStatement deleteFolderStmt = conn.prepareStatement(deleteFolderSql)) {
+                deleteFolderStmt.setLong(1, folderId);
+                deleteFolderStmt.setLong(2, userId);
+                int affectedRows = deleteFolderStmt.executeUpdate();
+
+                if (affectedRows > 0) {
+                    System.out.println("✅ Folder deleted successfully");
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ DELETE FOLDER FAILED: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
+

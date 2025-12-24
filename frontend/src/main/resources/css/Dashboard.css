@@ -723,3 +723,124 @@
 .btn-secondary:hover {
     -fx-text-fill: #2c3e50;
 }
+
+/* Folder View Header Buttons */
+.upload-btn {
+    -fx-background-color: linear-gradient(to bottom right, #0061FF, #0052D9);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+    -fx-padding: 12 25;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.25), 12, 0, 0, 4);
+}
+
+.upload-btn:hover {
+    -fx-background-color: linear-gradient(to bottom right, #0052D9, #0041A8);
+    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.02;
+}
+
+.delete-folder-btn {
+    -fx-background-color: linear-gradient(to bottom right, #EF4444, #DC2626);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+    -fx-padding: 12 25;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.25), 12, 0, 0, 4);
+}
+
+.delete-folder-btn:hover {
+    -fx-background-color: linear-gradient(to bottom right, #DC2626, #B91C1C);
+    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.02;
+}
+
+.back-btn {
+    -fx-background-color: #F1F5F9;
+    -fx-text-fill: #64748B;
+    -fx-padding: 10 15;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.back-btn:hover {
+    -fx-background-color: #E2E8F0;
+}
+
+.folder-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1E293B;
+}
+
+.folder-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748B;
+}
+
+/* ================================= */
+/* NOTIFICATION SYSTEM STYLES        */
+/* ================================= */
+
+.notification-btn {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-padding: 10;
+    -fx-min-width: 45;
+    -fx-min-height: 45;
+}
+
+.notification-btn:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+}
+
+/* Notification button in header (top-right) */
+.notification-btn-header {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+    -fx-padding: 12;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 12, 0, 0, 2);
+}
+
+.notification-btn-header:hover {
+    -fx-background-color: #EFF6FF;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.2), 16, 0, 0, 4);
+}
+
+.notification-badge-header {
+    -fx-background-color: linear-gradient(to bottom right, #EF4444, #DC2626);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-padding: 2 7;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.4), 8, 0, 0, 2);
+}
+
+.notification-badge {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-padding: 2 6;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+    -fx-alignment: center;
+}
+

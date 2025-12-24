@@ -1,0 +1,268 @@
+/* ================================= */
+/* NOTIFICATION PANEL STYLES         */
+/* ================================= */
+
+.notification-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 35, 0, 0, 10);
+    -fx-border-color: rgba(0, 97, 255, 0.08);
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+}
+
+.notification-header {
+    -fx-border-color: #E8EEF5;
+    -fx-border-width: 0 0 1.5 0;
+    -fx-background-color: linear-gradient(to bottom, #FAFBFD, #FFFFFF);
+    -fx-background-radius: 18 18 0 0;
+}
+
+.notification-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1a253f;
+    -fx-letter-spacing: -0.3px;
+}
+
+.unread-badge {
+    -fx-background-color: linear-gradient(to bottom right, #EF4444, #DC2626);
+    -fx-text-fill: white;
+    -fx-background-radius: 14;
+    -fx-padding: 4 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-min-width: 26;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.35), 8, 0, 0, 2);
+}
+
+.icon-btn-small {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-padding: 10;
+    -fx-min-width: 38;
+    -fx-min-height: 38;
+}
+
+.icon-btn-small:hover {
+    -fx-background-color: #EFF6FF;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.icon-btn-close {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-padding: 10;
+    -fx-min-width: 38;
+    -fx-min-height: 38;
+}
+
+.icon-btn-close:hover {
+    -fx-background-color: #FEE2E2;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.notification-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.notification-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.notification-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-padding: 0 5 0 5;
+    -fx-pref-width: 8;
+}
+
+.notification-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 4;
+}
+
+.notification-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #CBD5E1;
+    -fx-background-radius: 4;
+}
+
+.notification-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #94A3B8;
+}
+
+.notification-scroll .scroll-bar:vertical .increment-button,
+.notification-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+}
+
+.notifications-container {
+    -fx-background-color: transparent;
+}
+
+/* Notification Card */
+.notification-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-color: #E8EEF5;
+    -fx-border-radius: 15;
+    -fx-border-width: 1.5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.06), 12, 0, 0, 4);
+}
+
+.notification-card:hover {
+    -fx-background-color: #FAFBFC;
+    -fx-border-color: #0061FF;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.25), 18, 0, 0, 6);
+    -fx-translate-y: -3;
+}
+
+.notification-card.unread {
+    -fx-background-color: #F0F9FF;
+    -fx-border-color: #7DD3FC;
+    -fx-border-width: 2;
+}
+
+.notification-card.unread:hover {
+    -fx-background-color: #E0F2FE;
+    -fx-border-color: #0061FF;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.3), 20, 0, 0, 7);
+    -fx-translate-y: -3;
+}
+
+.notification-icon {
+    -fx-alignment: center;
+}
+
+.notification-card-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1a253f;
+    -fx-letter-spacing: -0.2px;
+}
+
+.notification-message {
+    -fx-font-size: 14px;
+    -fx-text-fill: #475569;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 4;
+}
+
+.notification-time {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #94A3B8;
+}
+
+.notification-delete-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 8;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+}
+
+.notification-delete-btn:hover {
+    -fx-background-color: #FEE2E2;
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+}
+
+.notification-action-btn {
+    -fx-background-color: linear-gradient(to bottom right, #0061FF, #0052D9);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 10 18;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.25), 10, 0, 0, 3);
+}
+
+.notification-action-btn:hover {
+    -fx-background-color: linear-gradient(to bottom right, #0052D9, #0041A8);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.35), 14, 0, 0, 4);
+}
+
+/* Empty State */
+.notification-empty-state {
+    -fx-background-color: transparent;
+}
+
+/* Loading State */
+.notification-loading-state {
+    -fx-background-color: transparent;
+}
+
+.notification-loader {
+    -fx-progress-color: #0061FF;
+    -fx-pref-width: 48;
+    -fx-pref-height: 48;
+}
+
+.loading-text {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748B;
+}
+
+.empty-text {
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1a253f;
+}
+
+.empty-subtext {
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748B;
+}
+
+/* Notification Badge in Header */
+.notification-badge {
+    -fx-background-color: linear-gradient(to bottom right, #EF4444, #DC2626);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-padding: 3 8;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.35), 8, 0, 0, 2);
+}
+
+.notification-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+    -fx-padding: 10;
+}
+
+.notification-btn:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+}
+
+/* Modern Tooltip */
+.modern-tooltip {
+    -fx-background-color: #1a253f;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-background-radius: 6;
+    -fx-padding: 6 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.25), 8, 0, 0, 2);
+}
+

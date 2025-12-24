@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox alignment="TOP_CENTER" maxWidth="450" minWidth="400" prefWidth="420" spacing="20"
+      style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 5);"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cloudstorage.fx.controllers.dialogs.ShareDialogEnhancedController">
+    <padding>
+        <Insets bottom="25" left="30" right="30" top="25"/>
+    </padding>
+    <children>
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <FontIcon iconLiteral="fas-share-alt" iconSize="28" iconColor="#3498db"/>
+            <VBox spacing="3">
+                <Label text="Share File" style="-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: #2c3e50;"/>
+                <Label fx:id="fileNameLabel" text="document.pdf" style="-fx-text-fill: #7f8c8d; -fx-font-size: 13px;"/>
+            </VBox>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Button fx:id="closeButton" onAction="#handleCancel" style="-fx-background-color: transparent; -fx-cursor: hand;">
+                <graphic>
+                    <FontIcon iconLiteral="fas-times" iconSize="18" iconColor="#95a5a6"/>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <!-- Search Section -->
+        <VBox spacing="10">
+            <Label text="Find a user to share with" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 14px;"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Search by name or email..." 
+                           onAction="#handleSearch"
+                           HBox.hgrow="ALWAYS"
+                           style="-fx-pref-height: 45; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-padding: 0 15; -fx-font-size: 14px;"/>
+                <Button fx:id="searchButton" onAction="#handleSearch" 
+                        style="-fx-background-color: #3498db; -fx-background-radius: 10; -fx-pref-height: 45; -fx-pref-width: 50; -fx-cursor: hand;">
+                    <graphic>
+                        <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="white"/>
+                    </graphic>
+                </Button>
+            </HBox>
+        </VBox>
+
+        <!-- Results Area (StackPane for toggle between states) -->
+        <StackPane fx:id="resultsStackPane" minHeight="150" VBox.vgrow="ALWAYS">
+            <!-- Loading State -->
+            <VBox fx:id="loadingContainer" alignment="CENTER" spacing="10" visible="false">
+                <ProgressIndicator fx:id="searchSpinner" maxWidth="40" maxHeight="40"/>
+                <Label text="Searching..." style="-fx-text-fill: #7f8c8d;"/>
+            </VBox>
+
+            <!-- No Results State -->
+            <VBox fx:id="noResultsContainer" alignment="CENTER" spacing="10" visible="false">
+                <FontIcon iconLiteral="fas-user-slash" iconSize="40" iconColor="#e74c3c"/>
+                <Label fx:id="noResultsLabel" text="No user found with this name" 
+                       style="-fx-text-fill: #e74c3c; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <Label text="Try a different name or email" style="-fx-text-fill: #95a5a6; -fx-font-size: 12px;"/>
+            </VBox>
+
+            <!-- User Card (Result Found) -->
+            <VBox fx:id="userCardContainer" alignment="CENTER" visible="false">
+                <HBox fx:id="userCard" alignment="CENTER_LEFT" spacing="15" 
+                      style="-fx-background-color: #f8f9fa; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 2); -fx-cursor: hand;">
+                    <!-- Avatar -->
+                    <StackPane>
+                        <Circle fx:id="userAvatarCircle" radius="30" style="-fx-fill: #3498db;"/>
+                        <Label fx:id="userInitialsLabel" text="JD" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;"/>
+                    </StackPane>
+                    <!-- User Info -->
+                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                        <Label fx:id="userNameLabel" text="John Doe" 
+                               style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #2c3e50;"/>
+                        <Label fx:id="userEmailLabel" text="john.doe@example.com" 
+                               style="-fx-text-fill: #7f8c8d; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <!-- Check Icon -->
+                    <FontIcon fx:id="selectedIcon" iconLiteral="fas-check-circle" iconSize="24" iconColor="#27ae60" visible="false"/>
+                </HBox>
+            </VBox>
+
+            <!-- Initial State -->
+            <VBox fx:id="initialContainer" alignment="CENTER" spacing="10">
+                <FontIcon iconLiteral="fas-users" iconSize="40" iconColor="#bdc3c7"/>
+                <Label text="Search for a user above" style="-fx-text-fill: #95a5a6; -fx-font-size: 14px;"/>
+            </VBox>
+        </StackPane>
+
+        <!-- Action Buttons -->
+        <HBox alignment="CENTER_RIGHT" spacing="15">
+            <Button text="Cancel" onAction="#handleCancel" 
+                    style="-fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 10 20;"/>
+            <Button fx:id="shareButton" text="Share File" onAction="#handleShare" disable="true"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 10; -fx-padding: 12 25; -fx-cursor: hand;">
+                <graphic>
+                    <FontIcon iconLiteral="fas-paper-plane" iconSize="14" iconColor="white"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </children>
+</VBox>

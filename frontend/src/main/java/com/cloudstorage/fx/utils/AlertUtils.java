@@ -1,6 +1,6 @@
 package com.cloudstorage.fx.utils;
 
-import com.cloudstorage.fx.controllers.CustomAlertController;
+import com.cloudstorage.fx.controllers.dialogs.CustomAlertController;
 import javafx.animation.PauseTransition; // Import for Timer
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -45,7 +45,7 @@ public class AlertUtils {
 
     private static void show(String title, String message, String type) {
         try {
-            String fxmlPath = "/com/cloudstorage/fx/CustomAlert.fxml";
+            String fxmlPath = "/com/cloudstorage/fx/dialogs/CustomAlert.fxml";
             URL fxmlLocation = AlertUtils.class.getResource(fxmlPath);
 
             if (fxmlLocation == null) {
@@ -107,7 +107,7 @@ public class AlertUtils {
 
     private static void showConfirmDialog(String title, String message, Runnable onConfirm) {
         try {
-            String fxmlPath = "/com/cloudstorage/fx/CustomAlert.fxml";
+            String fxmlPath = "/com/cloudstorage/fx/dialogs/CustomAlert.fxml";
             URL fxmlLocation = AlertUtils.class.getResource(fxmlPath);
 
             if (fxmlLocation == null) {

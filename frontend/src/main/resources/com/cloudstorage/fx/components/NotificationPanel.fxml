@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox styleClass="notification-panel" stylesheets="@../../../../css/components.css"
+      prefWidth="420" minWidth="420" maxWidth="420"
+      prefHeight="550" minHeight="400" maxHeight="650"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cloudstorage.fx.components.NotificationPanelController">
+
+    <!-- Header -->
+    <HBox styleClass="notification-header" alignment="CENTER_LEFT" spacing="15">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <children>
+            <FontIcon iconLiteral="fas-bell" iconSize="20" iconColor="#0061FF"/>
+            <Label text="Notifications" styleClass="notification-title"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Unread Badge -->
+            <Label fx:id="unreadBadge" text="0" styleClass="unread-badge" visible="false"/>
+
+            <!-- Mark All as Read -->
+            <Button fx:id="markAllReadBtn" onAction="#handleMarkAllRead" styleClass="icon-btn-small">
+                <graphic>
+                    <FontIcon iconLiteral="fas-check-double" iconSize="14" iconColor="#64748B"/>
+                </graphic>
+                <tooltip>
+                    <javafx.scene.control.Tooltip text="Mark all as read" styleClass="modern-tooltip"/>
+                </tooltip>
+            </Button>
+
+            <!-- Clear All Read -->
+            <Button fx:id="clearAllBtn" onAction="#handleClearAll" styleClass="icon-btn-small">
+                <graphic>
+                    <FontIcon iconLiteral="fas-trash" iconSize="14" iconColor="#64748B"/>
+                </graphic>
+                <tooltip>
+                    <javafx.scene.control.Tooltip text="Clear all read" styleClass="modern-tooltip"/>
+                </tooltip>
+            </Button>
+
+            <!-- Close Button -->
+            <Button fx:id="closeBtn" onAction="#handleClose" styleClass="icon-btn-close">
+                <graphic>
+                    <FontIcon iconLiteral="fas-times" iconSize="16" iconColor="#64748B"/>
+                </graphic>
+                <tooltip>
+                    <javafx.scene.control.Tooltip text="Close" styleClass="modern-tooltip"/>
+                </tooltip>
+            </Button>
+        </children>
+    </HBox>
+
+    <!-- Loading State -->
+    <VBox fx:id="loadingState" alignment="CENTER" spacing="20" visible="false" managed="false"
+          styleClass="notification-loading-state" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="80" bottom="80"/>
+        </padding>
+        <children>
+            <javafx.scene.control.ProgressIndicator fx:id="loadingSpinner" styleClass="notification-loader"/>
+            <Label text="Loading notifications..." styleClass="loading-text"/>
+        </children>
+    </VBox>
+
+    <!-- Notifications List -->
+    <ScrollPane fx:id="notificationsScrollPane" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                styleClass="notification-scroll" VBox.vgrow="ALWAYS">
+        <content>
+            <VBox fx:id="notificationsContainer" spacing="12" styleClass="notifications-container">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <!-- Empty State -->
+    <VBox fx:id="emptyState" alignment="CENTER" spacing="20" visible="false" managed="false"
+          styleClass="notification-empty-state" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="80" bottom="80"/>
+        </padding>
+        <children>
+            <FontIcon iconLiteral="fas-bell-slash" iconSize="64" iconColor="#CBD5E1"/>
+            <Label text="No notifications" styleClass="empty-text"/>
+            <Label text="You're all caught up!" styleClass="empty-subtext"/>
+        </children>
+    </VBox>
+</VBox>
+

@@ -20,9 +20,18 @@
 .modern-scroll-pane {
     -fx-background-color: -fx-bg-gray;
 }
-.modern-scroll-pane .viewport { -fx-background-color: transparent; }
-.modern-scroll-pane .scroll-bar:vertical { -fx-padding: 0 4 0 0; }
-.modern-scroll-pane .scroll-bar:horizontal { -fx-padding: 0 0 4 0; }
+
+.modern-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.modern-scroll-pane .scroll-bar:vertical {
+    -fx-padding: 0 4 0 0;
+}
+
+.modern-scroll-pane .scroll-bar:horizontal {
+    -fx-padding: 0 0 4 0;
+}
 
 /* Header */
 .header-title {
@@ -31,11 +40,13 @@
     -fx-text-fill: -fx-text-main;
     -fx-letter-spacing: -0.5px;
 }
+
 .header-subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: -fx-text-muted;
     -fx-padding: 5 0 0 0;
 }
+
 .title-separator {
     -fx-opacity: 0.15;
     -fx-padding: 5 0;
@@ -43,17 +54,15 @@
 
 /* Modern Card Design */
 .modern-card {
-    -fx-background-color: -fx-white;
+    -fx-background-color: white;
     -fx-background-radius: 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 25, 0, 0, 6);
     -fx-padding: 30;
-    -fx-border-color: rgba(226, 232, 240, 0.5);
-    -fx-border-radius: 20;
-    -fx-border-width: 1;
+    -fx-effect: dropshadow(
+            three-pass-box,
+            rgba(33, 150, 243, 0.35), 20, 0, 0, 0
+    );
 }
-.modern-card:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 30, 0, 0, 8);
-}
+
 
 .card-header {
     -fx-font-size: 18px;
@@ -73,12 +82,14 @@
     -fx-font-size: 14px;
     -fx-pref-height: 45;
 }
+
 .modern-input:focused {
     -fx-border-color: -fx-primary-blue;
     -fx-background-color: -fx-white;
     -fx-border-width: 2;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.15), 8, 0, 0, 2);
 }
+
 .field-label {
     -fx-font-size: 11px;
     -fx-font-weight: 800;
@@ -97,6 +108,7 @@
     -fx-cursor: hand;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 97, 255, 0.25), 12, 0, 0, 4);
 }
+
 .btn-primary:hover {
     -fx-background-color: linear-gradient(to bottom right, #0052D9, #0041A8);
     -fx-scale-y: 1.02;
@@ -111,7 +123,10 @@
     -fx-background-radius: 8;
     -fx-cursor: hand;
 }
-.btn-primary-sm:hover { -fx-background-color: -fx-primary-hover; }
+
+.btn-primary-sm:hover {
+    -fx-background-color: -fx-primary-hover;
+}
 
 .btn-outline {
     -fx-background-color: transparent;
@@ -124,6 +139,7 @@
     -fx-font-weight: 600;
     -fx-cursor: hand;
 }
+
 .btn-outline:hover {
     -fx-background-color: -fx-light-blue;
 }
@@ -137,7 +153,10 @@
     -fx-min-width: 45;
     -fx-pref-height: 45;
 }
-.btn-icon:hover { -fx-background-color: -fx-primary-hover; }
+
+.btn-icon:hover {
+    -fx-background-color: -fx-primary-hover;
+}
 
 .btn-danger-text {
     -fx-background-color: -fx-danger;
@@ -147,6 +166,7 @@
     -fx-background-radius: 8;
     -fx-cursor: hand;
 }
+
 .btn-danger-text:hover {
     -fx-background-color: -fx-danger-hover;
 }
@@ -155,10 +175,12 @@
 .modern-progress {
     -fx-pref-height: 10;
 }
+
 .modern-progress .track {
     -fx-background-color: #E2E8F0;
     -fx-background-radius: 12;
 }
+
 .modern-progress .bar {
     -fx-background-color: linear-gradient(to right, -fx-primary-blue, #8B5CF6);
     -fx-background-radius: 12;
@@ -169,11 +191,13 @@
     -fx-font-weight: 800;
     -fx-text-fill: -fx-primary-blue;
 }
+
 .usage-total {
     -fx-font-size: 15px;
     -fx-text-fill: -fx-text-muted;
     -fx-padding: 0 0 2 0;
 }
+
 .usage-hint {
     -fx-font-size: 13px;
     -fx-text-fill: -fx-text-muted;
@@ -185,8 +209,9 @@
     -fx-fill: -fx-light-blue;
     -fx-stroke: -fx-white;
     -fx-stroke-width: 5;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.12), 15, 0, 0, 4);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.12), 15, 0, 0, 4);
 }
+
 .avatar-edit-btn {
     -fx-background-color: -fx-primary-blue;
     -fx-text-fill: white;
@@ -195,6 +220,7 @@
     -fx-min-height: 36;
     -fx-cursor: hand;
 }
+
 .avatar-edit-btn:hover {
     -fx-background-color: -fx-primary-hover;
     -fx-scale-x: 1.1;
@@ -206,6 +232,7 @@
     -fx-font-size: 14px;
     -fx-text-fill: -fx-text-main;
 }
+
 .modern-checkbox .box {
     -fx-background-color: -fx-bg-gray;
     -fx-border-color: #CBD5E1;
@@ -213,10 +240,12 @@
     -fx-background-radius: 6;
     -fx-padding: 3;
 }
+
 .modern-checkbox:selected .box {
     -fx-background-color: -fx-primary-blue;
     -fx-border-color: -fx-primary-blue;
 }
+
 .modern-checkbox:selected .mark {
     -fx-background-color: white;
 }
@@ -225,24 +254,100 @@
 .chart-pie {
     -fx-padding: 10;
 }
+
 .chart-pie-label {
     -fx-font-size: 12px;
     -fx-font-weight: 600;
     -fx-fill: -fx-text-main;
 }
+
 .chart-legend {
     -fx-background-color: transparent;
     -fx-padding: 10;
 }
+
 .chart-legend-item {
     -fx-padding: 5 10;
 }
+
 .chart-legend-item-symbol {
     -fx-padding: 8;
     -fx-background-radius: 6;
 }
+
 .chart-legend-item-text {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
     -fx-fill: -fx-text-main;
+}
+
+/* Fixed Pie Chart Colors - Override JavaFX defaults */
+/* Images - Purple */
+.default-color0.chart-pie {
+    -fx-pie-color: #8B5CF6;
+}
+
+.default-color0.chart-legend-item-symbol {
+    -fx-background-color: #8B5CF6;
+}
+
+/* Videos - Orange */
+.default-color1.chart-pie {
+    -fx-pie-color: #F59E0B;
+}
+
+.default-color1.chart-legend-item-symbol {
+    -fx-background-color: #F59E0B;
+}
+
+/* Documents - Blue */
+.default-color2.chart-pie {
+    -fx-pie-color: #3B82F6;
+}
+
+.default-color2.chart-legend-item-symbol {
+    -fx-background-color: #3B82F6;
+}
+
+/* Audio - Red */
+.default-color3.chart-pie {
+    -fx-pie-color: #EF4444;
+}
+
+.default-color3.chart-legend-item-symbol {
+    -fx-background-color: #EF4444;
+}
+
+/* Others - Green */
+.default-color4.chart-pie {
+    -fx-pie-color: #10B981;
+}
+
+.default-color4.chart-legend-item-symbol {
+    -fx-background-color: #10B981;
+}
+
+/* Extra colors if needed */
+.default-color5.chart-pie {
+    -fx-pie-color: #EC4899;
+}
+
+.default-color5.chart-legend-item-symbol {
+    -fx-background-color: #EC4899;
+}
+
+.default-color6.chart-pie {
+    -fx-pie-color: #14B8A6;
+}
+
+.default-color6.chart-legend-item-symbol {
+    -fx-background-color: #14B8A6;
+}
+
+.default-color7.chart-pie {
+    -fx-pie-color: #F97316;
+}
+
+.default-color7.chart-legend-item-symbol {
+    -fx-background-color: #F97316;
 }
